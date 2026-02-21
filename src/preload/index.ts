@@ -12,6 +12,17 @@ const api = {
       ipcRenderer.invoke('project:update', args),
     archive: (args: { id: number }) => ipcRenderer.invoke('project:archive', args),
     unarchive: (args: { id: number }) => ipcRenderer.invoke('project:unarchive', args)
+  },
+  purpose: {
+    get: (args: { projectId: number }) => ipcRenderer.invoke('purpose:get', args),
+    save: (args: {
+      projectId: number
+      background?: string
+      objective?: string
+      scope?: string
+      out_of_scope?: string
+      assumption?: string
+    }) => ipcRenderer.invoke('purpose:save', args)
   }
 }
 

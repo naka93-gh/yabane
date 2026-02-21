@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDatabase, closeDatabase } from './database'
 import { registerProjectHandlers } from './ipc/project'
+import { registerPurposeHandlers } from './ipc/purpose'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -46,6 +47,7 @@ app.whenReady().then(() => {
 
   // IPC ハンドラ登録
   registerProjectHandlers()
+  registerPurposeHandlers()
 
   createWindow()
 

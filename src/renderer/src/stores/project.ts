@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Project } from '../types/models'
+import * as api from '../api/project'
 
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([])
@@ -8,18 +9,18 @@ export const useProjectStore = defineStore('project', () => {
   const dialogVisible = ref(false)
 
   async function fetchProjects(status: 'active' | 'archived' = 'active'): Promise<void> {
-    projects.value = await window.api.project.list({ status })
+    projects.value = await api.listProjects({ status })
   }
 
   async function selectProject(id: number): Promise<void> {
-    const project = await window.api.project.get({ id })
+    const project = await api.getProject({ id })
     if (project) {
       currentProject.value = project
     }
   }
 
   async function createProject(name: string, description?: string): Promise<Project> {
-    const project = await window.api.project.create({ name, description })
+    const project = await api.createProject({ name, description })
     await fetchProjects()
     return project
   }
@@ -28,7 +29,7 @@ export const useProjectStore = defineStore('project', () => {
     id: number,
     data: { name?: string; description?: string }
   ): Promise<void> {
-    await window.api.project.update({ id, ...data })
+    await api.updateProject({ id, ...data })
     await fetchProjects()
     if (currentProject.value?.id === id) {
       await selectProject(id)
@@ -36,7 +37,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   async function archiveProject(id: number): Promise<void> {
-    await window.api.project.archive({ id })
+    await api.archiveProject({ id })
     if (currentProject.value?.id === id) {
       currentProject.value = null
     }
@@ -44,7 +45,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   async function unarchiveProject(id: number): Promise<void> {
-    await window.api.project.unarchive({ id })
+    await api.unarchiveProject({ id })
   }
 
   return {

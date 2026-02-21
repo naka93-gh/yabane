@@ -60,8 +60,8 @@ const showProjectDialog = (): void => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  border-bottom: 1px solid var(--p-surface-200);
-  background: var(--p-surface-0);
+  border-bottom: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
 }
 
 .header-left {

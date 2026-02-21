@@ -28,8 +28,8 @@ const sections = [
 
 <style scoped>
 .sidebar {
-  border-right: 1px solid var(--p-surface-200);
-  background: var(--p-surface-50);
+  border-right: 1px solid var(--p-content-border-color);
+  background: var(--p-content-hover-background);
   overflow-y: auto;
 }
 
@@ -51,12 +51,12 @@ const sections = [
 }
 
 .sidebar-item:hover {
-  background: var(--p-surface-100);
+  background: var(--p-content-background);
 }
 
 .sidebar-item.active {
-  background: var(--p-primary-50);
-  color: var(--p-primary-color);
+  background: var(--p-highlight-background);
+  color: var(--p-highlight-color);
   font-weight: 600;
 }
 
