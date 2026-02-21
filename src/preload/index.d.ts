@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { Project, Purpose, Milestone, Arrow } from '../renderer/src/types/models'
+import type { Project, Purpose, Milestone, Arrow, WbsItem } from '../renderer/src/types/models'
 
 interface ProjectAPI {
   list(args?: { status?: 'active' | 'archived' }): Promise<Project[]>
@@ -66,11 +66,40 @@ interface ArrowAPI {
   reorder(args: { ids: number[] }): Promise<void>
 }
 
+interface WbsItemAPI {
+  list(args: { projectId: number }): Promise<WbsItem[]>
+  create(args: {
+    arrowId: number
+    name: string
+    startDate?: string
+    endDate?: string
+    owner?: string
+    status?: string
+    progress?: number
+    estimatedHours?: number
+  }): Promise<WbsItem>
+  update(args: {
+    id: number
+    arrowId?: number
+    name?: string
+    startDate?: string
+    endDate?: string
+    owner?: string
+    status?: string
+    progress?: number
+    estimatedHours?: number
+    actualHours?: number
+  }): Promise<WbsItem>
+  delete(args: { id: number }): Promise<WbsItem>
+  reorder(args: { ids: number[] }): Promise<void>
+}
+
 interface Api {
   project: ProjectAPI
   purpose: PurposeAPI
   milestone: MilestoneAPI
   arrow: ArrowAPI
+  wbs: WbsItemAPI
 }
 
 declare global {

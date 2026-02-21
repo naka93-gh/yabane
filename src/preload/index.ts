@@ -65,6 +65,33 @@ const api = {
     }) => ipcRenderer.invoke('arrow:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('arrow:delete', args),
     reorder: (args: { ids: number[] }) => ipcRenderer.invoke('arrow:reorder', args)
+  },
+  wbs: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('wbs:list', args),
+    create: (args: {
+      arrowId: number
+      name: string
+      startDate?: string
+      endDate?: string
+      owner?: string
+      status?: string
+      progress?: number
+      estimatedHours?: number
+    }) => ipcRenderer.invoke('wbs:create', args),
+    update: (args: {
+      id: number
+      arrowId?: number
+      name?: string
+      startDate?: string
+      endDate?: string
+      owner?: string
+      status?: string
+      progress?: number
+      estimatedHours?: number
+      actualHours?: number
+    }) => ipcRenderer.invoke('wbs:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('wbs:delete', args),
+    reorder: (args: { ids: number[] }) => ipcRenderer.invoke('wbs:reorder', args)
   }
 }
 

@@ -7,6 +7,7 @@ import { registerProjectHandlers } from './ipc/project'
 import { registerPurposeHandlers } from './ipc/purpose'
 import { registerMilestoneHandlers } from './ipc/milestone'
 import { registerArrowHandlers } from './ipc/arrow'
+import { registerWbsHandlers } from './ipc/wbs'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -52,6 +53,7 @@ app.whenReady().then(() => {
   registerPurposeHandlers()
   registerMilestoneHandlers()
   registerArrowHandlers()
+  registerWbsHandlers()
 
   createWindow()
 
