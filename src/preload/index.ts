@@ -42,6 +42,29 @@ const api = {
     }) => ipcRenderer.invoke('milestone:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('milestone:delete', args),
     reorder: (args: { ids: number[] }) => ipcRenderer.invoke('milestone:reorder', args)
+  },
+  arrow: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('arrow:list', args),
+    create: (args: {
+      projectId: number
+      parentId?: number
+      name: string
+      startDate?: string
+      endDate?: string
+      owner?: string
+      status?: string
+    }) => ipcRenderer.invoke('arrow:create', args),
+    update: (args: {
+      id: number
+      name?: string
+      startDate?: string
+      endDate?: string
+      owner?: string
+      status?: string
+      parentId?: number | null
+    }) => ipcRenderer.invoke('arrow:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('arrow:delete', args),
+    reorder: (args: { ids: number[] }) => ipcRenderer.invoke('arrow:reorder', args)
   }
 }
 

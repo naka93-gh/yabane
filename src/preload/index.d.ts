@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { Project, Purpose, Milestone } from '../renderer/src/types/models'
+import type { Project, Purpose, Milestone, Arrow } from '../renderer/src/types/models'
 
 interface ProjectAPI {
   list(args?: { status?: 'active' | 'archived' }): Promise<Project[]>
@@ -42,10 +42,35 @@ interface MilestoneAPI {
   reorder(args: { ids: number[] }): Promise<void>
 }
 
+interface ArrowAPI {
+  list(args: { projectId: number }): Promise<Arrow[]>
+  create(args: {
+    projectId: number
+    parentId?: number
+    name: string
+    startDate?: string
+    endDate?: string
+    owner?: string
+    status?: string
+  }): Promise<Arrow>
+  update(args: {
+    id: number
+    name?: string
+    startDate?: string
+    endDate?: string
+    owner?: string
+    status?: string
+    parentId?: number | null
+  }): Promise<Arrow>
+  delete(args: { id: number }): Promise<Arrow>
+  reorder(args: { ids: number[] }): Promise<void>
+}
+
 interface Api {
   project: ProjectAPI
   purpose: PurposeAPI
   milestone: MilestoneAPI
+  arrow: ArrowAPI
 }
 
 declare global {

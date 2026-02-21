@@ -6,6 +6,7 @@ import { getDatabase, closeDatabase } from './database'
 import { registerProjectHandlers } from './ipc/project'
 import { registerPurposeHandlers } from './ipc/purpose'
 import { registerMilestoneHandlers } from './ipc/milestone'
+import { registerArrowHandlers } from './ipc/arrow'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -50,6 +51,7 @@ app.whenReady().then(() => {
   registerProjectHandlers()
   registerPurposeHandlers()
   registerMilestoneHandlers()
+  registerArrowHandlers()
 
   createWindow()
 
