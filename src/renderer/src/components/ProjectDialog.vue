@@ -9,6 +9,7 @@ import Column from 'primevue/column'
 import ToggleSwitch from 'primevue/toggleswitch'
 import type { Project } from '../types/models'
 import { useProjectStore } from '../stores/project'
+import { listProjects } from '../api/project'
 
 const store = useProjectStore()
 
@@ -31,7 +32,7 @@ watch(
 
 watch(showArchived, async (val) => {
   if (val) {
-    archivedProjects.value = await window.api.project.list({ status: 'archived' })
+    archivedProjects.value = await listProjects({ status: 'archived' })
   }
 })
 
@@ -54,12 +55,12 @@ async function handleCreate(): Promise<void> {
 
 async function handleArchive(project: Project): Promise<void> {
   await store.archiveProject(project.id)
-  archivedProjects.value = await window.api.project.list({ status: 'archived' })
+  archivedProjects.value = await listProjects({ status: 'archived' })
 }
 
 async function handleUnarchive(project: Project): Promise<void> {
   await store.unarchiveProject(project.id)
-  archivedProjects.value = await window.api.project.list({ status: 'archived' })
+  archivedProjects.value = await listProjects({ status: 'archived' })
   await store.fetchProjects()
 }
 </script>

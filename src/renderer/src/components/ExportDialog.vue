@@ -9,6 +9,7 @@ import { useArrowStore } from '../stores/arrow'
 import { useWbsStore } from '../stores/wbs'
 import { useIssueStore } from '../stores/issue'
 import { getPurpose } from '../api/purpose'
+import { saveExcel } from '../api/export'
 import {
   buildWorkbook,
   workbookToBuffer,
@@ -85,7 +86,7 @@ async function doExport(): Promise<void> {
     const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`
     const defaultName = `${project.name}_${dateStr}.xlsx`
 
-    await window.api.export.saveExcel({ buffer, defaultName })
+    await saveExcel({ buffer, defaultName })
     visible.value = false
   } finally {
     exporting.value = false
