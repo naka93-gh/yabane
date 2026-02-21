@@ -31,6 +31,8 @@ const cycleTheme = (): void => {
   themeStore.setMode(next)
 }
 
+const emit = defineEmits<{ exportExcel: [] }>()
+
 const showProjectDialog = (): void => {
   store.dialogVisible = true
 }
@@ -75,7 +77,8 @@ const showProjectDialog = (): void => {
         icon="pi pi-file-excel"
         severity="secondary"
         size="small"
-        disabled
+        :disabled="!store.currentProject"
+        @click="emit('exportExcel')"
       />
     </div>
   </header>

@@ -9,6 +9,7 @@ import { registerMilestoneHandlers } from './ipc/milestone'
 import { registerArrowHandlers } from './ipc/arrow'
 import { registerWbsHandlers } from './ipc/wbs'
 import { registerIssueHandlers } from './ipc/issue'
+import { registerExportHandlers } from './ipc/export'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -56,6 +57,7 @@ app.whenReady().then(() => {
   registerArrowHandlers()
   registerWbsHandlers()
   registerIssueHandlers()
+  registerExportHandlers()
 
   createWindow()
 

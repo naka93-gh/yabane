@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppSidebar from './components/AppSidebar.vue'
 import ProjectDialog from './components/ProjectDialog.vue'
+import ExportDialog from './components/ExportDialog.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
 import PurposeView from './views/PurposeView.vue'
 import MilestoneView from './views/MilestoneView.vue'
@@ -13,6 +14,7 @@ import { useProjectStore } from './stores/project'
 
 const store = useProjectStore()
 const activeSection = ref('purpose')
+const exportDialog = ref<InstanceType<typeof ExportDialog> | null>(null)
 
 type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue'
 
@@ -34,7 +36,7 @@ onMounted(async () => {
 
 <template>
   <div class="app-layout">
-    <AppHeader class="app-header" />
+    <AppHeader class="app-header" @export-excel="exportDialog?.open()" />
     <AppSidebar
       v-model:active-section="activeSection"
       class="app-sidebar"
@@ -48,6 +50,7 @@ onMounted(async () => {
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
     <ProjectDialog />
+    <ExportDialog ref="exportDialog" />
   </div>
 </template>
 

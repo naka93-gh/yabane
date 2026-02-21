@@ -118,6 +118,10 @@ interface IssueAPI {
   delete(args: { id: number }): Promise<Issue>
 }
 
+interface ExportAPI {
+  saveExcel(args: { buffer: number[]; defaultName: string }): Promise<{ canceled: boolean; filePath?: string }>
+}
+
 interface Api {
   project: ProjectAPI
   purpose: PurposeAPI
@@ -125,6 +129,7 @@ interface Api {
   arrow: ArrowAPI
   wbs: WbsItemAPI
   issue: IssueAPI
+  export: ExportAPI
 }
 
 declare global {

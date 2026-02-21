@@ -25,7 +25,8 @@
     "better-sqlite3": "^12.6.2",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
-    "primevue": "^4.5.4"
+    "primevue": "^4.5.4",
+    "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",

@@ -115,6 +115,10 @@ const api = {
       resolution?: string
     }) => ipcRenderer.invoke('issue:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('issue:delete', args)
+  },
+  export: {
+    saveExcel: (args: { buffer: number[]; defaultName: string }) =>
+      ipcRenderer.invoke('export:saveExcel', args)
   }
 }
 
