@@ -92,6 +92,29 @@ const api = {
     }) => ipcRenderer.invoke('wbs:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('wbs:delete', args),
     reorder: (args: { ids: number[] }) => ipcRenderer.invoke('wbs:reorder', args)
+  },
+  issue: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('issue:list', args),
+    create: (args: {
+      projectId: number
+      title: string
+      description?: string
+      owner?: string
+      priority?: string
+      status?: string
+      dueDate?: string
+    }) => ipcRenderer.invoke('issue:create', args),
+    update: (args: {
+      id: number
+      title?: string
+      description?: string
+      owner?: string
+      priority?: string
+      status?: string
+      dueDate?: string
+      resolution?: string
+    }) => ipcRenderer.invoke('issue:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('issue:delete', args)
   }
 }
 
