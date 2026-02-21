@@ -231,11 +231,11 @@ function displayDate(dateStr: string | null): string {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  border: 1px solid var(--p-surface-200);
+  border: 1px solid var(--p-content-border-color);
   border-left: 4px solid;
   border-radius: 8px;
   padding: 16px;
-  background: var(--p-surface-0);
+  background: var(--p-content-background);
 }
 
 .card-body {
@@ -311,6 +311,6 @@ function displayDate(dateStr: string | null): string {
 
 .color-swatch.selected {
   border-color: var(--p-text-color);
-  box-shadow: 0 0 0 2px var(--p-surface-0), 0 0 0 4px var(--p-text-muted-color);
+  box-shadow: 0 0 0 2px var(--p-content-background), 0 0 0 4px var(--p-text-muted-color);
 }
 </style>

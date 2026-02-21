@@ -109,9 +109,9 @@ const gridLines = computed<GridLine[]>(() => {
 
 // --- ガントバー ---
 const BAR_COLORS: Record<string, string> = {
-  not_started: 'var(--p-surface-300)',
-  in_progress: '#3b82f6',
-  done: '#22c55e'
+  not_started: 'var(--p-text-muted-color)',
+  in_progress: 'var(--p-primary-color)',
+  done: 'var(--p-green-500)'
 }
 
 function barStyle(arrow: Arrow): Record<string, string> | null {
@@ -391,16 +391,16 @@ function confirmDelete(a: Arrow): void {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  border: 1px solid var(--p-surface-200);
+  border: 1px solid var(--p-content-border-color);
   border-radius: 8px;
-  background: var(--p-surface-0);
+  background: var(--p-content-background);
 }
 
 /* === 左パネル === */
 .gantt-left {
   width: 280px;
   min-width: 280px;
-  border-right: 1px solid var(--p-surface-200);
+  border-right: 1px solid var(--p-content-border-color);
   flex-shrink: 0;
 }
 
@@ -411,10 +411,10 @@ function confirmDelete(a: Arrow): void {
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--p-text-muted-color);
-  border-bottom: 1px solid var(--p-surface-200);
+  border-bottom: 1px solid var(--p-content-border-color);
   position: sticky;
   top: 0;
-  background: var(--p-surface-50);
+  background: var(--p-content-hover-background);
   z-index: 2;
 }
 
@@ -422,7 +422,7 @@ function confirmDelete(a: Arrow): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--p-surface-100);
+  border-bottom: 1px solid var(--p-content-border-color);
   gap: 4px;
 }
 
@@ -467,8 +467,8 @@ function confirmDelete(a: Arrow): void {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--p-surface-50);
-  border-bottom: 1px solid var(--p-surface-200);
+  background: var(--p-content-hover-background);
+  border-bottom: 1px solid var(--p-content-border-color);
   display: flex;
   position: relative;
 }
@@ -482,7 +482,7 @@ function confirmDelete(a: Arrow): void {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--p-text-muted-color);
-  border-right: 1px solid var(--p-surface-200);
+  border-right: 1px solid var(--p-content-border-color);
   box-sizing: border-box;
 }
 
@@ -493,7 +493,7 @@ function confirmDelete(a: Arrow): void {
 
 .gantt-row {
   position: relative;
-  border-bottom: 1px solid var(--p-surface-100);
+  border-bottom: 1px solid var(--p-content-border-color);
 }
 
 .grid-line {
@@ -504,11 +504,12 @@ function confirmDelete(a: Arrow): void {
 }
 
 .grid-line--month {
-  background: var(--p-surface-300);
+  background: var(--p-content-border-color);
 }
 
 .grid-line--third {
-  background: var(--p-surface-100);
+  background: var(--p-content-border-color);
+  opacity: 0.4;
 }
 
 .gantt-bar {

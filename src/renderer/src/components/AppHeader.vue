@@ -3,8 +3,11 @@ import { computed } from 'vue'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import { useProjectStore } from '../stores/project'
+import { useThemeStore } from '../stores/theme'
+import type { ThemeMode } from '../stores/theme'
 
 const store = useProjectStore()
+const themeStore = useThemeStore()
 
 const selectedProjectId = computed({
   get: () => store.currentProject?.id ?? null,
@@ -12,6 +15,21 @@ const selectedProjectId = computed({
     if (id !== null) store.selectProject(id)
   }
 })
+
+const themeIcon = computed(() => {
+  const icons: Record<ThemeMode, string> = {
+    system: 'pi-desktop',
+    light: 'pi-sun',
+    dark: 'pi-moon'
+  }
+  return icons[themeStore.mode]
+})
+
+const cycleTheme = (): void => {
+  const order: ThemeMode[] = ['system', 'light', 'dark']
+  const next = order[(order.indexOf(themeStore.mode) + 1) % order.length]
+  themeStore.setMode(next)
+}
 
 const showProjectDialog = (): void => {
   store.dialogVisible = true
@@ -43,6 +61,15 @@ const showProjectDialog = (): void => {
       />
     </div>
     <div class="header-right">
+      <Button
+        :icon="`pi ${themeIcon}`"
+        severity="secondary"
+        text
+        rounded
+        size="small"
+        :aria-label="`テーマ: ${themeStore.mode}`"
+        @click="cycleTheme"
+      />
       <Button
         label="Excel出力"
         icon="pi pi-file-excel"
@@ -87,5 +114,6 @@ const showProjectDialog = (): void => {
 .header-right {
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 </style>
