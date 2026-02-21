@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { getDatabase, closeDatabase } from './database'
 import { registerProjectHandlers } from './ipc/project'
 import { registerPurposeHandlers } from './ipc/purpose'
+import { registerMilestoneHandlers } from './ipc/milestone'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -48,6 +49,7 @@ app.whenReady().then(() => {
   // IPC ハンドラ登録
   registerProjectHandlers()
   registerPurposeHandlers()
+  registerMilestoneHandlers()
 
   createWindow()
 

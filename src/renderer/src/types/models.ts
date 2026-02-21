@@ -22,7 +22,9 @@ export interface Milestone {
   id: number
   project_id: number
   name: string
+  description: string | null
   due_date: string | null
+  color: string
   sort_order: number
   created_at: string
 }

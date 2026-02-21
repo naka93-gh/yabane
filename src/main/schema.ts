@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS milestone (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id  INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
   name        TEXT NOT NULL,
+  description TEXT,
   due_date    TEXT,
+  color       TEXT NOT NULL DEFAULT '#6366f1',
   sort_order  INTEGER NOT NULL DEFAULT 0,
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );

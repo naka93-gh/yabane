@@ -5,6 +5,7 @@ import AppSidebar from './components/AppSidebar.vue'
 import ProjectDialog from './components/ProjectDialog.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
 import PurposeView from './views/PurposeView.vue'
+import MilestoneView from './views/MilestoneView.vue'
 import { useProjectStore } from './stores/project'
 
 const store = useProjectStore()
@@ -37,6 +38,7 @@ onMounted(async () => {
     />
     <main class="app-main">
       <PurposeView v-if="store.currentProject && activeSection === 'purpose'" />
+      <MilestoneView v-else-if="store.currentProject && activeSection === 'milestone'" />
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
     <ProjectDialog />

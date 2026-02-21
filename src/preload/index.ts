@@ -23,6 +23,25 @@ const api = {
       out_of_scope?: string
       assumption?: string
     }) => ipcRenderer.invoke('purpose:save', args)
+  },
+  milestone: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('milestone:list', args),
+    create: (args: {
+      projectId: number
+      name: string
+      description?: string
+      dueDate?: string
+      color?: string
+    }) => ipcRenderer.invoke('milestone:create', args),
+    update: (args: {
+      id: number
+      name?: string
+      description?: string
+      dueDate?: string
+      color?: string
+    }) => ipcRenderer.invoke('milestone:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('milestone:delete', args),
+    reorder: (args: { ids: number[] }) => ipcRenderer.invoke('milestone:reorder', args)
   }
 }
 
