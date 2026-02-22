@@ -1,11 +1,12 @@
 import { getDatabase } from '../database'
+import type { Milestone } from '../../shared/types/models'
 
 /** マイルストーン一覧を取得する */
-export function listMilestones(projectId: number): unknown[] {
+export function listMilestones(projectId: number): Milestone[] {
   const db = getDatabase()
   return db
     .prepare('SELECT * FROM milestone WHERE project_id = ? ORDER BY sort_order, id')
-    .all(projectId)
+    .all(projectId) as Milestone[]
 }
 
 /** マイルストーンを作成する */
@@ -15,7 +16,7 @@ export function createMilestone(args: {
   description?: string
   dueDate?: string
   color?: string
-}): unknown {
+}): Milestone {
   const db = getDatabase()
 
   const maxOrder = db
@@ -35,7 +36,7 @@ export function createMilestone(args: {
       args.dueDate ?? null,
       args.color ?? '#6366f1',
       maxOrder.max_order + 1
-    )
+    ) as Milestone
 }
 
 /** マイルストーンを更新する */
@@ -45,11 +46,11 @@ export function updateMilestone(args: {
   description?: string
   dueDate?: string
   color?: string
-}): unknown {
+}): Milestone | null {
   const db = getDatabase()
 
   const milestone = db.prepare('SELECT * FROM milestone WHERE id = ?').get(args.id) as
-    | { name: string; description: string | null; due_date: string | null; color: string }
+    | Milestone
     | undefined
   if (!milestone) return null
 
@@ -62,13 +63,15 @@ export function updateMilestone(args: {
     .prepare(
       'UPDATE milestone SET name = ?, description = ?, due_date = ?, color = ? WHERE id = ? RETURNING *'
     )
-    .get(name, description, dueDate, color, args.id)
+    .get(name, description, dueDate, color, args.id) as Milestone
 }
 
 /** マイルストーンを削除する */
-export function deleteMilestone(id: number): unknown {
+export function deleteMilestone(id: number): Milestone | undefined {
   const db = getDatabase()
-  return db.prepare('DELETE FROM milestone WHERE id = ? RETURNING *').get(id)
+  return db.prepare('DELETE FROM milestone WHERE id = ? RETURNING *').get(id) as
+    | Milestone
+    | undefined
 }
 
 /** マイルストーンの並び順を更新する */

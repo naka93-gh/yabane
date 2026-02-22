@@ -6,6 +6,7 @@ import {
   deleteWbsItem,
   reorderWbsItems
 } from '../service/wbs'
+import type { WbsItem } from '../../shared/types/models'
 
 /** WBS 関連の IPC ハンドラを登録する */
 export function registerWbsHandlers(): void {
@@ -23,7 +24,7 @@ export function registerWbsHandlers(): void {
         startDate?: string
         endDate?: string
         owner?: string
-        status?: string
+        status?: WbsItem['status']
         progress?: number
         estimatedHours?: number
       }
@@ -43,7 +44,7 @@ export function registerWbsHandlers(): void {
         startDate?: string
         endDate?: string
         owner?: string
-        status?: string
+        status?: WbsItem['status']
         progress?: number
         estimatedHours?: number
         actualHours?: number

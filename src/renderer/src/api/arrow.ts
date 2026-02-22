@@ -1,4 +1,4 @@
-import type { Arrow } from '../types/models'
+import type { Arrow } from '@shared/types/models'
 
 /** 矢羽一覧を取得する */
 export function listArrows(args: { projectId: number }): Promise<Arrow[]> {
@@ -13,7 +13,7 @@ export function createArrow(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: Arrow['status']
 }): Promise<Arrow> {
   return window.api.arrow.create(args)
 }
@@ -25,7 +25,7 @@ export function updateArrow(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: Arrow['status']
   parentId?: number | null
 }): Promise<Arrow> {
   return window.api.arrow.update(args)

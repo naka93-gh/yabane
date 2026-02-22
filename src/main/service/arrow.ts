@@ -1,11 +1,12 @@
 import { getDatabase } from '../database'
+import type { Arrow } from '../../shared/types/models'
 
 /** 矢羽一覧を取得する */
-export function listArrows(projectId: number): unknown[] {
+export function listArrows(projectId: number): Arrow[] {
   const db = getDatabase()
   return db
     .prepare('SELECT * FROM arrow WHERE project_id = ? ORDER BY sort_order, id')
-    .all(projectId)
+    .all(projectId) as Arrow[]
 }
 
 /** 矢羽を作成する */
@@ -16,8 +17,8 @@ export function createArrow(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
-}): unknown {
+  status?: Arrow['status']
+}): Arrow {
   const db = getDatabase()
 
   // 同じ親の中での最大 sort_order を取得
@@ -44,7 +45,7 @@ export function createArrow(args: {
       args.owner ?? null,
       args.status ?? 'not_started',
       maxOrder.max_order + 1
-    )
+    ) as Arrow
 }
 
 /** 矢羽を更新する */
@@ -54,21 +55,12 @@ export function updateArrow(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: Arrow['status']
   parentId?: number | null
-}): unknown {
+}): Arrow | null {
   const db = getDatabase()
 
-  const arrow = db.prepare('SELECT * FROM arrow WHERE id = ?').get(args.id) as
-    | {
-        name: string
-        start_date: string | null
-        end_date: string | null
-        owner: string | null
-        status: string
-        parent_id: number | null
-      }
-    | undefined
+  const arrow = db.prepare('SELECT * FROM arrow WHERE id = ?').get(args.id) as Arrow | undefined
   if (!arrow) return null
 
   const name = args.name ?? arrow.name
@@ -82,13 +74,13 @@ export function updateArrow(args: {
     .prepare(
       'UPDATE arrow SET name = ?, start_date = ?, end_date = ?, owner = ?, status = ?, parent_id = ? WHERE id = ? RETURNING *'
     )
-    .get(name, startDate, endDate, owner, status, parentId, args.id)
+    .get(name, startDate, endDate, owner, status, parentId, args.id) as Arrow
 }
 
 /** 矢羽を削除する */
-export function deleteArrow(id: number): unknown {
+export function deleteArrow(id: number): Arrow | undefined {
   const db = getDatabase()
-  return db.prepare('DELETE FROM arrow WHERE id = ? RETURNING *').get(id)
+  return db.prepare('DELETE FROM arrow WHERE id = ? RETURNING *').get(id) as Arrow | undefined
 }
 
 /** 矢羽の並び順を更新する */

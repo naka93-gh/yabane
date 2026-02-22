@@ -1,9 +1,14 @@
 import { getDatabase } from '../database'
+import type { Purpose } from '../../shared/types/models'
 
 /** プロジェクトの目的を取得する */
-export function getPurpose(projectId: number): unknown {
+export function getPurpose(projectId: number): Purpose | null {
   const db = getDatabase()
-  return db.prepare('SELECT * FROM purpose WHERE project_id = ?').get(projectId) ?? null
+  return (
+    (db.prepare('SELECT * FROM purpose WHERE project_id = ?').get(projectId) as
+      | Purpose
+      | undefined) ?? null
+  )
 }
 
 /** プロジェクトの目的を保存する（UPSERT） */
@@ -14,7 +19,7 @@ export function savePurpose(args: {
   scope?: string
   out_of_scope?: string
   assumption?: string
-}): unknown {
+}): Purpose {
   const db = getDatabase()
   return db
     .prepare(
@@ -36,5 +41,5 @@ export function savePurpose(args: {
       args.scope ?? null,
       args.out_of_scope ?? null,
       args.assumption ?? null
-    )
+    ) as Purpose
 }

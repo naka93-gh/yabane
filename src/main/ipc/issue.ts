@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import { listIssues, createIssue, updateIssue, deleteIssue } from '../service/issue'
+import type { Issue } from '../../shared/types/models'
 
 /** 課題関連の IPC ハンドラを登録する */
 export function registerIssueHandlers(): void {
@@ -16,8 +17,8 @@ export function registerIssueHandlers(): void {
         title: string
         description?: string
         owner?: string
-        priority?: string
-        status?: string
+        priority?: Issue['priority']
+        status?: Issue['status']
         dueDate?: string
       }
     ) => {
@@ -34,8 +35,8 @@ export function registerIssueHandlers(): void {
         title?: string
         description?: string
         owner?: string
-        priority?: string
-        status?: string
+        priority?: Issue['priority']
+        status?: Issue['status']
         dueDate?: string
         resolution?: string
       }

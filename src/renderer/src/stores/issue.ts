@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { Issue } from '../types/models'
+import type { Issue } from '@shared/types/models'
 import * as api from '../api/issue'
 
 interface IssueFilter {
@@ -41,8 +41,8 @@ export const useIssueStore = defineStore('issue', () => {
     title: string
     description?: string
     owner?: string
-    priority?: string
-    status?: string
+    priority?: Issue['priority']
+    status?: Issue['status']
     dueDate?: string
   }): Promise<Issue> {
     const created = await api.createIssue(data)
@@ -56,8 +56,8 @@ export const useIssueStore = defineStore('issue', () => {
     title?: string
     description?: string
     owner?: string
-    priority?: string
-    status?: string
+    priority?: Issue['priority']
+    status?: Issue['status']
     dueDate?: string
     resolution?: string
   }): Promise<void> {

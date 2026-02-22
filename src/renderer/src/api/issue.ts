@@ -1,4 +1,4 @@
-import type { Issue } from '../types/models'
+import type { Issue } from '@shared/types/models'
 
 /** 課題一覧を取得する */
 export function listIssues(args: { projectId: number }): Promise<Issue[]> {
@@ -11,8 +11,8 @@ export function createIssue(args: {
   title: string
   description?: string
   owner?: string
-  priority?: string
-  status?: string
+  priority?: Issue['priority']
+  status?: Issue['status']
   dueDate?: string
 }): Promise<Issue> {
   return window.api.issue.create(args)
@@ -24,8 +24,8 @@ export function updateIssue(args: {
   title?: string
   description?: string
   owner?: string
-  priority?: string
-  status?: string
+  priority?: Issue['priority']
+  status?: Issue['status']
   dueDate?: string
   resolution?: string
 }): Promise<Issue> {

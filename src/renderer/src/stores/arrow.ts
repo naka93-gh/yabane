@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { Arrow } from '../types/models'
+import type { Arrow } from '@shared/types/models'
 import * as api from '../api/arrow'
 
 export interface ArrowNode {
@@ -76,7 +76,7 @@ export const useArrowStore = defineStore('arrow', () => {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: Arrow['status']
   }): Promise<Arrow> {
     const created = await api.createArrow(data)
     arrows.value.push(created)
@@ -90,7 +90,7 @@ export const useArrowStore = defineStore('arrow', () => {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: Arrow['status']
     parentId?: number | null
   }): Promise<void> {
     const updated = await api.updateArrow(data)

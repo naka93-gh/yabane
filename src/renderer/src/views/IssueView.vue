@@ -11,7 +11,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useIssueStore } from '../stores/issue'
-import type { Issue } from '../types/models'
+import type { Issue } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
@@ -62,8 +62,8 @@ const editingId = ref<number | null>(null)
 const formTitle = ref('')
 const formDescription = ref('')
 const formOwner = ref('')
-const formPriority = ref('medium')
-const formStatus = ref('open')
+const formPriority = ref<Issue['priority']>('medium')
+const formStatus = ref<Issue['status']>('open')
 const formDueDate = ref<Date | null>(null)
 const formResolution = ref('')
 
@@ -78,7 +78,6 @@ watch(
   },
   { immediate: true }
 )
-
 
 function formatDisplayDate(dateStr: string | null): string {
   if (!dateStr) return ''
@@ -333,12 +332,7 @@ const filterPriority = computed({
       </div>
       <template #footer>
         <Button label="キャンセル" text @click="dialogVisible = false" />
-        <Button
-          label="保存"
-          icon="pi pi-check"
-          :disabled="!formTitle.trim()"
-          @click="save"
-        />
+        <Button label="保存" icon="pi pi-check" :disabled="!formTitle.trim()" @click="save" />
       </template>
     </Dialog>
 

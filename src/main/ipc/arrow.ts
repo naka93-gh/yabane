@@ -1,11 +1,6 @@
 import { ipcMain } from 'electron'
-import {
-  listArrows,
-  createArrow,
-  updateArrow,
-  deleteArrow,
-  reorderArrows
-} from '../service/arrow'
+import { listArrows, createArrow, updateArrow, deleteArrow, reorderArrows } from '../service/arrow'
+import type { Arrow } from '../../shared/types/models'
 
 /** 矢羽関連の IPC ハンドラを登録する */
 export function registerArrowHandlers(): void {
@@ -24,7 +19,7 @@ export function registerArrowHandlers(): void {
         startDate?: string
         endDate?: string
         owner?: string
-        status?: string
+        status?: Arrow['status']
       }
     ) => {
       return createArrow(args)
@@ -41,7 +36,7 @@ export function registerArrowHandlers(): void {
         startDate?: string
         endDate?: string
         owner?: string
-        status?: string
+        status?: Arrow['status']
         parentId?: number | null
       }
     ) => {

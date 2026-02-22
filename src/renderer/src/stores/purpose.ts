@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Purpose } from '../types/models'
+import type { Purpose } from '@shared/types/models'
 import * as api from '../api/purpose'
 
 export const usePurposeStore = defineStore('purpose', () => {

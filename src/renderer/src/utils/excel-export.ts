@@ -1,5 +1,5 @@
 import XLSX from 'xlsx-js-style'
-import type { Purpose, Milestone, Arrow, WbsItem, Issue } from '../types/models'
+import type { Purpose, Milestone, Arrow, WbsItem, Issue } from '@shared/types/models'
 
 export type ExportSection = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue'
 

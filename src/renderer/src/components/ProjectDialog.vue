@@ -7,7 +7,7 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import ToggleSwitch from 'primevue/toggleswitch'
-import type { Project } from '../types/models'
+import type { Project } from '@shared/types/models'
 import { useProjectStore } from '../stores/project'
 import { listProjects } from '../api/project'
 

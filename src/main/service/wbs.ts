@@ -1,7 +1,8 @@
 import { getDatabase } from '../database'
+import type { WbsItem } from '../../shared/types/models'
 
 /** プロジェクト単位で WBS を取得する（arrow を JOIN） */
-export function listWbsItems(projectId: number): unknown[] {
+export function listWbsItems(projectId: number): WbsItem[] {
   const db = getDatabase()
   return db
     .prepare(
@@ -10,7 +11,7 @@ export function listWbsItems(projectId: number): unknown[] {
        WHERE a.project_id = ?
        ORDER BY w.arrow_id, w.sort_order, w.id`
     )
-    .all(projectId)
+    .all(projectId) as WbsItem[]
 }
 
 /** WBS を作成する */
@@ -20,10 +21,10 @@ export function createWbsItem(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: WbsItem['status']
   progress?: number
   estimatedHours?: number
-}): unknown {
+}): WbsItem {
   const db = getDatabase()
 
   const maxOrder = db
@@ -45,7 +46,7 @@ export function createWbsItem(args: {
       args.progress ?? 0,
       args.estimatedHours ?? null,
       maxOrder.max_order + 1
-    )
+    ) as WbsItem
 }
 
 /** WBS を更新する */
@@ -56,26 +57,14 @@ export function updateWbsItem(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: WbsItem['status']
   progress?: number
   estimatedHours?: number
   actualHours?: number
-}): unknown {
+}): WbsItem | null {
   const db = getDatabase()
 
-  const item = db.prepare('SELECT * FROM wbs_item WHERE id = ?').get(args.id) as
-    | {
-        arrow_id: number
-        name: string
-        start_date: string | null
-        end_date: string | null
-        owner: string | null
-        status: string
-        progress: number
-        estimated_hours: number | null
-        actual_hours: number | null
-      }
-    | undefined
+  const item = db.prepare('SELECT * FROM wbs_item WHERE id = ?').get(args.id) as WbsItem | undefined
   if (!item) return null
 
   const arrowId = args.arrowId ?? item.arrow_id
@@ -95,13 +84,24 @@ export function updateWbsItem(args: {
        status = ?, progress = ?, estimated_hours = ?, actual_hours = ?
        WHERE id = ? RETURNING *`
     )
-    .get(arrowId, name, startDate, endDate, owner, status, progress, estimatedHours, actualHours, args.id)
+    .get(
+      arrowId,
+      name,
+      startDate,
+      endDate,
+      owner,
+      status,
+      progress,
+      estimatedHours,
+      actualHours,
+      args.id
+    ) as WbsItem
 }
 
 /** WBS を削除する */
-export function deleteWbsItem(id: number): unknown {
+export function deleteWbsItem(id: number): WbsItem | undefined {
   const db = getDatabase()
-  return db.prepare('DELETE FROM wbs_item WHERE id = ? RETURNING *').get(id)
+  return db.prepare('DELETE FROM wbs_item WHERE id = ? RETURNING *').get(id) as WbsItem | undefined
 }
 
 /** WBS の並び順を更新する */

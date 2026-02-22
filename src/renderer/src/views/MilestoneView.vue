@@ -10,7 +10,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useMilestoneStore } from '../stores/milestone'
-import type { Milestone } from '../types/models'
+import type { Milestone } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useMilestoneStore()

@@ -1,8 +1,8 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { Project, Purpose, Milestone, Arrow, WbsItem, Issue } from '../renderer/src/types/models'
+import type { Project, Purpose, Milestone, Arrow, WbsItem, Issue } from '../shared/types/models'
 
 interface ProjectAPI {
-  list(args?: { status?: 'active' | 'archived' }): Promise<Project[]>
+  list(args?: { status?: Project['status'] }): Promise<Project[]>
   get(args: { id: number }): Promise<Project | null>
   create(args: { name: string; description?: string }): Promise<Project>
   update(args: { id: number; name?: string; description?: string }): Promise<Project>
@@ -51,7 +51,7 @@ interface ArrowAPI {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: Arrow['status']
   }): Promise<Arrow>
   update(args: {
     id: number
@@ -59,7 +59,7 @@ interface ArrowAPI {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: Arrow['status']
     parentId?: number | null
   }): Promise<Arrow>
   delete(args: { id: number }): Promise<Arrow>
@@ -74,7 +74,7 @@ interface WbsItemAPI {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: WbsItem['status']
     progress?: number
     estimatedHours?: number
   }): Promise<WbsItem>
@@ -85,7 +85,7 @@ interface WbsItemAPI {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: WbsItem['status']
     progress?: number
     estimatedHours?: number
     actualHours?: number
@@ -101,8 +101,8 @@ interface IssueAPI {
     title: string
     description?: string
     owner?: string
-    priority?: string
-    status?: string
+    priority?: Issue['priority']
+    status?: Issue['status']
     dueDate?: string
   }): Promise<Issue>
   update(args: {
@@ -110,8 +110,8 @@ interface IssueAPI {
     title?: string
     description?: string
     owner?: string
-    priority?: string
-    status?: string
+    priority?: Issue['priority']
+    status?: Issue['status']
     dueDate?: string
     resolution?: string
   }): Promise<Issue>
@@ -119,7 +119,10 @@ interface IssueAPI {
 }
 
 interface ExportAPI {
-  saveExcel(args: { buffer: number[]; defaultName: string }): Promise<{ canceled: boolean; filePath?: string }>
+  saveExcel(args: {
+    buffer: number[]
+    defaultName: string
+  }): Promise<{ canceled: boolean; filePath?: string }>
 }
 
 interface Api {

@@ -12,7 +12,7 @@ import { formatDate } from '../../utils/date-helper'
 import { useProjectStore } from '../../stores/project'
 import { useArrowStore } from '../../stores/arrow'
 import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
-import type { WbsItem } from '../../types/models'
+import type { WbsItem } from '@shared/types/models'
 import WbsGantt from './WbsGantt.vue'
 
 const projectStore = useProjectStore()
@@ -42,7 +42,7 @@ const formName = ref('')
 const formOwner = ref('')
 const formStartDate = ref<Date | null>(null)
 const formEndDate = ref<Date | null>(null)
-const formStatus = ref('not_started')
+const formStatus = ref<WbsItem['status']>('not_started')
 const formProgress = ref(0)
 const formEstimatedHours = ref<number | null>(null)
 const formActualHours = ref<number | null>(null)
@@ -50,19 +50,14 @@ const formActualHours = ref<number | null>(null)
 const dialogTitle = computed(() => (editingId.value ? 'タスクを編集' : 'タスクを追加'))
 
 // 子矢羽セレクト用
-const arrowOptions = computed(() =>
-  store.childArrows.map((a) => ({ label: a.name, value: a.id }))
-)
+const arrowOptions = computed(() => store.childArrows.map((a) => ({ label: a.name, value: a.id })))
 
 // フィルタ用セレクト
 const filterArrowOptions = computed(() => [
   { label: 'すべて', value: null },
   ...store.childArrows.map((a) => ({ label: a.name, value: a.id }))
 ])
-const filterStatusOptions = computed(() => [
-  { label: 'すべて', value: null },
-  ...STATUS_OPTIONS
-])
+const filterStatusOptions = computed(() => [{ label: 'すべて', value: null }, ...STATUS_OPTIONS])
 const filterOwnerOptions = computed(() => [
   { label: 'すべて', value: null },
   ...store.owners.map((o) => ({ label: o, value: o }))
@@ -177,13 +172,22 @@ const filterOwner = computed({
       <h2>WBS</h2>
       <div class="wbs-header-actions">
         <Button
-          v-if="store.filter.arrowId !== null || store.filter.status !== null || store.filter.owner !== null"
+          v-if="
+            store.filter.arrowId !== null ||
+            store.filter.status !== null ||
+            store.filter.owner !== null
+          "
           label="フィルタ解除"
           text
           size="small"
           @click="store.clearFilter()"
         />
-        <Button label="タスク追加" icon="pi pi-plus" @click="openCreate()" :disabled="arrowOptions.length === 0" />
+        <Button
+          label="タスク追加"
+          icon="pi pi-plus"
+          @click="openCreate()"
+          :disabled="arrowOptions.length === 0"
+        />
       </div>
     </div>
 
@@ -250,7 +254,11 @@ const filterOwner = computed({
               {{ row.type === 'task' ? row.name : row.type === 'child' ? '—' : '' }}
             </span>
             <span class="col-status">
-              <span v-if="row.type === 'task'" class="status-badge" :class="`status--${row.status}`">
+              <span
+                v-if="row.type === 'task'"
+                class="status-badge"
+                :class="`status--${row.status}`"
+              >
                 {{ STATUS_LABELS[row.status] ?? row.status }}
               </span>
             </span>
@@ -258,12 +266,16 @@ const filterOwner = computed({
               <template v-if="row.type === 'task' && row.task">
                 <Button
                   icon="pi pi-pencil"
-                  text rounded size="small"
+                  text
+                  rounded
+                  size="small"
                   @click="openEdit(row.task!)"
                 />
                 <Button
                   icon="pi pi-trash"
-                  text rounded size="small"
+                  text
+                  rounded
+                  size="small"
                   severity="danger"
                   @click="confirmDelete(row)"
                 />
@@ -271,7 +283,9 @@ const filterOwner = computed({
               <template v-else-if="row.childArrow">
                 <Button
                   icon="pi pi-plus"
-                  text rounded size="small"
+                  text
+                  rounded
+                  size="small"
                   title="タスクを追加"
                   @click="openCreate(row.childArrow!.id)"
                 />
@@ -349,17 +363,32 @@ const filterOwner = computed({
           </div>
           <div class="field">
             <label>見積工数 (h)</label>
-            <InputNumber v-model="formEstimatedHours" :min="0" :max-fraction-digits="1" class="w-full" />
+            <InputNumber
+              v-model="formEstimatedHours"
+              :min="0"
+              :max-fraction-digits="1"
+              class="w-full"
+            />
           </div>
           <div v-if="editingId" class="field">
             <label>実績工数 (h)</label>
-            <InputNumber v-model="formActualHours" :min="0" :max-fraction-digits="1" class="w-full" />
+            <InputNumber
+              v-model="formActualHours"
+              :min="0"
+              :max-fraction-digits="1"
+              class="w-full"
+            />
           </div>
         </div>
       </div>
       <template #footer>
         <Button label="キャンセル" text @click="dialogVisible = false" />
-        <Button label="保存" icon="pi pi-check" :disabled="!formName.trim() || !formArrowId" @click="save" />
+        <Button
+          label="保存"
+          icon="pi pi-check"
+          :disabled="!formName.trim() || !formArrowId"
+          @click="save"
+        />
       </template>
     </Dialog>
 

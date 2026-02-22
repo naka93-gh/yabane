@@ -17,7 +17,7 @@ import {
   type GridLine
 } from '../utils/gantt-helper'
 import { useArrowStore } from '../stores/arrow'
-import type { Arrow } from '../types/models'
+import type { Arrow } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useArrowStore()
@@ -40,7 +40,7 @@ const formName = ref('')
 const formOwner = ref('')
 const formStartDate = ref<Date | null>(null)
 const formEndDate = ref<Date | null>(null)
-const formStatus = ref('not_started')
+const formStatus = ref<Arrow['status']>('not_started')
 
 const dialogTitle = computed(() => (editingId.value ? '矢羽を編集' : '矢羽を追加'))
 
@@ -61,7 +61,13 @@ const gridLines = computed<GridLine[]>(() => buildGridLines(allDates.value, DAY_
 
 function barStyle(arrow: Arrow): Record<string, string> | null {
   if (!arrow.start_date || !arrow.end_date) return null
-  return calcBarStyle(arrow.start_date, arrow.end_date, store.dateRange.start, DAY_WIDTH, arrow.status)
+  return calcBarStyle(
+    arrow.start_date,
+    arrow.end_date,
+    store.dateRange.start,
+    DAY_WIDTH,
+    arrow.status
+  )
 }
 
 // --- CRUD ---
@@ -86,7 +92,6 @@ function openEdit(a: Arrow): void {
   formStatus.value = a.status
   dialogVisible.value = true
 }
-
 
 async function save(): Promise<void> {
   const projectId = projectStore.currentProject?.id
@@ -171,13 +176,7 @@ function confirmDelete(a: Arrow): void {
                 title="子矢羽を追加"
                 @click="openCreate(node.arrow.id)"
               />
-              <Button
-                icon="pi pi-pencil"
-                text
-                rounded
-                size="small"
-                @click="openEdit(node.arrow)"
-              />
+              <Button icon="pi pi-pencil" text rounded size="small" @click="openEdit(node.arrow)" />
               <Button
                 icon="pi pi-trash"
                 text
@@ -223,11 +222,7 @@ function confirmDelete(a: Arrow): void {
                   :style="{ left: `${gl.left}px` }"
                 />
                 <!-- バー -->
-                <div
-                  v-if="barStyle(node.arrow)"
-                  class="gantt-bar"
-                  :style="barStyle(node.arrow)!"
-                />
+                <div v-if="barStyle(node.arrow)" class="gantt-bar" :style="barStyle(node.arrow)!" />
               </div>
             </div>
           </div>

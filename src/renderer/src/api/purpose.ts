@@ -1,4 +1,4 @@
-import type { Purpose } from '../types/models'
+import type { Purpose } from '@shared/types/models'
 
 /** プロジェクトの目的を取得する */
 export function getPurpose(args: { projectId: number }): Promise<Purpose | null> {

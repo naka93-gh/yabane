@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { Arrow, WbsItem } from '../types/models'
+import type { Arrow, WbsItem } from '@shared/types/models'
 import * as api from '../api/wbs'
 import { useArrowStore } from './arrow'
 
@@ -156,7 +156,10 @@ export const useWbsStore = defineStore('wbs', () => {
       }
 
       // 子矢羽がない親矢羽も表示
-      if (children.length === 0 || (activeArrowIds && !rows.some((r) => r.parentArrow?.id === parent.id))) {
+      if (
+        children.length === 0 ||
+        (activeArrowIds && !rows.some((r) => r.parentArrow?.id === parent.id))
+      ) {
         if (!activeArrowIds) {
           rows.push({
             type: 'parent',
@@ -229,7 +232,7 @@ export const useWbsStore = defineStore('wbs', () => {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: WbsItem['status']
     progress?: number
     estimatedHours?: number
   }): Promise<WbsItem> {
@@ -246,7 +249,7 @@ export const useWbsStore = defineStore('wbs', () => {
     startDate?: string
     endDate?: string
     owner?: string
-    status?: string
+    status?: WbsItem['status']
     progress?: number
     estimatedHours?: number
     actualHours?: number

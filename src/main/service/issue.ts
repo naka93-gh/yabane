@@ -1,11 +1,12 @@
 import { getDatabase } from '../database'
+import type { Issue } from '../../shared/types/models'
 
 /** 課題一覧を取得する */
-export function listIssues(projectId: number): unknown[] {
+export function listIssues(projectId: number): Issue[] {
   const db = getDatabase()
   return db
     .prepare('SELECT * FROM issue WHERE project_id = ? ORDER BY created_at DESC')
-    .all(projectId)
+    .all(projectId) as Issue[]
 }
 
 /** 課題を作成する */
@@ -14,10 +15,10 @@ export function createIssue(args: {
   title: string
   description?: string
   owner?: string
-  priority?: string
-  status?: string
+  priority?: Issue['priority']
+  status?: Issue['status']
   dueDate?: string
-}): unknown {
+}): Issue {
   const db = getDatabase()
   return db
     .prepare(
@@ -32,7 +33,7 @@ export function createIssue(args: {
       args.priority ?? 'medium',
       args.status ?? 'open',
       args.dueDate ?? null
-    )
+    ) as Issue
 }
 
 /** 課題を更新する */
@@ -41,24 +42,14 @@ export function updateIssue(args: {
   title?: string
   description?: string
   owner?: string
-  priority?: string
-  status?: string
+  priority?: Issue['priority']
+  status?: Issue['status']
   dueDate?: string
   resolution?: string
-}): unknown {
+}): Issue | null {
   const db = getDatabase()
 
-  const issue = db.prepare('SELECT * FROM issue WHERE id = ?').get(args.id) as
-    | {
-        title: string
-        description: string | null
-        owner: string | null
-        priority: string
-        status: string
-        due_date: string | null
-        resolution: string | null
-      }
-    | undefined
+  const issue = db.prepare('SELECT * FROM issue WHERE id = ?').get(args.id) as Issue | undefined
   if (!issue) return null
 
   const title = args.title ?? issue.title
@@ -75,11 +66,11 @@ export function updateIssue(args: {
        due_date = ?, resolution = ?, updated_at = datetime('now')
        WHERE id = ? RETURNING *`
     )
-    .get(title, description, owner, priority, status, dueDate, resolution, args.id)
+    .get(title, description, owner, priority, status, dueDate, resolution, args.id) as Issue
 }
 
 /** 課題を削除する */
-export function deleteIssue(id: number): unknown {
+export function deleteIssue(id: number): Issue | undefined {
   const db = getDatabase()
-  return db.prepare('DELETE FROM issue WHERE id = ? RETURNING *').get(id)
+  return db.prepare('DELETE FROM issue WHERE id = ? RETURNING *').get(id) as Issue | undefined
 }

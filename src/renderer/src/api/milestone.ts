@@ -1,4 +1,4 @@
-import type { Milestone } from '../types/models'
+import type { Milestone } from '@shared/types/models'
 
 /** マイルストーン一覧を取得する */
 export function listMilestones(args: { projectId: number }): Promise<Milestone[]> {

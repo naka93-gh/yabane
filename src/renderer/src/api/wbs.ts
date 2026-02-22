@@ -1,4 +1,4 @@
-import type { WbsItem } from '../types/models'
+import type { WbsItem } from '@shared/types/models'
 
 /** WBS 一覧を取得する */
 export function listWbsItems(args: { projectId: number }): Promise<WbsItem[]> {
@@ -12,7 +12,7 @@ export function createWbsItem(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: WbsItem['status']
   progress?: number
   estimatedHours?: number
 }): Promise<WbsItem> {
@@ -27,7 +27,7 @@ export function updateWbsItem(args: {
   startDate?: string
   endDate?: string
   owner?: string
-  status?: string
+  status?: WbsItem['status']
   progress?: number
   estimatedHours?: number
   actualHours?: number

@@ -1,4 +1,4 @@
-import type { Project } from '../types/models'
+import type { Project } from '@shared/types/models'
 
 /** プロジェクト一覧を取得する */
 export function listProjects(args?: { status?: 'active' | 'archived' }): Promise<Project[]> {
