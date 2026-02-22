@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { WbsTreeRow } from '../../stores/wbs'
+import { diffDays } from '../../utils/date-helper'
 
 const props = defineProps<{
   rows: WbsTreeRow[]
@@ -10,9 +11,6 @@ const props = defineProps<{
 const ROW_HEIGHT = 36
 const DAY_WIDTH = 24
 
-function diffDays(a: Date, b: Date): number {
-  return Math.round((b.getTime() - a.getTime()) / 86_400_000)
-}
 
 const allDates = computed<Date[]>(() => {
   const { start, end } = props.dateRange

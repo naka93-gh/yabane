@@ -8,6 +8,7 @@ import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
+import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useIssueStore } from '../stores/issue'
 import type { Issue } from '../types/models'
@@ -78,12 +79,6 @@ watch(
   { immediate: true }
 )
 
-function formatDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 function formatDisplayDate(dateStr: string | null): string {
   if (!dateStr) return ''

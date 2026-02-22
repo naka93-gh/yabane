@@ -7,6 +7,7 @@ import Textarea from 'primevue/textarea'
 import DatePicker from 'primevue/datepicker'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
+import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useMilestoneStore } from '../stores/milestone'
 import type { Milestone } from '../types/models'
@@ -66,12 +67,6 @@ function openEdit(m: Milestone): void {
   dialogVisible.value = true
 }
 
-function formatDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 async function save(): Promise<void> {
   const projectId = projectStore.currentProject?.id

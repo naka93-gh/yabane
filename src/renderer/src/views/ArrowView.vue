@@ -8,6 +8,7 @@ import Select from 'primevue/select'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import { useProjectStore } from '../stores/project'
+import { formatDate, diffDays } from '../utils/date-helper'
 import { useArrowStore } from '../stores/arrow'
 import type { Arrow } from '../types/models'
 
@@ -47,10 +48,6 @@ watch(
 )
 
 // --- 日付ユーティリティ ---
-function diffDays(a: Date, b: Date): number {
-  const msPerDay = 86_400_000
-  return Math.round((b.getTime() - a.getTime()) / msPerDay)
-}
 
 /** dateRange 内の全日付を配列で返す */
 const allDates = computed<Date[]>(() => {
@@ -151,12 +148,6 @@ function openEdit(a: Arrow): void {
   dialogVisible.value = true
 }
 
-function formatDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 async function save(): Promise<void> {
   const projectId = projectStore.currentProject?.id
