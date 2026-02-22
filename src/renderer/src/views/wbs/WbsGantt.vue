@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { WbsTreeRow } from '../../stores/wbs'
-import { diffDays } from '../../utils/date-helper'
+import {
+  buildAllDates,
+  buildMonthHeaders,
+  buildMonthBoundaries,
+  calcBarStyle
+} from '../../utils/gantt-helper'
 
 const props = defineProps<{
   rows: WbsTreeRow[]
@@ -12,42 +17,9 @@ const ROW_HEIGHT = 36
 const DAY_WIDTH = 24
 
 
-const allDates = computed<Date[]>(() => {
-  const { start, end } = props.dateRange
-  const days = diffDays(start, end)
-  const result: Date[] = []
-  for (let i = 0; i <= days; i++) {
-    const d = new Date(start)
-    d.setDate(d.getDate() + i)
-    result.push(d)
-  }
-  return result
-})
-
+const allDates = computed(() => buildAllDates(props.dateRange.start, props.dateRange.end))
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
-
-/** 月ラベル */
-const monthHeaders = computed<{ label: string; left: number; width: number }[]>(() => {
-  const dates = allDates.value
-  if (dates.length === 0) return []
-  const groups: { label: string; startIdx: number; count: number }[] = []
-  let current = ''
-  for (let i = 0; i < dates.length; i++) {
-    const d = dates[i]
-    const key = `${d.getFullYear()}-${d.getMonth()}`
-    if (key !== current) {
-      current = key
-      groups.push({ label: `${d.getMonth() + 1}月`, startIdx: i, count: 1 })
-    } else {
-      groups[groups.length - 1].count++
-    }
-  }
-  return groups.map((g) => ({
-    label: g.label,
-    left: g.startIdx * DAY_WIDTH,
-    width: g.count * DAY_WIDTH
-  }))
-})
+const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
 
 /** 日番号ヘッダー */
 const dayHeaders = computed<{ label: string; left: number; isWeekend: boolean }[]>(() => {
@@ -65,36 +37,11 @@ const weekendColumns = computed<{ left: number }[]>(() => {
     .filter((c) => c.isWeekend)
 })
 
-/** 月境界グリッド線 */
-const monthBoundaries = computed<number[]>(() => {
-  const lines: number[] = []
-  for (let i = 0; i < allDates.value.length; i++) {
-    if (allDates.value[i].getDate() === 1) {
-      lines.push(i * DAY_WIDTH)
-    }
-  }
-  return lines
-})
-
-/** ステータスに応じた色 */
-const BAR_COLORS: Record<string, string> = {
-  not_started: 'var(--p-text-muted-color)',
-  in_progress: 'var(--p-primary-color)',
-  done: 'var(--p-green-500)'
-}
+const monthBoundaries = computed(() => buildMonthBoundaries(allDates.value, DAY_WIDTH))
 
 function barStyle(row: WbsTreeRow): Record<string, string> | null {
   if (!row.startDate || !row.endDate) return null
-  const start = new Date(row.startDate)
-  const end = new Date(row.endDate)
-  const rangeStart = props.dateRange.start
-  const leftDays = diffDays(rangeStart, start)
-  const spanDays = diffDays(start, end) + 1
-  return {
-    left: `${leftDays * DAY_WIDTH}px`,
-    width: `${spanDays * DAY_WIDTH}px`,
-    background: BAR_COLORS[row.status] ?? BAR_COLORS.not_started
-  }
+  return calcBarStyle(row.startDate, row.endDate, props.dateRange.start, DAY_WIDTH, row.status)
 }
 </script>
 

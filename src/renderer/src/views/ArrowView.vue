@@ -8,7 +8,14 @@ import Select from 'primevue/select'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import { useProjectStore } from '../stores/project'
-import { formatDate, diffDays } from '../utils/date-helper'
+import { formatDate } from '../utils/date-helper'
+import {
+  buildAllDates,
+  buildMonthHeaders,
+  buildGridLines,
+  calcBarStyle,
+  type GridLine
+} from '../utils/gantt-helper'
 import { useArrowStore } from '../stores/arrow'
 import type { Arrow } from '../types/models'
 
@@ -47,82 +54,14 @@ watch(
   { immediate: true }
 )
 
-// --- 日付ユーティリティ ---
-
-/** dateRange 内の全日付を配列で返す */
-const allDates = computed<Date[]>(() => {
-  const { start, end } = store.dateRange
-  const days = diffDays(start, end)
-  const result: Date[] = []
-  for (let i = 0; i <= days; i++) {
-    const d = new Date(start)
-    d.setDate(d.getDate() + i)
-    result.push(d)
-  }
-  return result
-})
-
+const allDates = computed(() => buildAllDates(store.dateRange.start, store.dateRange.end))
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
-
-/** 月ラベル用: 月の変わり目を検出 */
-const monthHeaders = computed<{ label: string; left: number; width: number }[]>(() => {
-  const dates = allDates.value
-  if (dates.length === 0) return []
-  const groups: { label: string; startIdx: number; count: number }[] = []
-  let current = ''
-  for (let i = 0; i < dates.length; i++) {
-    const d = dates[i]
-    const key = `${d.getFullYear()}-${d.getMonth()}`
-    if (key !== current) {
-      current = key
-      groups.push({ label: `${d.getMonth() + 1}月`, startIdx: i, count: 1 })
-    } else {
-      groups[groups.length - 1].count++
-    }
-  }
-  return groups.map((g) => ({
-    label: g.label,
-    left: g.startIdx * DAY_WIDTH,
-    width: g.count * DAY_WIDTH
-  }))
-})
-
-/** 月境界と三等分線の位置を算出 */
-interface GridLine { left: number; type: 'month' | 'third' }
-const gridLines = computed<GridLine[]>(() => {
-  const dates = allDates.value
-  const lines: GridLine[] = []
-  for (let i = 0; i < dates.length; i++) {
-    const d = dates[i]
-    const day = d.getDate()
-    if (day === 1) {
-      lines.push({ left: i * DAY_WIDTH, type: 'month' })
-    } else if (day === 11 || day === 21) {
-      lines.push({ left: i * DAY_WIDTH, type: 'third' })
-    }
-  }
-  return lines
-})
-
-// --- ガントバー ---
-const BAR_COLORS: Record<string, string> = {
-  not_started: 'var(--p-text-muted-color)',
-  in_progress: 'var(--p-primary-color)',
-  done: 'var(--p-green-500)'
-}
+const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
+const gridLines = computed<GridLine[]>(() => buildGridLines(allDates.value, DAY_WIDTH))
 
 function barStyle(arrow: Arrow): Record<string, string> | null {
   if (!arrow.start_date || !arrow.end_date) return null
-  const start = new Date(arrow.start_date)
-  const end = new Date(arrow.end_date)
-  const rangeStart = store.dateRange.start
-  const leftDays = diffDays(rangeStart, start)
-  const spanDays = diffDays(start, end) + 1
-  return {
-    left: `${leftDays * DAY_WIDTH}px`,
-    width: `${spanDays * DAY_WIDTH}px`,
-    background: BAR_COLORS[arrow.status] ?? BAR_COLORS.not_started
-  }
+  return calcBarStyle(arrow.start_date, arrow.end_date, store.dateRange.start, DAY_WIDTH, arrow.status)
 }
 
 // --- CRUD ---
