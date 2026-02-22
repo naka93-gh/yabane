@@ -7,6 +7,7 @@ import {
   reorderWbsItems
 } from '../service/wbs'
 
+/** WBS 関連の IPC ハンドラを登録する */
 export function registerWbsHandlers(): void {
   ipcMain.handle('wbs:list', (_e, args: { projectId: number }) => {
     return listWbsItems(args.projectId)

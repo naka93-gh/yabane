@@ -5,6 +5,7 @@ export type ThemeMode = 'system' | 'light' | 'dark'
 
 const STORAGE_KEY = 'yabane-theme-mode'
 
+/** localStorage からテーマモードを読み込む */
 function loadMode(): ThemeMode {
   const v = localStorage.getItem(STORAGE_KEY)
   if (v === 'light' || v === 'dark') return v
@@ -32,6 +33,7 @@ export const useThemeStore = defineStore('theme', () => {
     { immediate: true }
   )
 
+  /** テーマモードを変更して localStorage に保存する */
   function setMode(m: ThemeMode): void {
     mode.value = m
     localStorage.setItem(STORAGE_KEY, m)

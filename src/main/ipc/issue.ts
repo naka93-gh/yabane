@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { listIssues, createIssue, updateIssue, deleteIssue } from '../service/issue'
 
+/** 課題関連の IPC ハンドラを登録する */
 export function registerIssueHandlers(): void {
   ipcMain.handle('issue:list', (_e, args: { projectId: number }) => {
     return listIssues(args.projectId)

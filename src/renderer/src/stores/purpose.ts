@@ -7,6 +7,7 @@ export const usePurposeStore = defineStore('purpose', () => {
   const purpose = ref<Purpose | null>(null)
   const loading = ref(false)
 
+  /** 目的を取得してストアに反映する */
   async function fetchPurpose(projectId: number): Promise<void> {
     loading.value = true
     try {
@@ -16,6 +17,7 @@ export const usePurposeStore = defineStore('purpose', () => {
     }
   }
 
+  /** 目的を保存してストアに反映する */
   async function savePurpose(data: {
     projectId: number
     background?: string

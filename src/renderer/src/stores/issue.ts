@@ -13,6 +13,7 @@ export const useIssueStore = defineStore('issue', () => {
   const loading = ref(false)
   const filter = ref<IssueFilter>({ status: null, priority: null })
 
+  /** フィルタ後の課題一覧 */
   const filteredIssues = computed(() => {
     let result = issues.value
     if (filter.value.status !== null) {
@@ -24,6 +25,7 @@ export const useIssueStore = defineStore('issue', () => {
     return result
   })
 
+  /** 課題一覧を取得する */
   async function fetchIssues(projectId: number): Promise<void> {
     loading.value = true
     try {
@@ -33,6 +35,7 @@ export const useIssueStore = defineStore('issue', () => {
     }
   }
 
+  /** 課題を追加する（先頭に挿入） */
   async function addIssue(data: {
     projectId: number
     title: string
@@ -47,6 +50,7 @@ export const useIssueStore = defineStore('issue', () => {
     return created
   }
 
+  /** 課題を更新する */
   async function editIssue(data: {
     id: number
     title?: string
@@ -62,16 +66,19 @@ export const useIssueStore = defineStore('issue', () => {
     if (idx !== -1) issues.value[idx] = updated
   }
 
+  /** 課題を削除する */
   async function removeIssue(id: number): Promise<void> {
     await api.deleteIssue({ id })
     issues.value = issues.value.filter((i) => i.id !== id)
   }
 
+  /** フィルタ条件を部分的に更新する */
   function setFilter(f: Partial<IssueFilter>): void {
     if (f.status !== undefined) filter.value.status = f.status
     if (f.priority !== undefined) filter.value.priority = f.priority
   }
 
+  /** フィルタ条件を全てリセットする */
   function clearFilter(): void {
     filter.value = { status: null, priority: null }
   }

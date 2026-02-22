@@ -11,6 +11,7 @@ import { registerWbsHandlers } from './ipc/wbs'
 import { registerIssueHandlers } from './ipc/issue'
 import { registerExportHandlers } from './ipc/export'
 
+/** メインウィンドウを作成する */
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1200,

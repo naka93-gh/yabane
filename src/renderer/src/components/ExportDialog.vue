@@ -41,11 +41,13 @@ const sections: SectionOption[] = [
 
 const selected = ref<ExportSection[]>(['purpose', 'milestone', 'arrow', 'wbs', 'issue'])
 
+/** ダイアログを開いてセクション選択を初期化する */
 function open(): void {
   selected.value = ['purpose', 'milestone', 'arrow', 'wbs', 'issue']
   visible.value = true
 }
 
+/** 選択セクションのデータを収集し Excel を生成・保存する */
 async function doExport(): Promise<void> {
   const project = projectStore.currentProject
   if (!project || selected.value.length === 0) return

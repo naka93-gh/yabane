@@ -1,17 +1,21 @@
 import type { Project } from '../types/models'
 
+/** プロジェクト一覧を取得する */
 export function listProjects(args?: { status?: 'active' | 'archived' }): Promise<Project[]> {
   return window.api.project.list(args)
 }
 
+/** プロジェクトを1件取得する */
 export function getProject(args: { id: number }): Promise<Project | null> {
   return window.api.project.get(args)
 }
 
+/** プロジェクトを作成する */
 export function createProject(args: { name: string; description?: string }): Promise<Project> {
   return window.api.project.create(args)
 }
 
+/** プロジェクトを更新する */
 export function updateProject(args: {
   id: number
   name?: string
@@ -20,10 +24,12 @@ export function updateProject(args: {
   return window.api.project.update(args)
 }
 
+/** プロジェクトをアーカイブする */
 export function archiveProject(args: { id: number }): Promise<Project> {
   return window.api.project.archive(args)
 }
 
+/** プロジェクトのアーカイブを解除する */
 export function unarchiveProject(args: { id: number }): Promise<Project> {
   return window.api.project.unarchive(args)
 }

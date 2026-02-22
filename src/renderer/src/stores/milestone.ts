@@ -7,6 +7,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
   const milestones = ref<Milestone[]>([])
   const loading = ref(false)
 
+  /** マイルストーン一覧を取得する */
   async function fetchMilestones(projectId: number): Promise<void> {
     loading.value = true
     try {
@@ -16,6 +17,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
     }
   }
 
+  /** マイルストーンを追加する */
   async function addMilestone(data: {
     projectId: number
     name: string
@@ -28,6 +30,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
     return created
   }
 
+  /** マイルストーンを更新する */
   async function editMilestone(data: {
     id: number
     name?: string
@@ -40,11 +43,13 @@ export const useMilestoneStore = defineStore('milestone', () => {
     if (idx !== -1) milestones.value[idx] = updated
   }
 
+  /** マイルストーンを削除する */
   async function removeMilestone(id: number): Promise<void> {
     await api.deleteMilestone({ id })
     milestones.value = milestones.value.filter((m) => m.id !== id)
   }
 
+  /** 並び順を更新しローカル状態に反映する */
   async function reorder(ids: number[]): Promise<void> {
     await api.reorderMilestones({ ids })
     const map = new Map(milestones.value.map((m) => [m.id, m]))

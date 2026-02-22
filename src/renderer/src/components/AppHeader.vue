@@ -9,6 +9,7 @@ import type { ThemeMode } from '../stores/theme'
 const store = useProjectStore()
 const themeStore = useThemeStore()
 
+/** プロジェクトセレクトの v-model 用（選択時に store を更新） */
 const selectedProjectId = computed({
   get: () => store.currentProject?.id ?? null,
   set: (id: number | null) => {
@@ -16,6 +17,7 @@ const selectedProjectId = computed({
   }
 })
 
+/** 現在のテーマモードに応じたアイコンクラスを返す */
 const themeIcon = computed(() => {
   const icons: Record<ThemeMode, string> = {
     system: 'pi-desktop',
@@ -25,6 +27,7 @@ const themeIcon = computed(() => {
   return icons[themeStore.mode]
 })
 
+/** テーマを system → light → dark の順に切り替える */
 const cycleTheme = (): void => {
   const order: ThemeMode[] = ['system', 'light', 'dark']
   const next = order[(order.indexOf(themeStore.mode) + 1) % order.length]
@@ -33,6 +36,7 @@ const cycleTheme = (): void => {
 
 const emit = defineEmits<{ exportExcel: [] }>()
 
+/** プロジェクト管理ダイアログを開く */
 const showProjectDialog = (): void => {
   store.dialogVisible = true
 }

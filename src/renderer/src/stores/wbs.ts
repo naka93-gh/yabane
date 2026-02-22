@@ -212,6 +212,7 @@ export const useWbsStore = defineStore('wbs', () => {
     return { start: new Date(now - 30 * DAY), end: new Date(now + 60 * DAY) }
   })
 
+  /** WBS 一覧を取得する */
   async function fetchItems(projectId: number): Promise<void> {
     loading.value = true
     try {
@@ -221,6 +222,7 @@ export const useWbsStore = defineStore('wbs', () => {
     }
   }
 
+  /** WBS タスクを追加する */
   async function addItem(data: {
     arrowId: number
     name: string
@@ -236,6 +238,7 @@ export const useWbsStore = defineStore('wbs', () => {
     return created
   }
 
+  /** WBS タスクを更新する */
   async function editItem(data: {
     id: number
     arrowId?: number
@@ -253,6 +256,7 @@ export const useWbsStore = defineStore('wbs', () => {
     if (idx !== -1) items.value[idx] = updated
   }
 
+  /** WBS タスクを削除する */
   async function removeItem(id: number): Promise<void> {
     await api.deleteWbsItem({ id })
     items.value = items.value.filter((i) => i.id !== id)
@@ -263,12 +267,14 @@ export const useWbsStore = defineStore('wbs', () => {
     items.value = items.value.filter((i) => i.arrow_id !== arrowId)
   }
 
+  /** フィルタ条件を部分的に更新する */
   function setFilter(f: Partial<WbsFilter>): void {
     if (f.arrowId !== undefined) filter.value.arrowId = f.arrowId
     if (f.status !== undefined) filter.value.status = f.status
     if (f.owner !== undefined) filter.value.owner = f.owner
   }
 
+  /** フィルタ条件を全てリセットする */
   function clearFilter(): void {
     filter.value = { arrowId: null, status: null, owner: null }
   }

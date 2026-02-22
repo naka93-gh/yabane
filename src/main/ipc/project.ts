@@ -8,6 +8,7 @@ import {
   unarchiveProject
 } from '../service/project'
 
+/** プロジェクト関連の IPC ハンドラを登録する */
 export function registerProjectHandlers(): void {
   ipcMain.handle('project:list', (_e, args: { status?: 'active' | 'archived' }) => {
     return listProjects(args?.status)

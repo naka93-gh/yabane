@@ -1,6 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { writeFileSync } from 'fs'
 
+/** Excel エクスポート関連の IPC ハンドラを登録する */
 export function registerExportHandlers(): void {
   ipcMain.handle(
     'export:saveExcel',

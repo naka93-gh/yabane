@@ -7,6 +7,7 @@ import {
   reorderMilestones
 } from '../service/milestone'
 
+/** マイルストーン関連の IPC ハンドラを登録する */
 export function registerMilestoneHandlers(): void {
   ipcMain.handle('milestone:list', (_e, args: { projectId: number }) => {
     return listMilestones(args.projectId)

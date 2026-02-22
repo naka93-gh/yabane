@@ -18,6 +18,7 @@ const newDescription = ref('')
 const showArchived = ref(false)
 const archivedProjects = ref<Project[]>([])
 
+// ダイアログ表示時にフォームをリセットし一覧を再取得
 watch(
   () => store.dialogVisible,
   async (visible) => {
@@ -30,12 +31,14 @@ watch(
   }
 )
 
+// アーカイブ表示トグル切替時にアーカイブ済み一覧を取得
 watch(showArchived, async (val) => {
   if (val) {
     archivedProjects.value = await listProjects({ status: 'archived' })
   }
 })
 
+// トグル状態に応じて表示するプロジェクト一覧を切り替える
 const displayedProjects = ref<Project[]>([])
 watch(
   [() => store.projects, () => archivedProjects.value, showArchived],
@@ -45,6 +48,7 @@ watch(
   { immediate: true }
 )
 
+/** プロジェクトを作成して選択状態にする */
 async function handleCreate(): Promise<void> {
   if (!newName.value.trim()) return
   const project = await store.createProject(newName.value.trim(), newDescription.value.trim() || undefined)
@@ -53,11 +57,13 @@ async function handleCreate(): Promise<void> {
   newDescription.value = ''
 }
 
+/** プロジェクトをアーカイブしてアーカイブ一覧を更新する */
 async function handleArchive(project: Project): Promise<void> {
   await store.archiveProject(project.id)
   archivedProjects.value = await listProjects({ status: 'archived' })
 }
 
+/** プロジェクトを復元して両方の一覧を更新する */
 async function handleUnarchive(project: Project): Promise<void> {
   await store.unarchiveProject(project.id)
   archivedProjects.value = await listProjects({ status: 'archived' })

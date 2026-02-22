@@ -8,10 +8,12 @@ export const useProjectStore = defineStore('project', () => {
   const currentProject = ref<Project | null>(null)
   const dialogVisible = ref(false)
 
+  /** プロジェクト一覧を取得してストアに反映する */
   async function fetchProjects(status: 'active' | 'archived' = 'active'): Promise<void> {
     projects.value = await api.listProjects({ status })
   }
 
+  /** プロジェクトを選択して currentProject に設定する */
   async function selectProject(id: number): Promise<void> {
     const project = await api.getProject({ id })
     if (project) {
@@ -19,12 +21,14 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /** プロジェクトを作成し一覧を再取得する */
   async function createProject(name: string, description?: string): Promise<Project> {
     const project = await api.createProject({ name, description })
     await fetchProjects()
     return project
   }
 
+  /** プロジェクトを更新し一覧を再取得する */
   async function updateProject(
     id: number,
     data: { name?: string; description?: string }
@@ -36,6 +40,7 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /** プロジェクトをアーカイブする */
   async function archiveProject(id: number): Promise<void> {
     await api.archiveProject({ id })
     if (currentProject.value?.id === id) {
@@ -44,6 +49,7 @@ export const useProjectStore = defineStore('project', () => {
     await fetchProjects()
   }
 
+  /** プロジェクトのアーカイブを解除する */
   async function unarchiveProject(id: number): Promise<void> {
     await api.unarchiveProject({ id })
   }

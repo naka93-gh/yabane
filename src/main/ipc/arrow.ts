@@ -7,6 +7,7 @@ import {
   reorderArrows
 } from '../service/arrow'
 
+/** 矢羽関連の IPC ハンドラを登録する */
 export function registerArrowHandlers(): void {
   ipcMain.handle('arrow:list', (_e, args: { projectId: number }) => {
     return listArrows(args.projectId)

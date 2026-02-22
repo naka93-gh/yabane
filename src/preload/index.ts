@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+/** renderer に公開する IPC ブリッジ */
 const api = {
   project: {
     list: (args?: { status?: 'active' | 'archived' }) =>

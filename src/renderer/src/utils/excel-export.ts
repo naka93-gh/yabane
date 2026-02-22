@@ -35,24 +35,28 @@ const CELL_STYLE: CellStyle = {
   border: thinBorder()
 }
 
+/** 細線の罫線スタイルを返す */
 function thinBorder(): CellStyle['border'] {
   const side = { style: 'thin' as const, color: { rgb: 'B4C6E7' } }
   return { top: side, bottom: side, left: side, right: side }
 }
 
+/** 通常セルを生成する */
 function cell(v: string | number | null, style: CellStyle = CELL_STYLE): XLSX.CellObject {
   return { v: v ?? '', t: typeof v === 'number' ? 'n' : 's', s: style }
 }
 
+/** ヘッダーセルを生成する */
 function headerCell(v: string): XLSX.CellObject {
   return { v, t: 's', s: HEADER_STYLE }
 }
 
+/** ラベルセル（背景色付き）を生成する */
 function labelCell(v: string): XLSX.CellObject {
   return { v, t: 's', s: LABEL_STYLE }
 }
 
-// --- ワークブック構築 ---
+/** 選択されたセクションからワークブックを構築する */
 export function buildWorkbook(data: ExportData, sections: ExportSection[]): XLSX.WorkBook {
   const wb = XLSX.utils.book_new()
 
@@ -75,12 +79,13 @@ export function buildWorkbook(data: ExportData, sections: ExportSection[]): XLSX
   return wb
 }
 
+/** ワークブックを ArrayBuffer に変換する */
 export function workbookToBuffer(wb: XLSX.WorkBook): number[] {
   const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }) as ArrayBuffer
   return Array.from(new Uint8Array(out))
 }
 
-// --- 目的シート ---
+/** 目的シートを構築する */
 function buildPurposeSheet(purpose: Purpose | null): WS {
   const fields: [string, string | null][] = [
     ['背景', purpose?.background ?? null],
@@ -103,7 +108,7 @@ function buildPurposeSheet(purpose: Purpose | null): WS {
   return ws
 }
 
-// --- マイルストーンシート ---
+/** マイルストーンシートを構築する */
 function buildMilestoneSheet(milestones: Milestone[]): WS {
   const headers = ['名前', '説明', '期限', 'カラー']
   const ws: WS = {}
@@ -131,7 +136,7 @@ function buildMilestoneSheet(milestones: Milestone[]): WS {
   return ws
 }
 
-// --- 矢羽シート ---
+// --- 矢羽シート用定数 ---
 const STATUS_LABELS: Record<string, string> = {
   not_started: '未着手',
   in_progress: '進行中',
@@ -144,6 +149,7 @@ const ARROW_BAR_COLORS: Record<string, string> = {
   done: '70AD47'
 }
 
+/** 矢羽シートを構築する（ツリー表示 + 旬単位のガントバー） */
 function buildArrowSheet(arrows: Arrow[]): WS {
   // ツリー構築
   const childrenMap = new Map<number | null, Arrow[]>()
@@ -260,13 +266,14 @@ function buildArrowSheet(arrows: Arrow[]): WS {
   return ws
 }
 
-// --- WBS シート ---
+// --- WBS シート用定数 ---
 const WBS_BAR_COLORS: Record<string, string> = {
   not_started: 'BFBFBF',
   in_progress: '4472C4',
   done: '70AD47'
 }
 
+/** WBS シートを構築する（親→子→タスクの3階層 + 日単位のガントバー） */
 function buildWbsSheet(arrows: Arrow[], wbsItems: WbsItem[]): WS {
   // 親→子→タスクのフラット行を構築
   const parents = arrows
@@ -481,7 +488,7 @@ function buildWbsSheet(arrows: Arrow[], wbsItems: WbsItem[]): WS {
   return ws
 }
 
-// --- 課題シート ---
+// --- 課題シート用定数 ---
 const PRIORITY_LABELS: Record<string, string> = {
   low: '低',
   medium: '中',
@@ -496,6 +503,7 @@ const ISSUE_STATUS_LABELS: Record<string, string> = {
   closed: 'クローズ'
 }
 
+/** 課題シートを構築する */
 function buildIssueSheet(issues: Issue[]): WS {
   const headers = ['タイトル', '説明', '優先度', 'ステータス', '担当者', '期限', '対応内容']
   const ws: WS = {}
@@ -523,7 +531,7 @@ function buildIssueSheet(issues: Issue[]): WS {
   return ws
 }
 
-// --- 日付ユーティリティ ---
+/** 日付文字列群から前後3日のマージンを含む日付配列を算出する */
 function calcDateRange(dateStrings: string[]): { dates: Date[]; startDate: Date | null } {
   if (dateStrings.length === 0) return { dates: [], startDate: null }
 
@@ -603,12 +611,14 @@ function calcJunRange(dateStrings: string[]): JunPeriod[] {
   return result
 }
 
+/** Date を旬に変換する */
 function dateToJun(d: Date): JunPeriod {
   const day = d.getDate()
   const jun: 0 | 1 | 2 = day <= 10 ? 0 : day <= 20 ? 1 : 2
   return { year: d.getFullYear(), month: d.getMonth() + 1, jun }
 }
 
+/** 次の旬を返す */
 function nextJun(p: JunPeriod): JunPeriod {
   if (p.jun < 2) return { year: p.year, month: p.month, jun: (p.jun + 1) as 0 | 1 | 2 }
   const nextMonth = p.month === 12 ? 1 : p.month + 1
@@ -616,6 +626,7 @@ function nextJun(p: JunPeriod): JunPeriod {
   return { year: nextYear, month: nextMonth, jun: 0 }
 }
 
+/** 前の旬を返す */
 function prevJun(p: JunPeriod): JunPeriod {
   if (p.jun > 0) return { year: p.year, month: p.month, jun: (p.jun - 1) as 0 | 1 | 2 }
   const prevMonth = p.month === 1 ? 12 : p.month - 1
@@ -623,6 +634,7 @@ function prevJun(p: JunPeriod): JunPeriod {
   return { year: prevYear, month: prevMonth, jun: 2 }
 }
 
+/** 旬 a が旬 b 以前かを判定する */
 function junLessOrEqual(a: JunPeriod, b: JunPeriod): boolean {
   if (a.year !== b.year) return a.year < b.year
   if (a.month !== b.month) return a.month < b.month

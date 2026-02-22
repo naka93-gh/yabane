@@ -8,6 +8,7 @@ export interface ArrowNode {
   depth: number
 }
 
+/** 矢羽リストを親子関係に基づいてフラットなツリー配列に変換する */
 function flattenTree(arrows: Arrow[]): ArrowNode[] {
   const childrenMap = new Map<number | null, Arrow[]>()
   for (const a of arrows) {
@@ -32,8 +33,10 @@ export const useArrowStore = defineStore('arrow', () => {
   const arrows = ref<Arrow[]>([])
   const loading = ref(false)
 
+  /** 矢羽のツリー構造（フラット配列） */
   const tree = computed<ArrowNode[]>(() => flattenTree(arrows.value))
 
+  /** ガント表示用の日付レンジ（前後7日のマージン付き） */
   const dateRange = computed<{ start: Date; end: Date }>(() => {
     let min: number | null = null
     let max: number | null = null
@@ -55,6 +58,7 @@ export const useArrowStore = defineStore('arrow', () => {
     return { start: new Date(now - 30 * DAY), end: new Date(now + 30 * DAY) }
   })
 
+  /** 矢羽一覧を取得する */
   async function fetchArrows(projectId: number): Promise<void> {
     loading.value = true
     try {
@@ -64,6 +68,7 @@ export const useArrowStore = defineStore('arrow', () => {
     }
   }
 
+  /** 矢羽を追加する */
   async function addArrow(data: {
     projectId: number
     parentId?: number
@@ -78,6 +83,7 @@ export const useArrowStore = defineStore('arrow', () => {
     return created
   }
 
+  /** 矢羽を更新する */
   async function editArrow(data: {
     id: number
     name?: string
@@ -92,6 +98,7 @@ export const useArrowStore = defineStore('arrow', () => {
     if (idx !== -1) arrows.value[idx] = updated
   }
 
+  /** 矢羽を削除する（子孫もローカル状態から除去） */
   async function removeArrow(id: number): Promise<void> {
     await api.deleteArrow({ id })
     // CASCADE で子も削除されるためフィルタ
@@ -99,6 +106,7 @@ export const useArrowStore = defineStore('arrow', () => {
     arrows.value = arrows.value.filter((a) => !removedIds.has(a.id))
   }
 
+  /** 指定 ID の子孫 ID を全て収集する */
   function collectDescendantIds(rootId: number): Set<number> {
     const ids = new Set<number>([rootId])
     let added = true
@@ -114,6 +122,7 @@ export const useArrowStore = defineStore('arrow', () => {
     return ids
   }
 
+  /** 並び順を更新しローカル状態に反映する */
   async function reorder(ids: number[]): Promise<void> {
     await api.reorderArrows({ ids })
     const map = new Map(arrows.value.map((a) => [a.id, a]))
