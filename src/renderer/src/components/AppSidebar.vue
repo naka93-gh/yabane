@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const activeSection = defineModel<string>('activeSection', { required: true })
+defineProps<{ activeSection: string }>()
+const emit = defineEmits<{ 'request-section': [key: string] }>()
 
 const sections = [
   { key: 'purpose', label: '目的', icon: 'pi pi-file-edit' },
@@ -17,7 +18,7 @@ const sections = [
         v-for="section in sections"
         :key="section.key"
         :class="['sidebar-item', { active: activeSection === section.key }]"
-        @click="activeSection = section.key"
+        @click="emit('request-section', section.key)"
       >
         <i :class="section.icon" />
         <span>{{ section.label }}</span>

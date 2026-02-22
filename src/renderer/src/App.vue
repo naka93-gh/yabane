@@ -12,10 +12,19 @@ import WbsView from './views/wbs/WbsView.vue'
 import IssueView from './views/IssueView.vue'
 import Toast from 'primevue/toast'
 import { useProjectStore } from './stores/project'
+import { useNavigationGuard } from './composables/useNavigationGuard'
 
 const store = useProjectStore()
+const guard = useNavigationGuard()
 const activeSection = ref('purpose')
 const exportDialog = ref<InstanceType<typeof ExportDialog> | null>(null)
+
+function onRequestSection(key: string): void {
+  if (key === activeSection.value) return
+  if (!guard.confirmLeave()) return
+  guard.reset()
+  activeSection.value = key
+}
 
 type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue'
 
@@ -39,8 +48,9 @@ onMounted(async () => {
   <div class="app-layout">
     <AppHeader class="app-header" @export-excel="exportDialog?.open()" />
     <AppSidebar
-      v-model:active-section="activeSection"
+      :active-section="activeSection"
       class="app-sidebar"
+      @request-section="onRequestSection"
     />
     <main class="app-main">
       <PurposeView v-if="store.currentProject && activeSection === 'purpose'" />
