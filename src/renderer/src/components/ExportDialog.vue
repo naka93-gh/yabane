@@ -10,6 +10,7 @@ import { useWbsStore } from '../stores/wbs'
 import { useIssueStore } from '../stores/issue'
 import { getPurpose } from '../api/purpose'
 import { saveExcel } from '../api/export'
+import { useAppToast } from '../composables/useAppToast'
 import {
   buildWorkbook,
   workbookToBuffer,
@@ -22,6 +23,8 @@ const milestoneStore = useMilestoneStore()
 const arrowStore = useArrowStore()
 const wbsStore = useWbsStore()
 const issueStore = useIssueStore()
+
+const toast = useAppToast()
 
 const visible = ref(false)
 const exporting = ref(false)
@@ -90,6 +93,9 @@ async function doExport(): Promise<void> {
 
     await saveExcel({ buffer, defaultName })
     visible.value = false
+    toast.success('Excelを出力しました')
+  } catch {
+    toast.error('Excelの出力に失敗しました')
   } finally {
     exporting.value = false
   }

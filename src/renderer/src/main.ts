@@ -5,6 +5,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
 import { definePreset } from '@primeuix/themes'
 import Aura from '@primeuix/themes/aura'
 import App from './App.vue'
@@ -40,6 +41,7 @@ app.use(PrimeVue, {
   }
 })
 app.use(ConfirmationService)
+app.use(ToastService)
 
 useThemeStore()
 

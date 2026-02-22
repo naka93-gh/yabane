@@ -10,6 +10,7 @@ import MilestoneView from './views/MilestoneView.vue'
 import ArrowView from './views/ArrowView.vue'
 import WbsView from './views/wbs/WbsView.vue'
 import IssueView from './views/IssueView.vue'
+import Toast from 'primevue/toast'
 import { useProjectStore } from './stores/project'
 
 const store = useProjectStore()
@@ -49,6 +50,7 @@ onMounted(async () => {
       <IssueView v-else-if="store.currentProject && activeSection === 'issue'" />
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
+    <Toast />
     <ProjectDialog />
     <ExportDialog ref="exportDialog" />
   </div>

@@ -11,11 +11,13 @@ import { useConfirm } from 'primevue/useconfirm'
 import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useIssueStore } from '../stores/issue'
+import { useAppToast } from '../composables/useAppToast'
 import type { Issue } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
 const confirm = useConfirm()
+const toast = useAppToast()
 
 const STATUS_OPTIONS = [
   { label: 'オープン', value: 'open' },
@@ -114,30 +116,36 @@ async function save(): Promise<void> {
   if (!projectId || !formTitle.value.trim()) return
 
   const dueDate = formDueDate.value ? formatDate(formDueDate.value) : undefined
+  const isEdit = !!editingId.value
 
-  if (editingId.value) {
-    await store.editIssue({
-      id: editingId.value,
-      title: formTitle.value.trim(),
-      description: formDescription.value || undefined,
-      owner: formOwner.value || undefined,
-      priority: formPriority.value,
-      status: formStatus.value,
-      dueDate,
-      resolution: formResolution.value || undefined
-    })
-  } else {
-    await store.addIssue({
-      projectId,
-      title: formTitle.value.trim(),
-      description: formDescription.value || undefined,
-      owner: formOwner.value || undefined,
-      priority: formPriority.value,
-      status: formStatus.value,
-      dueDate
-    })
+  try {
+    if (editingId.value) {
+      await store.editIssue({
+        id: editingId.value,
+        title: formTitle.value.trim(),
+        description: formDescription.value || undefined,
+        owner: formOwner.value || undefined,
+        priority: formPriority.value,
+        status: formStatus.value,
+        dueDate,
+        resolution: formResolution.value || undefined
+      })
+    } else {
+      await store.addIssue({
+        projectId,
+        title: formTitle.value.trim(),
+        description: formDescription.value || undefined,
+        owner: formOwner.value || undefined,
+        priority: formPriority.value,
+        status: formStatus.value,
+        dueDate
+      })
+    }
+    dialogVisible.value = false
+    toast.success(isEdit ? '更新しました' : '作成しました')
+  } catch {
+    toast.error(isEdit ? '更新に失敗しました' : '作成に失敗しました')
   }
-  dialogVisible.value = false
 }
 
 function confirmDelete(issue: Issue): void {
@@ -147,7 +155,14 @@ function confirmDelete(issue: Issue): void {
     acceptLabel: '削除',
     rejectLabel: 'キャンセル',
     acceptClass: 'p-button-danger',
-    accept: () => store.removeIssue(issue.id)
+    accept: async () => {
+      try {
+        await store.removeIssue(issue.id)
+        toast.success('削除しました')
+      } catch {
+        toast.error('削除に失敗しました')
+      }
+    }
   })
 }
 

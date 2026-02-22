@@ -12,6 +12,7 @@ import { formatDate } from '../../utils/date-helper'
 import { useProjectStore } from '../../stores/project'
 import { useArrowStore } from '../../stores/arrow'
 import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
+import { useAppToast } from '../../composables/useAppToast'
 import type { WbsItem } from '@shared/types/models'
 import WbsGantt from './WbsGantt.vue'
 
@@ -19,6 +20,7 @@ const projectStore = useProjectStore()
 const arrowStore = useArrowStore()
 const store = useWbsStore()
 const confirm = useConfirm()
+const toast = useAppToast()
 
 const ROW_HEIGHT = 36
 
@@ -110,33 +112,39 @@ async function save(): Promise<void> {
 
   const startDate = formStartDate.value ? formatDate(formStartDate.value) : undefined
   const endDate = formEndDate.value ? formatDate(formEndDate.value) : undefined
+  const isEdit = !!editingId.value
 
-  if (editingId.value) {
-    await store.editItem({
-      id: editingId.value,
-      arrowId: formArrowId.value,
-      name: formName.value.trim(),
-      owner: formOwner.value || undefined,
-      startDate,
-      endDate,
-      status: formStatus.value,
-      progress: formProgress.value,
-      estimatedHours: formEstimatedHours.value ?? undefined,
-      actualHours: formActualHours.value ?? undefined
-    })
-  } else {
-    await store.addItem({
-      arrowId: formArrowId.value,
-      name: formName.value.trim(),
-      owner: formOwner.value || undefined,
-      startDate,
-      endDate,
-      status: formStatus.value,
-      progress: formProgress.value,
-      estimatedHours: formEstimatedHours.value ?? undefined
-    })
+  try {
+    if (editingId.value) {
+      await store.editItem({
+        id: editingId.value,
+        arrowId: formArrowId.value,
+        name: formName.value.trim(),
+        owner: formOwner.value || undefined,
+        startDate,
+        endDate,
+        status: formStatus.value,
+        progress: formProgress.value,
+        estimatedHours: formEstimatedHours.value ?? undefined,
+        actualHours: formActualHours.value ?? undefined
+      })
+    } else {
+      await store.addItem({
+        arrowId: formArrowId.value,
+        name: formName.value.trim(),
+        owner: formOwner.value || undefined,
+        startDate,
+        endDate,
+        status: formStatus.value,
+        progress: formProgress.value,
+        estimatedHours: formEstimatedHours.value ?? undefined
+      })
+    }
+    dialogVisible.value = false
+    toast.success(isEdit ? '更新しました' : '作成しました')
+  } catch {
+    toast.error(isEdit ? '更新に失敗しました' : '作成に失敗しました')
   }
-  dialogVisible.value = false
 }
 
 function confirmDelete(row: WbsTreeRow): void {
@@ -147,7 +155,14 @@ function confirmDelete(row: WbsTreeRow): void {
     acceptLabel: '削除',
     rejectLabel: 'キャンセル',
     acceptClass: 'p-button-danger',
-    accept: () => store.removeItem(row.task!.id)
+    accept: async () => {
+      try {
+        await store.removeItem(row.task!.id)
+        toast.success('削除しました')
+      } catch {
+        toast.error('削除に失敗しました')
+      }
+    }
   })
 }
 

@@ -4,9 +4,11 @@ import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 import { useProjectStore } from '../stores/project'
 import { usePurposeStore } from '../stores/purpose'
+import { useAppToast } from '../composables/useAppToast'
 
 const projectStore = useProjectStore()
 const purposeStore = usePurposeStore()
+const toast = useAppToast()
 
 const background = ref('')
 const objective = ref('')
@@ -38,14 +40,19 @@ async function save(): Promise<void> {
   const projectId = projectStore.currentProject?.id
   if (!projectId) return
 
-  await purposeStore.savePurpose({
-    projectId,
-    background: background.value || undefined,
-    objective: objective.value || undefined,
-    scope: scope.value || undefined,
-    out_of_scope: outOfScope.value || undefined,
-    assumption: assumption.value || undefined
-  })
+  try {
+    await purposeStore.savePurpose({
+      projectId,
+      background: background.value || undefined,
+      objective: objective.value || undefined,
+      scope: scope.value || undefined,
+      out_of_scope: outOfScope.value || undefined,
+      assumption: assumption.value || undefined
+    })
+    toast.success('保存しました')
+  } catch {
+    toast.error('保存に失敗しました')
+  }
 }
 
 const fields = [

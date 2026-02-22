@@ -10,8 +10,10 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import type { Project } from '@shared/types/models'
 import { useProjectStore } from '../stores/project'
 import { listProjects } from '../api/project'
+import { useAppToast } from '../composables/useAppToast'
 
 const store = useProjectStore()
+const toast = useAppToast()
 
 const newName = ref('')
 const newDescription = ref('')
@@ -51,23 +53,38 @@ watch(
 /** プロジェクトを作成して選択状態にする */
 async function handleCreate(): Promise<void> {
   if (!newName.value.trim()) return
-  const project = await store.createProject(newName.value.trim(), newDescription.value.trim() || undefined)
-  await store.selectProject(project.id)
-  newName.value = ''
-  newDescription.value = ''
+  try {
+    const project = await store.createProject(newName.value.trim(), newDescription.value.trim() || undefined)
+    await store.selectProject(project.id)
+    newName.value = ''
+    newDescription.value = ''
+    toast.success('プロジェクトを作成しました')
+  } catch {
+    toast.error('プロジェクトの作成に失敗しました')
+  }
 }
 
 /** プロジェクトをアーカイブしてアーカイブ一覧を更新する */
 async function handleArchive(project: Project): Promise<void> {
-  await store.archiveProject(project.id)
-  archivedProjects.value = await listProjects({ status: 'archived' })
+  try {
+    await store.archiveProject(project.id)
+    archivedProjects.value = await listProjects({ status: 'archived' })
+    toast.success('アーカイブしました')
+  } catch {
+    toast.error('アーカイブに失敗しました')
+  }
 }
 
 /** プロジェクトを復元して両方の一覧を更新する */
 async function handleUnarchive(project: Project): Promise<void> {
-  await store.unarchiveProject(project.id)
-  archivedProjects.value = await listProjects({ status: 'archived' })
-  await store.fetchProjects()
+  try {
+    await store.unarchiveProject(project.id)
+    archivedProjects.value = await listProjects({ status: 'archived' })
+    await store.fetchProjects()
+    toast.success('復元しました')
+  } catch {
+    toast.error('復元に失敗しました')
+  }
 }
 </script>
 

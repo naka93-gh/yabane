@@ -17,11 +17,13 @@ import {
   type GridLine
 } from '../utils/gantt-helper'
 import { useArrowStore } from '../stores/arrow'
+import { useAppToast } from '../composables/useAppToast'
 import type { Arrow } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useArrowStore()
 const confirm = useConfirm()
+const toast = useAppToast()
 
 const ROW_HEIGHT = 40
 const DAY_WIDTH = 14
@@ -99,28 +101,34 @@ async function save(): Promise<void> {
 
   const startDate = formStartDate.value ? formatDate(formStartDate.value) : undefined
   const endDate = formEndDate.value ? formatDate(formEndDate.value) : undefined
+  const isEdit = !!editingId.value
 
-  if (editingId.value) {
-    await store.editArrow({
-      id: editingId.value,
-      name: formName.value.trim(),
-      owner: formOwner.value || undefined,
-      startDate,
-      endDate,
-      status: formStatus.value
-    })
-  } else {
-    await store.addArrow({
-      projectId,
-      parentId: formParentId.value ?? undefined,
-      name: formName.value.trim(),
-      owner: formOwner.value || undefined,
-      startDate,
-      endDate,
-      status: formStatus.value
-    })
+  try {
+    if (editingId.value) {
+      await store.editArrow({
+        id: editingId.value,
+        name: formName.value.trim(),
+        owner: formOwner.value || undefined,
+        startDate,
+        endDate,
+        status: formStatus.value
+      })
+    } else {
+      await store.addArrow({
+        projectId,
+        parentId: formParentId.value ?? undefined,
+        name: formName.value.trim(),
+        owner: formOwner.value || undefined,
+        startDate,
+        endDate,
+        status: formStatus.value
+      })
+    }
+    dialogVisible.value = false
+    toast.success(isEdit ? '更新しました' : '作成しました')
+  } catch {
+    toast.error(isEdit ? '更新に失敗しました' : '作成に失敗しました')
   }
-  dialogVisible.value = false
 }
 
 function hasChildren(id: number): boolean {
@@ -137,7 +145,14 @@ function confirmDelete(a: Arrow): void {
     acceptLabel: '削除',
     rejectLabel: 'キャンセル',
     acceptClass: 'p-button-danger',
-    accept: () => store.removeArrow(a.id)
+    accept: async () => {
+      try {
+        await store.removeArrow(a.id)
+        toast.success('削除しました')
+      } catch {
+        toast.error('削除に失敗しました')
+      }
+    }
   })
 }
 </script>

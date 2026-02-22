@@ -10,11 +10,13 @@ import { useConfirm } from 'primevue/useconfirm'
 import { formatDate } from '../utils/date-helper'
 import { useProjectStore } from '../stores/project'
 import { useMilestoneStore } from '../stores/milestone'
+import { useAppToast } from '../composables/useAppToast'
 import type { Milestone } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useMilestoneStore()
 const confirm = useConfirm()
+const toast = useAppToast()
 
 const PRESET_COLORS = [
   { name: 'red', value: '#ef4444' },
@@ -73,25 +75,31 @@ async function save(): Promise<void> {
   if (!projectId || !formName.value.trim()) return
 
   const dueDate = formDueDate.value ? formatDate(formDueDate.value) : undefined
+  const isEdit = !!editingId.value
 
-  if (editingId.value) {
-    await store.editMilestone({
-      id: editingId.value,
-      name: formName.value.trim(),
-      description: formDescription.value || undefined,
-      dueDate,
-      color: formColor.value
-    })
-  } else {
-    await store.addMilestone({
-      projectId,
-      name: formName.value.trim(),
-      description: formDescription.value || undefined,
-      dueDate,
-      color: formColor.value
-    })
+  try {
+    if (editingId.value) {
+      await store.editMilestone({
+        id: editingId.value,
+        name: formName.value.trim(),
+        description: formDescription.value || undefined,
+        dueDate,
+        color: formColor.value
+      })
+    } else {
+      await store.addMilestone({
+        projectId,
+        name: formName.value.trim(),
+        description: formDescription.value || undefined,
+        dueDate,
+        color: formColor.value
+      })
+    }
+    dialogVisible.value = false
+    toast.success(isEdit ? '更新しました' : '作成しました')
+  } catch {
+    toast.error(isEdit ? '更新に失敗しました' : '作成に失敗しました')
   }
-  dialogVisible.value = false
 }
 
 function confirmDelete(m: Milestone): void {
@@ -101,7 +109,14 @@ function confirmDelete(m: Milestone): void {
     acceptLabel: '削除',
     rejectLabel: 'キャンセル',
     acceptClass: 'p-button-danger',
-    accept: () => store.removeMilestone(m.id)
+    accept: async () => {
+      try {
+        await store.removeMilestone(m.id)
+        toast.success('削除しました')
+      } catch {
+        toast.error('削除に失敗しました')
+      }
+    }
   })
 }
 
