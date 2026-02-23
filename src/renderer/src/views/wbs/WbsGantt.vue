@@ -7,6 +7,7 @@ import {
   buildMonthBoundaries,
   calcBarStyle
 } from '../../utils/gantt-helper'
+import { TASK_STATUS_LABELS } from '../../utils/constants'
 
 const props = defineProps<{
   rows: WbsTreeRow[]
@@ -41,6 +42,15 @@ const monthBoundaries = computed(() => buildMonthBoundaries(allDates.value, DAY_
 function barStyle(row: WbsTreeRow): Record<string, string> | null {
   if (!row.startDate || !row.endDate) return null
   return calcBarStyle(row.startDate, row.endDate, props.dateRange.start, DAY_WIDTH, row.status)
+}
+
+function barTooltip(row: WbsTreeRow): string {
+  const parts = [row.name]
+  if (row.startDate && row.endDate) {
+    parts.push(`${row.startDate} 〜 ${row.endDate}`)
+  }
+  parts.push(TASK_STATUS_LABELS[row.status] ?? row.status)
+  return parts.join('\n')
 }
 </script>
 
@@ -94,7 +104,12 @@ function barStyle(row: WbsTreeRow): Record<string, string> | null {
             class="gantt-row"
             :style="{ height: `${ROW_HEIGHT}px` }"
           >
-            <div v-if="barStyle(row)" class="gantt-bar" :style="barStyle(row)!" />
+            <div
+              v-if="barStyle(row)"
+              class="gantt-bar"
+              :style="barStyle(row)!"
+              :title="barTooltip(row)"
+            />
           </div>
         </div>
       </div>
