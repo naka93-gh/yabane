@@ -138,22 +138,22 @@ async function handleUnarchive(project: Project): Promise<void> {
             <div class="action-buttons">
               <Button
                 v-if="data.status === 'active'"
+                v-tooltip.top="'アーカイブ'"
                 icon="pi pi-inbox"
                 severity="secondary"
                 text
                 rounded
                 size="small"
-                v-tooltip.top="'アーカイブ'"
                 @click="handleArchive(data)"
               />
               <Button
                 v-else
+                v-tooltip.top="'復元'"
                 icon="pi pi-replay"
                 severity="secondary"
                 text
                 rounded
                 size="small"
-                v-tooltip.top="'復元'"
                 @click="handleUnarchive(data)"
               />
             </div>

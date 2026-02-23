@@ -91,12 +91,7 @@ defineExpose({ open })
     </div>
     <template #footer>
       <Button label="キャンセル" severity="secondary" text @click="visible = false" />
-      <Button
-        label="保存"
-        icon="pi pi-check"
-        :disabled="!editName.trim()"
-        @click="handleSave"
-      />
+      <Button label="保存" icon="pi pi-check" :disabled="!editName.trim()" @click="handleSave" />
     </template>
   </Dialog>
 </template>

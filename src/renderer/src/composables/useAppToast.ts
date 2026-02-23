@@ -1,7 +1,10 @@
 import { useToast } from 'primevue/usetoast'
 
 /** アプリ共通の Toast 通知 */
-export function useAppToast() {
+export function useAppToast(): {
+  success: (detail: string) => void
+  error: (detail: string) => void
+} {
   const toast = useToast()
 
   function success(detail: string): void {

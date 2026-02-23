@@ -4,7 +4,12 @@ import { ref, readonly } from 'vue'
 const dirty = ref(false)
 
 /** セクション切り替え時の未保存チェックを提供する */
-export function useNavigationGuard() {
+export function useNavigationGuard(): {
+  isDirty: Readonly<import('vue').Ref<boolean>>
+  setDirty: (value: boolean) => void
+  confirmLeave: () => boolean
+  reset: () => void
+} {
   function setDirty(value: boolean): void {
     dirty.value = value
   }

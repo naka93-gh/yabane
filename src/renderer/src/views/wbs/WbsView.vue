@@ -200,8 +200,8 @@ const filterOwner = computed({
         <Button
           label="タスク追加"
           icon="pi pi-plus"
-          @click="openCreate()"
           :disabled="arrowOptions.length === 0"
+          @click="openCreate()"
         />
       </div>
     </div>
