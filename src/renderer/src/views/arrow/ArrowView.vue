@@ -72,6 +72,21 @@ function barStyle(arrow: Arrow): Record<string, string> | null {
   )
 }
 
+const statusLabel: Record<Arrow['status'], string> = {
+  not_started: '未着手',
+  in_progress: '進行中',
+  done: '完了'
+}
+
+function barTooltip(arrow: Arrow): string {
+  const parts = [arrow.name]
+  if (arrow.start_date && arrow.end_date) {
+    parts.push(`${arrow.start_date} 〜 ${arrow.end_date}`)
+  }
+  parts.push(statusLabel[arrow.status])
+  return parts.join('\n')
+}
+
 function hasChildren(id: number): boolean {
   return store.arrows.some((a) => a.parent_id === id)
 }
@@ -247,7 +262,12 @@ function confirmDelete(a: Arrow): void {
                   :style="{ left: `${gl.left}px` }"
                 />
                 <!-- バー -->
-                <div v-if="barStyle(node.arrow)" class="gantt-bar" :style="barStyle(node.arrow)!" />
+                <div
+                  v-if="barStyle(node.arrow)"
+                  class="gantt-bar"
+                  :style="barStyle(node.arrow)!"
+                  :title="barTooltip(node.arrow)"
+                />
               </div>
               <!-- マイルストーン縦線 -->
               <div
