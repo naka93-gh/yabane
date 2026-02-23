@@ -122,14 +122,13 @@ export const useArrowStore = defineStore('arrow', () => {
     return ids
   }
 
-  /** 並び順を更新しローカル状態に反映する */
+  /** 並び順を更新しローカル状態に反映する（兄弟 ID のみ渡す） */
   async function reorder(ids: number[]): Promise<void> {
     await api.reorderArrows({ ids })
-    const map = new Map(arrows.value.map((a) => [a.id, a]))
-    arrows.value = ids.map((id, i) => {
-      const a = map.get(id)!
-      return { ...a, sort_order: i }
-    })
+    const orderMap = new Map(ids.map((id, i) => [id, i]))
+    arrows.value = arrows.value
+      .map((a) => (orderMap.has(a.id) ? { ...a, sort_order: orderMap.get(a.id)! } : a))
+      .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
   }
 
   return {

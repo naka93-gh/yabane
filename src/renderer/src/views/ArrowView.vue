@@ -23,6 +23,7 @@ import { useArrowStore } from '../stores/arrow'
 import { useMilestoneStore } from '../stores/milestone'
 import { useAppToast } from '../composables/useAppToast'
 import type { Arrow } from '@shared/types/models'
+import type { ArrowNode } from '../stores/arrow'
 
 const projectStore = useProjectStore()
 const store = useArrowStore()
@@ -154,6 +155,64 @@ function hasChildren(id: number): boolean {
   return store.arrows.some((a) => a.parent_id === id)
 }
 
+// --- ドラッグ＆ドロップ ---
+const dragNodeId = ref<number | null>(null)
+const dragParentId = ref<number | null>(null)
+const dropTargetId = ref<number | null>(null)
+
+function onDragStart(node: ArrowNode, e: DragEvent): void {
+  dragNodeId.value = node.arrow.id
+  dragParentId.value = node.arrow.parent_id
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onDragOver(node: ArrowNode, e: DragEvent): void {
+  if (dragNodeId.value === null) return
+  if (node.arrow.parent_id !== dragParentId.value) return
+  if (node.arrow.id === dragNodeId.value) return
+  e.preventDefault()
+  dropTargetId.value = node.arrow.id
+}
+
+function onDragLeave(): void {
+  dropTargetId.value = null
+}
+
+function onDragEnd(): void {
+  dragNodeId.value = null
+  dragParentId.value = null
+  dropTargetId.value = null
+}
+
+async function onDrop(node: ArrowNode): Promise<void> {
+  const fromId = dragNodeId.value
+  const parentId = dragParentId.value
+  if (fromId === null || fromId === node.arrow.id) {
+    onDragEnd()
+    return
+  }
+  if (node.arrow.parent_id !== parentId) {
+    onDragEnd()
+    return
+  }
+  const siblings = store.arrows
+    .filter((a) => a.parent_id === parentId)
+    .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+  const ids = siblings.map((a) => a.id)
+  const fromIdx = ids.indexOf(fromId)
+  const toIdx = ids.indexOf(node.arrow.id)
+  if (fromIdx === -1 || toIdx === -1) {
+    onDragEnd()
+    return
+  }
+  ids.splice(fromIdx, 1)
+  ids.splice(toIdx, 0, fromId)
+  onDragEnd()
+  await store.reorder(ids)
+}
+
 function confirmDelete(a: Arrow): void {
   const hasChild = hasChildren(a.id)
   confirm.require({
@@ -208,8 +267,16 @@ function confirmDelete(a: Arrow): void {
             v-for="node in store.tree"
             :key="node.arrow.id"
             class="left-row"
+            :class="{ 'left-row--drag-over': dropTargetId === node.arrow.id }"
             :style="{ height: `${ROW_HEIGHT}px`, paddingLeft: `${node.depth * 20 + 12}px` }"
+            draggable="true"
+            @dragstart="onDragStart(node, $event)"
+            @dragover="onDragOver(node, $event)"
+            @dragleave="onDragLeave"
+            @drop="onDrop(node)"
+            @dragend="onDragEnd"
           >
+            <i class="pi pi-bars drag-handle" />
             <span class="left-row-name" :title="node.arrow.name">{{ node.arrow.name }}</span>
             <span class="left-row-actions">
               <Button
@@ -412,6 +479,18 @@ function confirmDelete(a: Arrow): void {
   justify-content: space-between;
   border-bottom: 1px solid var(--p-content-border-color);
   gap: 4px;
+}
+
+.left-row--drag-over {
+  border-top: 2px solid var(--p-primary-color);
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--p-text-muted-color);
+  padding: 4px 4px 4px 0;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .left-row-name {
