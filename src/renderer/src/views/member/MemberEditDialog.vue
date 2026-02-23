@@ -79,7 +79,12 @@ async function handleSave(): Promise<void> {
       </div>
       <div class="field">
         <label>メール</label>
-        <InputText v-model="form.email" placeholder="メール（任意）" class="w-full" :invalid="!!emailError" />
+        <InputText
+          v-model="form.email"
+          placeholder="メール（任意）"
+          class="w-full"
+          :invalid="!!emailError"
+        />
         <small v-if="emailError" class="email-error">{{ emailError }}</small>
       </div>
       <div class="field">

@@ -83,12 +83,7 @@ function handleDelete(member: Member): void {
     <div v-if="!projectStore.currentProject" class="no-project">プロジェクトを選択してください</div>
     <template v-else>
       <div class="add-form">
-        <InputText
-          v-model="newName"
-          placeholder="メンバー名を入力"
-          class="add-input"
-          @keydown.enter="handleAdd"
-        />
+        <InputText v-model="newName" placeholder="メンバー名を入力" class="add-input" />
         <Button
           label="追加"
           icon="pi pi-plus"

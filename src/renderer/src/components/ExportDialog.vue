@@ -8,6 +8,7 @@ import { useMilestoneStore } from '../stores/milestone'
 import { useArrowStore } from '../stores/arrow'
 import { useWbsStore } from '../stores/wbs'
 import { useIssueStore } from '../stores/issue'
+import { useMemberStore } from '../stores/member'
 import { getPurpose } from '../api/purpose'
 import { saveExcel } from '../api/export'
 import { useAppToast } from '../composables/useAppToast'
@@ -23,6 +24,7 @@ const milestoneStore = useMilestoneStore()
 const arrowStore = useArrowStore()
 const wbsStore = useWbsStore()
 const issueStore = useIssueStore()
+const memberStore = useMemberStore()
 
 const toast = useAppToast()
 
@@ -39,14 +41,15 @@ const sections: SectionOption[] = [
   { key: 'milestone', label: 'マイルストーン' },
   { key: 'arrow', label: '矢羽' },
   { key: 'wbs', label: 'WBS' },
-  { key: 'issue', label: '課題' }
+  { key: 'issue', label: '課題' },
+  { key: 'member', label: '関係者' }
 ]
 
-const selected = ref<ExportSection[]>(['purpose', 'milestone', 'arrow', 'wbs', 'issue'])
+const selected = ref<ExportSection[]>(['purpose', 'milestone', 'arrow', 'wbs', 'issue', 'member'])
 
 /** ダイアログを開いてセクション選択を初期化する */
 function open(): void {
-  selected.value = ['purpose', 'milestone', 'arrow', 'wbs', 'issue']
+  selected.value = ['purpose', 'milestone', 'arrow', 'wbs', 'issue', 'member']
   visible.value = true
 }
 
@@ -72,6 +75,9 @@ async function doExport(): Promise<void> {
         : undefined,
       selected.value.includes('issue') && issueStore.issues.length === 0
         ? issueStore.fetchIssues(pid)
+        : undefined,
+      selected.value.includes('member') && memberStore.members.length === 0
+        ? memberStore.fetchMembers(pid)
         : undefined
     ])
 
@@ -81,7 +87,8 @@ async function doExport(): Promise<void> {
       milestones: milestoneStore.milestones,
       arrows: arrowStore.arrows,
       wbsItems: wbsStore.items,
-      issues: issueStore.issues
+      issues: issueStore.issues,
+      members: memberStore.members
     }
 
     const wb = buildWorkbook(data, selected.value)

@@ -50,5 +50,14 @@ export const useMemberStore = defineStore('member', () => {
       .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
   }
 
-  return { members, loading, memberNames, fetchMembers, addMember, editMember, removeMember, reorder }
+  return {
+    members,
+    loading,
+    memberNames,
+    fetchMembers,
+    addMember,
+    editMember,
+    removeMember,
+    reorder
+  }
 })
