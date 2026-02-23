@@ -7,10 +7,16 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import ToggleSwitch from 'primevue/toggleswitch'
+import Tabs from 'primevue/tabs'
+import TabList from 'primevue/tablist'
+import Tab from 'primevue/tab'
+import TabPanels from 'primevue/tabpanels'
+import TabPanel from 'primevue/tabpanel'
 import type { Project } from '@shared/types/models'
 import { useProjectStore } from '../stores/project'
 import { listProjects } from '../api/project'
 import { useAppToast } from '../composables/useAppToast'
+import MemberPanel from './MemberPanel.vue'
 
 const store = useProjectStore()
 const toast = useAppToast()
@@ -19,6 +25,7 @@ const newName = ref('')
 const newDescription = ref('')
 const showArchived = ref(false)
 const archivedProjects = ref<Project[]>([])
+const activeTab = ref('0')
 
 // ダイアログ表示時にフォームをリセットし一覧を再取得
 watch(
@@ -29,6 +36,7 @@ watch(
       newName.value = ''
       newDescription.value = ''
       showArchived.value = false
+      activeTab.value = '0'
     }
   }
 )
@@ -96,71 +104,89 @@ async function handleUnarchive(project: Project): Promise<void> {
     v-model:visible="store.dialogVisible"
     header="プロジェクト管理"
     :modal="true"
-    :style="{ width: '640px' }"
+    :style="{ width: '700px' }"
   >
-    <div class="create-form">
-      <h4>新規プロジェクト</h4>
-      <div class="form-row">
-        <InputText
-          v-model="newName"
-          placeholder="プロジェクト名"
-          class="form-input"
-          @keydown.enter="handleCreate"
-        />
-      </div>
-      <div class="form-row">
-        <Textarea v-model="newDescription" placeholder="説明（任意）" rows="2" class="form-input" />
-      </div>
-      <Button
-        label="作成"
-        icon="pi pi-plus"
-        size="small"
-        :disabled="!newName.trim()"
-        @click="handleCreate"
-      />
-    </div>
-
-    <div class="project-list">
-      <div class="list-header">
-        <h4>プロジェクト一覧</h4>
-        <div class="archive-toggle">
-          <label>アーカイブ済みを表示</label>
-          <ToggleSwitch v-model="showArchived" />
-        </div>
-      </div>
-
-      <DataTable :value="displayedProjects" size="small" striped-rows>
-        <Column field="name" header="名前" />
-        <Column field="description" header="説明" />
-        <Column field="status" header="ステータス" style="width: 100px" />
-        <Column header="操作" style="width: 120px">
-          <template #body="{ data }">
-            <div class="action-buttons">
-              <Button
-                v-if="data.status === 'active'"
-                v-tooltip.top="'アーカイブ'"
-                icon="pi pi-inbox"
-                severity="secondary"
-                text
-                rounded
-                size="small"
-                @click="handleArchive(data)"
-              />
-              <Button
-                v-else
-                v-tooltip.top="'復元'"
-                icon="pi pi-replay"
-                severity="secondary"
-                text
-                rounded
-                size="small"
-                @click="handleUnarchive(data)"
+    <Tabs v-model:value="activeTab">
+      <TabList>
+        <Tab value="0">プロジェクト</Tab>
+        <Tab value="1">関係者</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel value="0">
+          <div class="create-form">
+            <h4>新規プロジェクト</h4>
+            <div class="form-row">
+              <InputText
+                v-model="newName"
+                placeholder="プロジェクト名"
+                class="form-input"
+                @keydown.enter="handleCreate"
               />
             </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
+            <div class="form-row">
+              <Textarea
+                v-model="newDescription"
+                placeholder="説明（任意）"
+                rows="2"
+                class="form-input"
+              />
+            </div>
+            <Button
+              label="作成"
+              icon="pi pi-plus"
+              size="small"
+              :disabled="!newName.trim()"
+              @click="handleCreate"
+            />
+          </div>
+
+          <div class="project-list">
+            <div class="list-header">
+              <h4>プロジェクト一覧</h4>
+              <div class="archive-toggle">
+                <label>アーカイブ済みを表示</label>
+                <ToggleSwitch v-model="showArchived" />
+              </div>
+            </div>
+
+            <DataTable :value="displayedProjects" size="small" striped-rows>
+              <Column field="name" header="名前" />
+              <Column field="description" header="説明" />
+              <Column field="status" header="ステータス" style="width: 100px" />
+              <Column header="操作" style="width: 120px">
+                <template #body="{ data }">
+                  <div class="action-buttons">
+                    <Button
+                      v-if="data.status === 'active'"
+                      v-tooltip.top="'アーカイブ'"
+                      icon="pi pi-inbox"
+                      severity="secondary"
+                      text
+                      rounded
+                      size="small"
+                      @click="handleArchive(data)"
+                    />
+                    <Button
+                      v-else
+                      v-tooltip.top="'復元'"
+                      icon="pi pi-replay"
+                      severity="secondary"
+                      text
+                      rounded
+                      size="small"
+                      @click="handleUnarchive(data)"
+                    />
+                  </div>
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </TabPanel>
+        <TabPanel value="1">
+          <MemberPanel />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   </Dialog>
 </template>
 

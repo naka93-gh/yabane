@@ -13,6 +13,8 @@ import type {
   WbsUpdateArgs,
   IssueCreateArgs,
   IssueUpdateArgs,
+  MemberCreateArgs,
+  MemberUpdateArgs,
   ExportSaveArgs
 } from '../shared/types/ipc'
 
@@ -56,6 +58,12 @@ const api = {
     create: (args: IssueCreateArgs) => ipcRenderer.invoke('issue:create', args),
     update: (args: IssueUpdateArgs) => ipcRenderer.invoke('issue:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('issue:delete', args)
+  },
+  member: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('member:list', args),
+    create: (args: MemberCreateArgs) => ipcRenderer.invoke('member:create', args),
+    update: (args: MemberUpdateArgs) => ipcRenderer.invoke('member:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('member:delete', args)
   },
   export: {
     saveExcel: (args: ExportSaveArgs) => ipcRenderer.invoke('export:saveExcel', args)

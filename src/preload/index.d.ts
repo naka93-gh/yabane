@@ -1,5 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { Project, Purpose, Milestone, Arrow, WbsItem, Issue } from '../shared/types/models'
+import type {
+  Project,
+  Purpose,
+  Milestone,
+  Arrow,
+  WbsItem,
+  Issue,
+  Member
+} from '../shared/types/models'
 import type {
   ProjectListArgs,
   ProjectCreateArgs,
@@ -13,6 +21,8 @@ import type {
   WbsUpdateArgs,
   IssueCreateArgs,
   IssueUpdateArgs,
+  MemberCreateArgs,
+  MemberUpdateArgs,
   ExportSaveArgs
 } from '../shared/types/ipc'
 
@@ -61,6 +71,13 @@ interface IssueAPI {
   delete(args: { id: number }): Promise<Issue>
 }
 
+interface MemberAPI {
+  list(args: { projectId: number }): Promise<Member[]>
+  create(args: MemberCreateArgs): Promise<Member>
+  update(args: MemberUpdateArgs): Promise<Member>
+  delete(args: { id: number }): Promise<Member>
+}
+
 interface ExportAPI {
   saveExcel(args: ExportSaveArgs): Promise<{ canceled: boolean; filePath?: string }>
 }
@@ -72,6 +89,7 @@ interface Api {
   arrow: ArrowAPI
   wbs: WbsItemAPI
   issue: IssueAPI
+  member: MemberAPI
   export: ExportAPI
 }
 

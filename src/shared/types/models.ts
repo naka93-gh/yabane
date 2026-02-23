@@ -72,3 +72,15 @@ export interface Issue {
   created_at: string
   updated_at: string
 }
+
+export interface Member {
+  id: number
+  project_id: number
+  name: string
+  role: string | null
+  organization: string | null
+  email: string | null
+  note: string | null
+  sort_order: number
+  created_at: string
+}

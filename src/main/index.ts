@@ -9,6 +9,7 @@ import { registerMilestoneHandlers } from './ipc/milestone'
 import { registerArrowHandlers } from './ipc/arrow'
 import { registerWbsHandlers } from './ipc/wbs'
 import { registerIssueHandlers } from './ipc/issue'
+import { registerMemberHandlers } from './ipc/member'
 import { registerExportHandlers } from './ipc/export'
 
 /** メインウィンドウを作成する */
@@ -58,6 +59,7 @@ app.whenReady().then(() => {
   registerArrowHandlers()
   registerWbsHandlers()
   registerIssueHandlers()
+  registerMemberHandlers()
   registerExportHandlers()
 
   createWindow()

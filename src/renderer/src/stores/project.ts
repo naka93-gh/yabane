@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Project } from '@shared/types/models'
 import * as api from '../api/project'
+import { useMemberStore } from './member'
 
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([])
@@ -18,6 +19,8 @@ export const useProjectStore = defineStore('project', () => {
     const project = await api.getProject({ id })
     if (project) {
       currentProject.value = project
+      // メンバー一覧をバックグラウンドで取得
+      useMemberStore().fetchMembers(id)
     }
   }
 

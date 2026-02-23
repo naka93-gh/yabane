@@ -3,17 +3,20 @@ import { ref, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
+import AutoComplete from 'primevue/autocomplete'
 import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import { formatDate } from '../../utils/date-helper'
 import { useWbsStore } from '../../stores/wbs'
 import { useAppToast } from '../../composables/useAppToast'
+import { useOwnerSuggestions } from '../../composables/useOwnerSuggestions'
 import { TASK_STATUS_OPTIONS } from '../../utils/constants'
 import type { WbsItem } from '@shared/types/models'
 
 const store = useWbsStore()
 const toast = useAppToast()
+const { suggestions, search } = useOwnerSuggestions()
 
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
@@ -129,7 +132,14 @@ defineExpose({ openCreate, openEdit })
       </div>
       <div class="field">
         <label>担当者</label>
-        <InputText v-model="formOwner" placeholder="担当者（任意）" class="w-full" />
+        <AutoComplete
+          v-model="formOwner"
+          :suggestions="suggestions"
+          placeholder="担当者（任意）"
+          complete-on-focus
+          class="w-full"
+          @complete="search"
+        />
       </div>
       <div class="field-row">
         <div class="field">

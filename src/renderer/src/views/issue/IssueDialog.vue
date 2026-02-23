@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
+import AutoComplete from 'primevue/autocomplete'
 import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
@@ -10,12 +11,14 @@ import { formatDate } from '../../utils/date-helper'
 import { useProjectStore } from '../../stores/project'
 import { useIssueStore } from '../../stores/issue'
 import { useAppToast } from '../../composables/useAppToast'
+import { useOwnerSuggestions } from '../../composables/useOwnerSuggestions'
 import { ISSUE_STATUS_OPTIONS, PRIORITY_OPTIONS } from '../../utils/constants'
 import type { Issue } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
 const toast = useAppToast()
+const { suggestions, search } = useOwnerSuggestions()
 
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
@@ -142,7 +145,14 @@ defineExpose({ openCreate, openEdit })
       <div class="field-row">
         <div class="field">
           <label>担当者</label>
-          <InputText v-model="formOwner" placeholder="担当者（任意）" class="w-full" />
+          <AutoComplete
+            v-model="formOwner"
+            :suggestions="suggestions"
+            placeholder="担当者（任意）"
+            complete-on-focus
+            class="w-full"
+            @complete="search"
+          />
         </div>
         <div class="field">
           <label>期限</label>

@@ -135,6 +135,26 @@ export interface IssueUpdateArgs {
   resolution?: string
 }
 
+// --- メンバー ---
+
+export interface MemberCreateArgs {
+  projectId: number
+  name: string
+  role?: string
+  organization?: string
+  email?: string
+  note?: string
+}
+
+export interface MemberUpdateArgs {
+  id: number
+  name?: string
+  role?: string
+  organization?: string
+  email?: string
+  note?: string
+}
+
 // --- エクスポート ---
 
 /** Excel 保存の引数 */

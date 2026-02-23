@@ -12,7 +12,8 @@ const sections = [
   { key: 'milestone', label: 'マイルストーン', icon: 'pi pi-flag' },
   { key: 'arrow', label: '矢羽', icon: 'pi pi-arrow-right' },
   { key: 'wbs', label: 'WBS', icon: 'pi pi-list-check' },
-  { key: 'issue', label: '課題', icon: 'pi pi-exclamation-triangle' }
+  { key: 'issue', label: '課題', icon: 'pi pi-exclamation-triangle' },
+  { key: 'member', label: '関係者', icon: 'pi pi-users' }
 ]
 </script>
 

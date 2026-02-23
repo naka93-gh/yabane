@@ -11,6 +11,7 @@ import MilestoneView from './views/milestone/MilestoneView.vue'
 import ArrowView from './views/arrow/ArrowView.vue'
 import WbsView from './views/wbs/WbsView.vue'
 import IssueView from './views/issue/IssueView.vue'
+import MemberView from './views/member/MemberView.vue'
 import Toast from 'primevue/toast'
 import { useProjectStore } from './stores/project'
 import { useNavigationGuard } from './composables/useNavigationGuard'
@@ -28,14 +29,15 @@ function onRequestSection(key: string): void {
   activeSection.value = key
 }
 
-type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue'
+type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue' | 'member'
 
 const sectionLabels: Record<Section, string> = {
   purpose: '目的',
   milestone: 'マイルストーン',
   arrow: '矢羽',
   wbs: 'WBS',
-  issue: '課題'
+  issue: '課題',
+  member: '関係者'
 }
 
 onMounted(async () => {
@@ -61,6 +63,7 @@ onMounted(async () => {
       <ArrowView v-else-if="store.currentProject && activeSection === 'arrow'" />
       <WbsView v-else-if="store.currentProject && activeSection === 'wbs'" />
       <IssueView v-else-if="store.currentProject && activeSection === 'issue'" />
+      <MemberView v-else-if="store.currentProject && activeSection === 'member'" />
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
     <Toast />

@@ -74,4 +74,16 @@ CREATE TABLE IF NOT EXISTS issue (
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS member (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id   INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+  name         TEXT NOT NULL,
+  role         TEXT,
+  organization TEXT,
+  email        TEXT,
+  note         TEXT,
+  sort_order   INTEGER NOT NULL DEFAULT 0,
+  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `
