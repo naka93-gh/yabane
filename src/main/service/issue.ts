@@ -1,5 +1,6 @@
 import { getDatabase } from '../database'
 import type { Issue } from '../../shared/types/models'
+import type { IssueCreateArgs, IssueUpdateArgs } from '../../shared/types/ipc'
 
 /** 課題一覧を取得する */
 export function listIssues(projectId: number): Issue[] {
@@ -10,15 +11,7 @@ export function listIssues(projectId: number): Issue[] {
 }
 
 /** 課題を作成する */
-export function createIssue(args: {
-  projectId: number
-  title: string
-  description?: string
-  owner?: string
-  priority?: Issue['priority']
-  status?: Issue['status']
-  dueDate?: string
-}): Issue {
+export function createIssue(args: IssueCreateArgs): Issue {
   const db = getDatabase()
   return db
     .prepare(
@@ -37,16 +30,7 @@ export function createIssue(args: {
 }
 
 /** 課題を更新する */
-export function updateIssue(args: {
-  id: number
-  title?: string
-  description?: string
-  owner?: string
-  priority?: Issue['priority']
-  status?: Issue['status']
-  dueDate?: string
-  resolution?: string
-}): Issue | null {
+export function updateIssue(args: IssueUpdateArgs): Issue | null {
   const db = getDatabase()
 
   const issue = db.prepare('SELECT * FROM issue WHERE id = ?').get(args.id) as Issue | undefined

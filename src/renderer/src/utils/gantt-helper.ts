@@ -1,5 +1,36 @@
 import { diffDays } from './date-helper'
 
+export interface DateRange {
+  start: Date
+  end: Date
+}
+
+/** プロジェクト期間 → データ日付 → デフォルト値 の優先度で日付レンジを算出する */
+export function calcDateRange(
+  project: { start_date: string | null; end_date: string | null } | null,
+  dateStrings: string[],
+  marginDays = 7
+): DateRange {
+  if (project?.start_date && project?.end_date) {
+    return { start: new Date(project.start_date), end: new Date(project.end_date) }
+  }
+
+  let min: number | null = null
+  let max: number | null = null
+  for (const ds of dateStrings) {
+    const t = new Date(ds).getTime()
+    if (min === null || t < min) min = t
+    if (max === null || t > max) max = t
+  }
+
+  const DAY = 86_400_000
+  if (min !== null && max !== null) {
+    return { start: new Date(min - marginDays * DAY), end: new Date(max + marginDays * DAY) }
+  }
+  const now = Date.now()
+  return { start: new Date(now - 30 * DAY), end: new Date(now + 60 * DAY) }
+}
+
 /** dateRange 内の全日付を配列で返す */
 export function buildAllDates(start: Date, end: Date): Date[] {
   const days = diffDays(start, end)

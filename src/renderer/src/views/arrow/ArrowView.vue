@@ -2,14 +2,9 @@
 import { ref, watch, computed } from 'vue'
 import Button from 'primevue/button'
 import ToggleButton from 'primevue/togglebutton'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import DatePicker from 'primevue/datepicker'
-import Select from 'primevue/select'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
-import { useProjectStore } from '../stores/project'
-import { formatDate } from '../utils/date-helper'
+import { useProjectStore } from '../../stores/project'
 import {
   buildAllDates,
   buildMonthHeaders,
@@ -18,12 +13,14 @@ import {
   calcTodayLeft,
   calcBarStyle,
   type GridLine
-} from '../utils/gantt-helper'
-import { useArrowStore } from '../stores/arrow'
-import { useMilestoneStore } from '../stores/milestone'
-import { useAppToast } from '../composables/useAppToast'
+} from '../../utils/gantt-helper'
+import { useArrowStore } from '../../stores/arrow'
+import { useMilestoneStore } from '../../stores/milestone'
+import { useAppToast } from '../../composables/useAppToast'
+import { useListReorder } from '../../composables/useListReorder'
 import type { Arrow } from '@shared/types/models'
-import type { ArrowNode } from '../stores/arrow'
+import type { ArrowNode } from '../../stores/arrow'
+import ArrowDialog from './ArrowDialog.vue'
 
 const projectStore = useProjectStore()
 const store = useArrowStore()
@@ -34,26 +31,8 @@ const toast = useAppToast()
 const ROW_HEIGHT = 40
 const DAY_WIDTH = 14
 
-const STATUS_OPTIONS = [
-  { label: '未着手', value: 'not_started' },
-  { label: '進行中', value: 'in_progress' },
-  { label: '完了', value: 'done' }
-]
-
-// 今日線
 const showTodayLine = ref(true)
-
-// ダイアログ
-const dialogVisible = ref(false)
-const editingId = ref<number | null>(null)
-const formParentId = ref<number | null>(null)
-const formName = ref('')
-const formOwner = ref('')
-const formStartDate = ref<Date | null>(null)
-const formEndDate = ref<Date | null>(null)
-const formStatus = ref<Arrow['status']>('not_started')
-
-const dialogTitle = computed(() => (editingId.value ? '矢羽を編集' : '矢羽を追加'))
+const arrowDialog = ref<InstanceType<typeof ArrowDialog> | null>(null)
 
 watch(
   () => projectStore.currentProject?.id,
@@ -92,126 +71,20 @@ function barStyle(arrow: Arrow): Record<string, string> | null {
   )
 }
 
-// --- CRUD ---
-function openCreate(parentId: number | null = null): void {
-  editingId.value = null
-  formParentId.value = parentId
-  formName.value = ''
-  formOwner.value = ''
-  formStartDate.value = null
-  formEndDate.value = null
-  formStatus.value = 'not_started'
-  dialogVisible.value = true
-}
-
-function openEdit(a: Arrow): void {
-  editingId.value = a.id
-  formParentId.value = a.parent_id
-  formName.value = a.name
-  formOwner.value = a.owner ?? ''
-  formStartDate.value = a.start_date ? new Date(a.start_date) : null
-  formEndDate.value = a.end_date ? new Date(a.end_date) : null
-  formStatus.value = a.status
-  dialogVisible.value = true
-}
-
-async function save(): Promise<void> {
-  const projectId = projectStore.currentProject?.id
-  if (!projectId || !formName.value.trim()) return
-
-  const startDate = formStartDate.value ? formatDate(formStartDate.value) : undefined
-  const endDate = formEndDate.value ? formatDate(formEndDate.value) : undefined
-  const isEdit = !!editingId.value
-
-  try {
-    if (editingId.value) {
-      await store.editArrow({
-        id: editingId.value,
-        name: formName.value.trim(),
-        owner: formOwner.value || undefined,
-        startDate,
-        endDate,
-        status: formStatus.value
-      })
-    } else {
-      await store.addArrow({
-        projectId,
-        parentId: formParentId.value ?? undefined,
-        name: formName.value.trim(),
-        owner: formOwner.value || undefined,
-        startDate,
-        endDate,
-        status: formStatus.value
-      })
-    }
-    dialogVisible.value = false
-    toast.success(isEdit ? '更新しました' : '作成しました')
-  } catch {
-    toast.error(isEdit ? '更新に失敗しました' : '作成に失敗しました')
-  }
-}
-
 function hasChildren(id: number): boolean {
   return store.arrows.some((a) => a.parent_id === id)
 }
 
 // --- ドラッグ＆ドロップ ---
-const dragNodeId = ref<number | null>(null)
-const dragParentId = ref<number | null>(null)
-const dropTargetId = ref<number | null>(null)
-
-function onDragStart(node: ArrowNode, e: DragEvent): void {
-  dragNodeId.value = node.arrow.id
-  dragParentId.value = node.arrow.parent_id
-  if (e.dataTransfer) {
-    e.dataTransfer.effectAllowed = 'move'
-  }
-}
-
-function onDragOver(node: ArrowNode, e: DragEvent): void {
-  if (dragNodeId.value === null) return
-  if (node.arrow.parent_id !== dragParentId.value) return
-  if (node.arrow.id === dragNodeId.value) return
-  e.preventDefault()
-  dropTargetId.value = node.arrow.id
-}
-
-function onDragLeave(): void {
-  dropTargetId.value = null
-}
-
-function onDragEnd(): void {
-  dragNodeId.value = null
-  dragParentId.value = null
-  dropTargetId.value = null
-}
-
-async function onDrop(node: ArrowNode): Promise<void> {
-  const fromId = dragNodeId.value
-  const parentId = dragParentId.value
-  if (fromId === null || fromId === node.arrow.id) {
-    onDragEnd()
-    return
-  }
-  if (node.arrow.parent_id !== parentId) {
-    onDragEnd()
-    return
-  }
-  const siblings = store.arrows
-    .filter((a) => a.parent_id === parentId)
-    .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
-  const ids = siblings.map((a) => a.id)
-  const fromIdx = ids.indexOf(fromId)
-  const toIdx = ids.indexOf(node.arrow.id)
-  if (fromIdx === -1 || toIdx === -1) {
-    onDragEnd()
-    return
-  }
-  ids.splice(fromIdx, 1)
-  ids.splice(toIdx, 0, fromId)
-  onDragEnd()
-  await store.reorder(ids)
-}
+const reorder = useListReorder<ArrowNode>({
+  getId: (node) => node.arrow.id,
+  onReorder: (ids) => store.reorder(ids),
+  isSameGroup: (a, b) => a.arrow.parent_id === b.arrow.parent_id,
+  getGroupItems: (node, items) =>
+    items
+      .filter((n) => n.arrow.parent_id === node.arrow.parent_id)
+      .sort((a, b) => a.arrow.sort_order - b.arrow.sort_order || a.arrow.id - b.arrow.id)
+})
 
 function confirmDelete(a: Arrow): void {
   const hasChild = hasChildren(a.id)
@@ -248,7 +121,7 @@ function confirmDelete(a: Arrow): void {
           off-icon="pi pi-calendar-clock"
           :pt="{ root: { class: 'today-toggle' } }"
         />
-        <Button label="追加" icon="pi pi-plus" @click="openCreate(null)" />
+        <Button label="追加" icon="pi pi-plus" @click="arrowDialog?.openCreate(null)" />
       </div>
     </div>
 
@@ -264,17 +137,17 @@ function confirmDelete(a: Arrow): void {
         </div>
         <div class="gantt-left-body">
           <div
-            v-for="node in store.tree"
+            v-for="(node, i) in store.tree"
             :key="node.arrow.id"
             class="left-row"
-            :class="{ 'left-row--drag-over': dropTargetId === node.arrow.id }"
+            :class="{ 'left-row--drag-over': reorder.dropIndex.value === i }"
             :style="{ height: `${ROW_HEIGHT}px`, paddingLeft: `${node.depth * 20 + 12}px` }"
             draggable="true"
-            @dragstart="onDragStart(node, $event)"
-            @dragover="onDragOver(node, $event)"
-            @dragleave="onDragLeave"
-            @drop="onDrop(node)"
-            @dragend="onDragEnd"
+            @dragstart="reorder.onDragStart(node, i, $event)"
+            @dragover="reorder.onDragOver(node, i, $event)"
+            @dragleave="reorder.onDragLeave"
+            @drop="reorder.onDrop(node, store.tree)"
+            @dragend="reorder.onDragEnd"
           >
             <i class="pi pi-bars drag-handle" />
             <span class="left-row-name" :title="node.arrow.name">{{ node.arrow.name }}</span>
@@ -285,9 +158,15 @@ function confirmDelete(a: Arrow): void {
                 rounded
                 size="small"
                 title="子矢羽を追加"
-                @click="openCreate(node.arrow.id)"
+                @click="arrowDialog?.openCreate(node.arrow.id)"
               />
-              <Button icon="pi pi-pencil" text rounded size="small" @click="openEdit(node.arrow)" />
+              <Button
+                icon="pi pi-pencil"
+                text
+                rounded
+                size="small"
+                @click="arrowDialog?.openEdit(node.arrow)"
+              />
               <Button
                 icon="pi pi-trash"
                 text
@@ -379,57 +258,7 @@ function confirmDelete(a: Arrow): void {
       </div>
     </div>
 
-    <!-- 作成/編集ダイアログ -->
-    <Dialog
-      v-model:visible="dialogVisible"
-      :header="dialogTitle"
-      :modal="true"
-      :style="{ width: '480px' }"
-    >
-      <div class="dialog-form">
-        <div class="field">
-          <label>名前</label>
-          <InputText v-model="formName" placeholder="矢羽名" class="w-full" />
-        </div>
-        <div class="field">
-          <label>担当者</label>
-          <InputText v-model="formOwner" placeholder="担当者（任意）" class="w-full" />
-        </div>
-        <div class="field">
-          <label>開始日</label>
-          <DatePicker
-            v-model="formStartDate"
-            date-format="yy/mm/dd"
-            placeholder="開始日を選択"
-            class="w-full"
-          />
-        </div>
-        <div class="field">
-          <label>終了日</label>
-          <DatePicker
-            v-model="formEndDate"
-            date-format="yy/mm/dd"
-            placeholder="終了日を選択"
-            class="w-full"
-          />
-        </div>
-        <div class="field">
-          <label>ステータス</label>
-          <Select
-            v-model="formStatus"
-            :options="STATUS_OPTIONS"
-            option-label="label"
-            option-value="value"
-            class="w-full"
-          />
-        </div>
-      </div>
-      <template #footer>
-        <Button label="キャンセル" text @click="dialogVisible = false" />
-        <Button label="保存" icon="pi pi-check" :disabled="!formName.trim()" @click="save" />
-      </template>
-    </Dialog>
-
+    <ArrowDialog ref="arrowDialog" />
     <ConfirmDialog />
   </div>
 </template>
@@ -700,20 +529,5 @@ function confirmDelete(a: Arrow): void {
 
 .today-toggle {
   font-size: 0.8rem;
-}
-
-/* === ダイアログ === */
-.dialog-form .field {
-  margin-bottom: 16px;
-}
-
-.dialog-form .field label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.w-full {
-  width: 100%;
 }
 </style>

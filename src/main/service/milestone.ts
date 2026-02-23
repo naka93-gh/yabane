@@ -1,5 +1,7 @@
 import { getDatabase } from '../database'
 import type { Milestone } from '../../shared/types/models'
+import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '../../shared/types/ipc'
+import { reorderRows, nextSortOrder } from './common'
 
 /** マイルストーン一覧を取得する */
 export function listMilestones(projectId: number): Milestone[] {
@@ -10,20 +12,9 @@ export function listMilestones(projectId: number): Milestone[] {
 }
 
 /** マイルストーンを作成する */
-export function createMilestone(args: {
-  projectId: number
-  name: string
-  description?: string
-  dueDate?: string
-  color?: string
-}): Milestone {
+export function createMilestone(args: MilestoneCreateArgs): Milestone {
   const db = getDatabase()
-
-  const maxOrder = db
-    .prepare(
-      'SELECT COALESCE(MAX(sort_order), -1) as max_order FROM milestone WHERE project_id = ?'
-    )
-    .get(args.projectId) as { max_order: number }
+  const sortOrder = nextSortOrder('milestone', 'project_id = ?', [args.projectId])
 
   return db
     .prepare(
@@ -35,18 +26,12 @@ export function createMilestone(args: {
       args.description ?? null,
       args.dueDate ?? null,
       args.color ?? '#6366f1',
-      maxOrder.max_order + 1
+      sortOrder
     ) as Milestone
 }
 
 /** マイルストーンを更新する */
-export function updateMilestone(args: {
-  id: number
-  name?: string
-  description?: string
-  dueDate?: string
-  color?: string
-}): Milestone | null {
+export function updateMilestone(args: MilestoneUpdateArgs): Milestone | null {
   const db = getDatabase()
 
   const milestone = db.prepare('SELECT * FROM milestone WHERE id = ?').get(args.id) as
@@ -76,11 +61,5 @@ export function deleteMilestone(id: number): Milestone | undefined {
 
 /** マイルストーンの並び順を更新する */
 export function reorderMilestones(ids: number[]): void {
-  const db = getDatabase()
-  const update = db.prepare('UPDATE milestone SET sort_order = ? WHERE id = ?')
-  db.transaction(() => {
-    ids.forEach((id, index) => {
-      update.run(index, id)
-    })
-  })()
+  reorderRows('milestone', ids)
 }

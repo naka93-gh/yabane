@@ -1,4 +1,5 @@
 import type { WbsItem } from '@shared/types/models'
+import type { WbsCreateArgs, WbsUpdateArgs } from '@shared/types/ipc'
 
 /** WBS 一覧を取得する */
 export function listWbsItems(args: { projectId: number }): Promise<WbsItem[]> {
@@ -6,32 +7,12 @@ export function listWbsItems(args: { projectId: number }): Promise<WbsItem[]> {
 }
 
 /** WBS を作成する */
-export function createWbsItem(args: {
-  arrowId: number
-  name: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: WbsItem['status']
-  progress?: number
-  estimatedHours?: number
-}): Promise<WbsItem> {
+export function createWbsItem(args: WbsCreateArgs): Promise<WbsItem> {
   return window.api.wbs.create(args)
 }
 
 /** WBS を更新する */
-export function updateWbsItem(args: {
-  id: number
-  arrowId?: number
-  name?: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: WbsItem['status']
-  progress?: number
-  estimatedHours?: number
-  actualHours?: number
-}): Promise<WbsItem> {
+export function updateWbsItem(args: WbsUpdateArgs): Promise<WbsItem> {
   return window.api.wbs.update(args)
 }
 

@@ -21,3 +21,65 @@ body {
 #app {
   height: 100%;
 }
+
+/* === 共通バッジ === */
+.status-badge,
+.priority-badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* タスクステータス (Arrow / WBS) */
+.status--not_started {
+  background: var(--p-surface-200);
+  color: var(--p-text-muted-color);
+}
+
+.status--in_progress {
+  background: var(--p-primary-100);
+  color: var(--p-primary-700);
+}
+
+.status--done {
+  background: var(--p-green-100);
+  color: var(--p-green-700);
+}
+
+/* Issue ステータス */
+.status--open {
+  background: var(--p-blue-100);
+  color: var(--p-blue-700);
+}
+
+.status--resolved {
+  background: var(--p-green-100);
+  color: var(--p-green-700);
+}
+
+.status--closed {
+  background: var(--p-surface-200);
+  color: var(--p-text-muted-color);
+}
+
+/* 優先度 */
+.priority--low {
+  background: var(--p-surface-200);
+  color: var(--p-text-muted-color);
+}
+
+.priority--medium {
+  background: var(--p-blue-100);
+  color: var(--p-blue-700);
+}
+
+.priority--high {
+  background: var(--p-orange-100);
+  color: var(--p-orange-700);
+}
+
+.priority--critical {
+  background: var(--p-red-100);
+  color: var(--p-red-700);
+}

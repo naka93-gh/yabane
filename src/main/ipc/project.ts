@@ -7,10 +7,11 @@ import {
   archiveProject,
   unarchiveProject
 } from '../service/project'
+import type { ProjectListArgs, ProjectCreateArgs, ProjectUpdateArgs } from '../../shared/types/ipc'
 
 /** プロジェクト関連の IPC ハンドラを登録する */
 export function registerProjectHandlers(): void {
-  ipcMain.handle('project:list', (_e, args: { status?: 'active' | 'archived' }) => {
+  ipcMain.handle('project:list', (_e, args: ProjectListArgs) => {
     return listProjects(args?.status)
   })
 
@@ -18,25 +19,13 @@ export function registerProjectHandlers(): void {
     return getProject(args.id)
   })
 
-  ipcMain.handle('project:create', (_e, args: { name: string; description?: string }) => {
+  ipcMain.handle('project:create', (_e, args: ProjectCreateArgs) => {
     return createProject(args.name, args.description)
   })
 
-  ipcMain.handle(
-    'project:update',
-    (
-      _e,
-      args: {
-        id: number
-        name?: string
-        description?: string
-        start_date?: string | null
-        end_date?: string | null
-      }
-    ) => {
-      return updateProject(args)
-    }
-  )
+  ipcMain.handle('project:update', (_e, args: ProjectUpdateArgs) => {
+    return updateProject(args)
+  })
 
   ipcMain.handle('project:archive', (_e, args: { id: number }) => {
     return archiveProject(args.id)

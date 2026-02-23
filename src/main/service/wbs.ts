@@ -1,5 +1,7 @@
 import { getDatabase } from '../database'
 import type { WbsItem } from '../../shared/types/models'
+import type { WbsCreateArgs, WbsUpdateArgs } from '../../shared/types/ipc'
+import { reorderRows, nextSortOrder } from './common'
 
 /** プロジェクト単位で WBS を取得する（arrow を JOIN） */
 export function listWbsItems(projectId: number): WbsItem[] {
@@ -15,21 +17,9 @@ export function listWbsItems(projectId: number): WbsItem[] {
 }
 
 /** WBS を作成する */
-export function createWbsItem(args: {
-  arrowId: number
-  name: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: WbsItem['status']
-  progress?: number
-  estimatedHours?: number
-}): WbsItem {
+export function createWbsItem(args: WbsCreateArgs): WbsItem {
   const db = getDatabase()
-
-  const maxOrder = db
-    .prepare('SELECT COALESCE(MAX(sort_order), -1) as max_order FROM wbs_item WHERE arrow_id = ?')
-    .get(args.arrowId) as { max_order: number }
+  const sortOrder = nextSortOrder('wbs_item', 'arrow_id = ?', [args.arrowId])
 
   return db
     .prepare(
@@ -45,23 +35,12 @@ export function createWbsItem(args: {
       args.status ?? 'not_started',
       args.progress ?? 0,
       args.estimatedHours ?? null,
-      maxOrder.max_order + 1
+      sortOrder
     ) as WbsItem
 }
 
 /** WBS を更新する */
-export function updateWbsItem(args: {
-  id: number
-  arrowId?: number
-  name?: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: WbsItem['status']
-  progress?: number
-  estimatedHours?: number
-  actualHours?: number
-}): WbsItem | null {
+export function updateWbsItem(args: WbsUpdateArgs): WbsItem | null {
   const db = getDatabase()
 
   const item = db.prepare('SELECT * FROM wbs_item WHERE id = ?').get(args.id) as WbsItem | undefined
@@ -106,11 +85,5 @@ export function deleteWbsItem(id: number): WbsItem | undefined {
 
 /** WBS の並び順を更新する */
 export function reorderWbsItems(ids: number[]): void {
-  const db = getDatabase()
-  const update = db.prepare('UPDATE wbs_item SET sort_order = ? WHERE id = ?')
-  db.transaction(() => {
-    ids.forEach((id, index) => {
-      update.run(index, id)
-    })
-  })()
+  reorderRows('wbs_item', ids)
 }

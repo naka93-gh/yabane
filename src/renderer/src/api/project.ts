@@ -1,7 +1,8 @@
 import type { Project } from '@shared/types/models'
+import type { ProjectListArgs, ProjectCreateArgs, ProjectUpdateArgs } from '@shared/types/ipc'
 
 /** プロジェクト一覧を取得する */
-export function listProjects(args?: { status?: 'active' | 'archived' }): Promise<Project[]> {
+export function listProjects(args?: ProjectListArgs): Promise<Project[]> {
   return window.api.project.list(args)
 }
 
@@ -11,18 +12,12 @@ export function getProject(args: { id: number }): Promise<Project | null> {
 }
 
 /** プロジェクトを作成する */
-export function createProject(args: { name: string; description?: string }): Promise<Project> {
+export function createProject(args: ProjectCreateArgs): Promise<Project> {
   return window.api.project.create(args)
 }
 
 /** プロジェクトを更新する */
-export function updateProject(args: {
-  id: number
-  name?: string
-  description?: string
-  start_date?: string | null
-  end_date?: string | null
-}): Promise<Project> {
+export function updateProject(args: ProjectUpdateArgs): Promise<Project> {
   return window.api.project.update(args)
 }
 

@@ -1,8 +1,9 @@
 import { getDatabase } from '../database'
 import type { Project } from '../../shared/types/models'
+import type { ProjectUpdateArgs } from '../../shared/types/ipc'
 
 /** プロジェクト一覧を取得する */
-export function listProjects(status?: 'active' | 'archived'): Project[] {
+export function listProjects(status?: Project['status']): Project[] {
   const db = getDatabase()
   const s = status ?? 'active'
   return db
@@ -25,13 +26,7 @@ export function createProject(name: string, description?: string): Project {
 }
 
 /** プロジェクトを更新する */
-export function updateProject(args: {
-  id: number
-  name?: string
-  description?: string
-  start_date?: string | null
-  end_date?: string | null
-}): Project | null {
+export function updateProject(args: ProjectUpdateArgs): Project | null {
   const db = getDatabase()
   const project = db.prepare('SELECT * FROM project WHERE id = ?').get(args.id) as
     | Project

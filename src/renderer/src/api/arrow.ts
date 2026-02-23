@@ -1,4 +1,5 @@
 import type { Arrow } from '@shared/types/models'
+import type { ArrowCreateArgs, ArrowUpdateArgs } from '@shared/types/ipc'
 
 /** 矢羽一覧を取得する */
 export function listArrows(args: { projectId: number }): Promise<Arrow[]> {
@@ -6,28 +7,12 @@ export function listArrows(args: { projectId: number }): Promise<Arrow[]> {
 }
 
 /** 矢羽を作成する */
-export function createArrow(args: {
-  projectId: number
-  parentId?: number
-  name: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: Arrow['status']
-}): Promise<Arrow> {
+export function createArrow(args: ArrowCreateArgs): Promise<Arrow> {
   return window.api.arrow.create(args)
 }
 
 /** 矢羽を更新する */
-export function updateArrow(args: {
-  id: number
-  name?: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: Arrow['status']
-  parentId?: number | null
-}): Promise<Arrow> {
+export function updateArrow(args: ArrowUpdateArgs): Promise<Arrow> {
   return window.api.arrow.update(args)
 }
 

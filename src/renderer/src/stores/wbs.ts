@@ -4,6 +4,7 @@ import type { Arrow, WbsItem } from '@shared/types/models'
 import * as api from '../api/wbs'
 import { useArrowStore } from './arrow'
 import { useProjectStore } from './project'
+import { calcDateRange } from '../utils/gantt-helper'
 
 export interface WbsTreeRow {
   type: 'parent' | 'child' | 'task'
@@ -183,48 +184,14 @@ export const useWbsStore = defineStore('wbs', () => {
     return rows
   })
 
-  /** 日付レンジ計算 */
-  const dateRange = computed<{ start: Date; end: Date }>(() => {
-    const projectStore = useProjectStore()
-    const project = projectStore.currentProject
-
-    // プロジェクトに期間が設定されている場合はそちらを優先
-    if (project?.start_date && project?.end_date) {
-      return {
-        start: new Date(project.start_date),
-        end: new Date(project.end_date)
-      }
-    }
-
-    let min: number | null = null
-    let max: number | null = null
-    for (const item of items.value) {
-      if (item.start_date) {
-        const t = new Date(item.start_date).getTime()
-        if (min === null || t < min) min = t
-      }
-      if (item.end_date) {
-        const t = new Date(item.end_date).getTime()
-        if (max === null || t > max) max = t
-      }
-    }
-    // 矢羽の日付も考慮
-    for (const a of arrowStore.arrows) {
-      if (a.start_date) {
-        const t = new Date(a.start_date).getTime()
-        if (min === null || t < min) min = t
-      }
-      if (a.end_date) {
-        const t = new Date(a.end_date).getTime()
-        if (max === null || t > max) max = t
-      }
-    }
-    const DAY = 86_400_000
-    if (min !== null && max !== null) {
-      return { start: new Date(min - 7 * DAY), end: new Date(max + 7 * DAY) }
-    }
-    const now = Date.now()
-    return { start: new Date(now - 30 * DAY), end: new Date(now + 60 * DAY) }
+  /** 日付レンジ計算（WBS タスク + 矢羽の日付を統合） */
+  const dateRange = computed(() => {
+    const project = useProjectStore().currentProject
+    const dates = [
+      ...items.value.flatMap((t) => [t.start_date, t.end_date].filter(Boolean) as string[]),
+      ...arrowStore.arrows.flatMap((a) => [a.start_date, a.end_date].filter(Boolean) as string[])
+    ]
+    return calcDateRange(project ?? null, dates)
   })
 
   /** WBS 一覧を取得する */

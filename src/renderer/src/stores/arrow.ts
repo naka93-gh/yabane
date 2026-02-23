@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { Arrow } from '@shared/types/models'
 import * as api from '../api/arrow'
 import { useProjectStore } from './project'
+import { calcDateRange } from '../utils/gantt-helper'
 
 export interface ArrowNode {
   arrow: Arrow
@@ -38,36 +39,12 @@ export const useArrowStore = defineStore('arrow', () => {
   const tree = computed<ArrowNode[]>(() => flattenTree(arrows.value))
 
   /** ガント表示用の日付レンジ（前後7日のマージン付き） */
-  const dateRange = computed<{ start: Date; end: Date }>(() => {
-    const projectStore = useProjectStore()
-    const project = projectStore.currentProject
-
-    // プロジェクトに期間が設定されている場合はそちらを優先
-    if (project?.start_date && project?.end_date) {
-      return {
-        start: new Date(project.start_date),
-        end: new Date(project.end_date)
-      }
-    }
-
-    let min: number | null = null
-    let max: number | null = null
-    for (const a of arrows.value) {
-      if (a.start_date) {
-        const t = new Date(a.start_date).getTime()
-        if (min === null || t < min) min = t
-      }
-      if (a.end_date) {
-        const t = new Date(a.end_date).getTime()
-        if (max === null || t > max) max = t
-      }
-    }
-    const DAY = 86_400_000
-    if (min !== null && max !== null) {
-      return { start: new Date(min - 7 * DAY), end: new Date(max + 7 * DAY) }
-    }
-    const now = Date.now()
-    return { start: new Date(now - 30 * DAY), end: new Date(now + 30 * DAY) }
+  const dateRange = computed(() => {
+    const project = useProjectStore().currentProject
+    const dates = arrows.value.flatMap(
+      (a) => [a.start_date, a.end_date].filter(Boolean) as string[]
+    )
+    return calcDateRange(project ?? null, dates)
   })
 
   /** 矢羽一覧を取得する */

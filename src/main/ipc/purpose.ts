@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import { getPurpose, savePurpose } from '../service/purpose'
+import type { PurposeSaveArgs } from '../../shared/types/ipc'
 
 /** 目的関連の IPC ハンドラを登録する */
 export function registerPurposeHandlers(): void {
@@ -7,20 +8,7 @@ export function registerPurposeHandlers(): void {
     return getPurpose(args.projectId)
   })
 
-  ipcMain.handle(
-    'purpose:save',
-    (
-      _e,
-      args: {
-        projectId: number
-        background?: string
-        objective?: string
-        scope?: string
-        out_of_scope?: string
-        assumption?: string
-      }
-    ) => {
-      return savePurpose(args)
-    }
-  )
+  ipcMain.handle('purpose:save', (_e, args: PurposeSaveArgs) => {
+    return savePurpose(args)
+  })
 }

@@ -6,6 +6,7 @@ import {
   deleteMilestone,
   reorderMilestones
 } from '../service/milestone'
+import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '../../shared/types/ipc'
 
 /** マイルストーン関連の IPC ハンドラを登録する */
 export function registerMilestoneHandlers(): void {
@@ -13,37 +14,13 @@ export function registerMilestoneHandlers(): void {
     return listMilestones(args.projectId)
   })
 
-  ipcMain.handle(
-    'milestone:create',
-    (
-      _e,
-      args: {
-        projectId: number
-        name: string
-        description?: string
-        dueDate?: string
-        color?: string
-      }
-    ) => {
-      return createMilestone(args)
-    }
-  )
+  ipcMain.handle('milestone:create', (_e, args: MilestoneCreateArgs) => {
+    return createMilestone(args)
+  })
 
-  ipcMain.handle(
-    'milestone:update',
-    (
-      _e,
-      args: {
-        id: number
-        name?: string
-        description?: string
-        dueDate?: string
-        color?: string
-      }
-    ) => {
-      return updateMilestone(args)
-    }
-  )
+  ipcMain.handle('milestone:update', (_e, args: MilestoneUpdateArgs) => {
+    return updateMilestone(args)
+  })
 
   ipcMain.handle('milestone:delete', (_e, args: { id: number }) => {
     return deleteMilestone(args.id)

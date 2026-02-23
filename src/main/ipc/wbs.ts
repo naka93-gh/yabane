@@ -6,7 +6,7 @@ import {
   deleteWbsItem,
   reorderWbsItems
 } from '../service/wbs'
-import type { WbsItem } from '../../shared/types/models'
+import type { WbsCreateArgs, WbsUpdateArgs } from '../../shared/types/ipc'
 
 /** WBS 関連の IPC ハンドラを登録する */
 export function registerWbsHandlers(): void {
@@ -14,45 +14,13 @@ export function registerWbsHandlers(): void {
     return listWbsItems(args.projectId)
   })
 
-  ipcMain.handle(
-    'wbs:create',
-    (
-      _e,
-      args: {
-        arrowId: number
-        name: string
-        startDate?: string
-        endDate?: string
-        owner?: string
-        status?: WbsItem['status']
-        progress?: number
-        estimatedHours?: number
-      }
-    ) => {
-      return createWbsItem(args)
-    }
-  )
+  ipcMain.handle('wbs:create', (_e, args: WbsCreateArgs) => {
+    return createWbsItem(args)
+  })
 
-  ipcMain.handle(
-    'wbs:update',
-    (
-      _e,
-      args: {
-        id: number
-        arrowId?: number
-        name?: string
-        startDate?: string
-        endDate?: string
-        owner?: string
-        status?: WbsItem['status']
-        progress?: number
-        estimatedHours?: number
-        actualHours?: number
-      }
-    ) => {
-      return updateWbsItem(args)
-    }
-  )
+  ipcMain.handle('wbs:update', (_e, args: WbsUpdateArgs) => {
+    return updateWbsItem(args)
+  })
 
   ipcMain.handle('wbs:delete', (_e, args: { id: number }) => {
     return deleteWbsItem(args.id)

@@ -1,5 +1,7 @@
 import { getDatabase } from '../database'
 import type { Arrow } from '../../shared/types/models'
+import type { ArrowCreateArgs, ArrowUpdateArgs } from '../../shared/types/ipc'
+import { reorderRows, nextSortOrder } from './common'
 
 /** 矢羽一覧を取得する */
 export function listArrows(projectId: number): Arrow[] {
@@ -10,27 +12,14 @@ export function listArrows(projectId: number): Arrow[] {
 }
 
 /** 矢羽を作成する */
-export function createArrow(args: {
-  projectId: number
-  parentId?: number
-  name: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: Arrow['status']
-}): Arrow {
+export function createArrow(args: ArrowCreateArgs): Arrow {
   const db = getDatabase()
 
-  // 同じ親の中での最大 sort_order を取得
-  const maxOrder = db
-    .prepare(
-      args.parentId
-        ? 'SELECT COALESCE(MAX(sort_order), -1) as max_order FROM arrow WHERE project_id = ? AND parent_id = ?'
-        : 'SELECT COALESCE(MAX(sort_order), -1) as max_order FROM arrow WHERE project_id = ? AND parent_id IS NULL'
-    )
-    .get(...(args.parentId ? [args.projectId, args.parentId] : [args.projectId])) as {
-    max_order: number
-  }
+  const where = args.parentId
+    ? 'project_id = ? AND parent_id = ?'
+    : 'project_id = ? AND parent_id IS NULL'
+  const params = args.parentId ? [args.projectId, args.parentId] : [args.projectId]
+  const sortOrder = nextSortOrder('arrow', where, params)
 
   return db
     .prepare(
@@ -44,20 +33,12 @@ export function createArrow(args: {
       args.endDate ?? null,
       args.owner ?? null,
       args.status ?? 'not_started',
-      maxOrder.max_order + 1
+      sortOrder
     ) as Arrow
 }
 
 /** 矢羽を更新する */
-export function updateArrow(args: {
-  id: number
-  name?: string
-  startDate?: string
-  endDate?: string
-  owner?: string
-  status?: Arrow['status']
-  parentId?: number | null
-}): Arrow | null {
+export function updateArrow(args: ArrowUpdateArgs): Arrow | null {
   const db = getDatabase()
 
   const arrow = db.prepare('SELECT * FROM arrow WHERE id = ?').get(args.id) as Arrow | undefined
@@ -85,11 +66,5 @@ export function deleteArrow(id: number): Arrow | undefined {
 
 /** 矢羽の並び順を更新する */
 export function reorderArrows(ids: number[]): void {
-  const db = getDatabase()
-  const update = db.prepare('UPDATE arrow SET sort_order = ? WHERE id = ?')
-  db.transaction(() => {
-    ids.forEach((id, index) => {
-      update.run(index, id)
-    })
-  })()
+  reorderRows('arrow', ids)
 }

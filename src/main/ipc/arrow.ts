@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import { listArrows, createArrow, updateArrow, deleteArrow, reorderArrows } from '../service/arrow'
-import type { Arrow } from '../../shared/types/models'
+import type { ArrowCreateArgs, ArrowUpdateArgs } from '../../shared/types/ipc'
 
 /** 矢羽関連の IPC ハンドラを登録する */
 export function registerArrowHandlers(): void {
@@ -8,41 +8,13 @@ export function registerArrowHandlers(): void {
     return listArrows(args.projectId)
   })
 
-  ipcMain.handle(
-    'arrow:create',
-    (
-      _e,
-      args: {
-        projectId: number
-        parentId?: number
-        name: string
-        startDate?: string
-        endDate?: string
-        owner?: string
-        status?: Arrow['status']
-      }
-    ) => {
-      return createArrow(args)
-    }
-  )
+  ipcMain.handle('arrow:create', (_e, args: ArrowCreateArgs) => {
+    return createArrow(args)
+  })
 
-  ipcMain.handle(
-    'arrow:update',
-    (
-      _e,
-      args: {
-        id: number
-        name?: string
-        startDate?: string
-        endDate?: string
-        owner?: string
-        status?: Arrow['status']
-        parentId?: number | null
-      }
-    ) => {
-      return updateArrow(args)
-    }
-  )
+  ipcMain.handle('arrow:update', (_e, args: ArrowUpdateArgs) => {
+    return updateArrow(args)
+  })
 
   ipcMain.handle('arrow:delete', (_e, args: { id: number }) => {
     return deleteArrow(args.id)

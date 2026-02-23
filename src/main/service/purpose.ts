@@ -1,5 +1,6 @@
 import { getDatabase } from '../database'
 import type { Purpose } from '../../shared/types/models'
+import type { PurposeSaveArgs } from '../../shared/types/ipc'
 
 /** プロジェクトの目的を取得する */
 export function getPurpose(projectId: number): Purpose | null {
@@ -12,14 +13,7 @@ export function getPurpose(projectId: number): Purpose | null {
 }
 
 /** プロジェクトの目的を保存する（UPSERT） */
-export function savePurpose(args: {
-  projectId: number
-  background?: string
-  objective?: string
-  scope?: string
-  out_of_scope?: string
-  assumption?: string
-}): Purpose {
+export function savePurpose(args: PurposeSaveArgs): Purpose {
   const db = getDatabase()
   return db
     .prepare(

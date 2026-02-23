@@ -1,4 +1,5 @@
 import type { Milestone } from '@shared/types/models'
+import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '@shared/types/ipc'
 
 /** マイルストーン一覧を取得する */
 export function listMilestones(args: { projectId: number }): Promise<Milestone[]> {
@@ -6,24 +7,12 @@ export function listMilestones(args: { projectId: number }): Promise<Milestone[]
 }
 
 /** マイルストーンを作成する */
-export function createMilestone(args: {
-  projectId: number
-  name: string
-  description?: string
-  dueDate?: string
-  color?: string
-}): Promise<Milestone> {
+export function createMilestone(args: MilestoneCreateArgs): Promise<Milestone> {
   return window.api.milestone.create(args)
 }
 
 /** マイルストーンを更新する */
-export function updateMilestone(args: {
-  id: number
-  name?: string
-  description?: string
-  dueDate?: string
-  color?: string
-}): Promise<Milestone> {
+export function updateMilestone(args: MilestoneUpdateArgs): Promise<Milestone> {
   return window.api.milestone.update(args)
 }
 
