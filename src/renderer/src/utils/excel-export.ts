@@ -1,15 +1,16 @@
 import XLSX from 'xlsx-js-style'
-import type { Purpose, Milestone, Arrow, WbsItem, Issue } from '@shared/types/models'
+import type { Purpose, Milestone, Arrow, WbsItem, Issue, Member } from '@shared/types/models'
 import { buildArrowSheet } from './excel-sheets/arrow-sheet'
 import { buildWbsSheet } from './excel-sheets/wbs-sheet'
 import {
   buildPurposeSheet,
   buildMilestoneSheet,
-  buildIssueSheet
+  buildIssueSheet,
+  buildMemberSheet
 } from './excel-sheets/simple-sheets'
 
 /** エクスポート対象セクションの種別 */
-export type ExportSection = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue'
+export type ExportSection = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue' | 'member'
 
 /** エクスポートに必要なデータ一式 */
 export interface ExportData {
@@ -19,6 +20,7 @@ export interface ExportData {
   arrows: Arrow[]
   wbsItems: WbsItem[]
   issues: Issue[]
+  members: Member[]
 }
 
 /** 選択されたセクションからワークブックを構築する */
@@ -39,6 +41,9 @@ export function buildWorkbook(data: ExportData, sections: ExportSection[]): XLSX
   }
   if (sections.includes('issue')) {
     XLSX.utils.book_append_sheet(wb, buildIssueSheet(data.issues), '課題')
+  }
+  if (sections.includes('member')) {
+    XLSX.utils.book_append_sheet(wb, buildMemberSheet(data.members), '関係者')
   }
 
   return wb

@@ -81,6 +81,7 @@ export interface Member {
   organization: string | null
   email: string | null
   note: string | null
+  archived: number
   sort_order: number
   created_at: string
 }

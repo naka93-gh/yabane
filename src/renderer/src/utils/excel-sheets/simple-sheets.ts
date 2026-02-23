@@ -1,5 +1,5 @@
 import XLSX from 'xlsx-js-style'
-import type { Purpose, Milestone, Issue } from '@shared/types/models'
+import type { Purpose, Milestone, Issue, Member } from '@shared/types/models'
 import { ISSUE_STATUS_LABELS, PRIORITY_LABELS } from '../constants'
 import { headerCell, labelCell, cell, CELL_STYLE } from '../excel-style'
 
@@ -92,5 +92,31 @@ export function buildIssueSheet(issues: Issue[]): WS {
     { wch: 12 },
     { wch: 40 }
   ]
+  return ws
+}
+
+/** 関係者シートを構築する */
+export function buildMemberSheet(members: Member[]): WS {
+  const headers = ['組織', '名前', '役割', 'メール', '備考']
+  const ws: WS = {}
+
+  headers.forEach((h, c) => {
+    ws[XLSX.utils.encode_cell({ r: 0, c })] = headerCell(h)
+  })
+
+  members.forEach((m, i) => {
+    const r = i + 1
+    ws[XLSX.utils.encode_cell({ r, c: 0 })] = cell(m.organization)
+    ws[XLSX.utils.encode_cell({ r, c: 1 })] = cell(m.name)
+    ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(m.role)
+    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(m.email)
+    ws[XLSX.utils.encode_cell({ r, c: 4 })] = cell(m.note)
+  })
+
+  ws['!ref'] = XLSX.utils.encode_range({
+    s: { r: 0, c: 0 },
+    e: { r: members.length, c: headers.length - 1 }
+  })
+  ws['!cols'] = [{ wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 28 }, { wch: 40 }]
   return ws
 }

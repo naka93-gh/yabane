@@ -14,6 +14,7 @@ import { useProjectStore } from '../../stores/project'
 import { listProjects } from '../../api/project'
 import { useAppToast } from '../../composables/useAppToast'
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
+import { validateDateRange } from '../../utils/validators'
 import { PROJECT_STATUSES } from '../../constants/project'
 
 const STATUS_OPTIONS = PROJECT_STATUSES.filter((s) => s.value !== 'archived')
@@ -29,12 +30,7 @@ const newStartDate = ref<Date | null>(null)
 const newEndDate = ref<Date | null>(null)
 const showArchived = ref(false)
 
-const dateError = computed(() => {
-  if (newStartDate.value && newEndDate.value && newStartDate.value > newEndDate.value) {
-    return '開始日は終了日以前にしてください'
-  }
-  return ''
-})
+const dateError = computed(() => validateDateRange(newStartDate.value, newEndDate.value))
 
 const archivedProjects = ref<Project[]>([])
 

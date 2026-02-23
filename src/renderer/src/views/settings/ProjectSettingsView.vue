@@ -11,6 +11,7 @@ import { useProjectStore } from '../../stores/project'
 import { useAppToast } from '../../composables/useAppToast'
 import { useNavigationGuard } from '../../composables/useNavigationGuard'
 import { formatDate } from '../../utils/date-helper'
+import { validateDateRange } from '../../utils/validators'
 import { getProjectSummary } from '../../api/project'
 import type { ProjectSummary } from '@shared/types/ipc'
 
@@ -83,12 +84,7 @@ const isDirty = computed(() => {
 watch(isDirty, (v) => guard.setDirty(v))
 onBeforeUnmount(() => guard.reset())
 
-const dateError = computed(() => {
-  if (editStartDate.value && editEndDate.value && editStartDate.value > editEndDate.value) {
-    return '開始日は終了日以前にしてください'
-  }
-  return ''
-})
+const dateError = computed(() => validateDateRange(editStartDate.value, editEndDate.value))
 
 const canSave = computed(() => !!editName.value.trim() && !dateError.value)
 
