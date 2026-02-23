@@ -8,8 +8,8 @@ export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([])
   const currentProject = ref<Project | null>(null)
   /** プロジェクト一覧を取得してストアに反映する */
-  async function fetchProjects(status: 'active' | 'archived' = 'active'): Promise<void> {
-    projects.value = await api.listProjects({ status })
+  async function fetchProjects(status?: Project['status']): Promise<void> {
+    projects.value = await api.listProjects(status ? { status } : undefined)
   }
 
   /** プロジェクトを選択して currentProject に設定する */

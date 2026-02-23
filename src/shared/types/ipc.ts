@@ -26,6 +26,7 @@ export interface ProjectUpdateArgs {
   description?: string
   start_date?: string | null
   end_date?: string | null
+  status?: Project['status']
 }
 
 // --- 目的 ---

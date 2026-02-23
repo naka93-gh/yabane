@@ -3,6 +3,8 @@ import { ref, computed, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import DatePicker from 'primevue/datepicker'
+import Select from 'primevue/select'
+import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -12,6 +14,23 @@ import { useProjectStore } from '../../stores/project'
 import { listProjects } from '../../api/project'
 import { useAppToast } from '../../composables/useAppToast'
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
+
+const STATUS_OPTIONS: { value: Project['status']; label: string }[] = [
+  { value: 'planning', label: '計画中' },
+  { value: 'active', label: '進行中' },
+  { value: 'completed', label: '完了' },
+  { value: 'on_hold', label: '保留' },
+  { value: 'cancelled', label: '中止' }
+]
+
+const STATUS_META: Record<string, { label: string; severity: string }> = {
+  planning: { label: '計画中', severity: 'info' },
+  active: { label: '進行中', severity: 'success' },
+  completed: { label: '完了', severity: 'secondary' },
+  on_hold: { label: '保留', severity: 'warn' },
+  cancelled: { label: '中止', severity: 'danger' },
+  archived: { label: 'アーカイブ', severity: 'secondary' }
+}
 
 const store = useProjectStore()
 const toast = useAppToast()
@@ -86,6 +105,15 @@ async function handleUnarchive(project: Project): Promise<void> {
     toast.success('復元しました')
   } catch {
     toast.error('復元に失敗しました')
+  }
+}
+
+async function handleStatusChange(project: Project, status: Project['status']): Promise<void> {
+  try {
+    await store.updateProject(project.id, { status })
+    toast.success('ステータスを変更しました')
+  } catch {
+    toast.error('ステータスの変更に失敗しました')
   }
 }
 
@@ -178,12 +206,28 @@ function handleRowClick(event: { data: Project }): void {
             </span>
           </template>
         </Column>
-        <Column field="status" header="ステータス" style="width: 100px" />
+        <Column header="ステータス" style="width: 160px">
+          <template #body="{ data }">
+            <div @click.stop>
+              <Select
+                v-if="data.status !== 'archived'"
+                :model-value="data.status"
+                :options="STATUS_OPTIONS"
+                option-label="label"
+                option-value="value"
+                size="small"
+                class="status-select"
+                @update:model-value="handleStatusChange(data, $event)"
+              />
+              <Tag v-else :value="STATUS_META[data.status].label" :severity="STATUS_META[data.status].severity" />
+            </div>
+          </template>
+        </Column>
         <Column header="操作" style="width: 120px">
           <template #body="{ data }">
             <div class="action-buttons" @click.stop>
               <Button
-                v-if="data.status === 'active'"
+                v-if="data.status !== 'archived'"
                 v-tooltip.top="'アーカイブ'"
                 icon="pi pi-inbox"
                 severity="secondary"
@@ -294,6 +338,10 @@ function handleRowClick(event: { data: Project }): void {
 .action-buttons {
   display: flex;
   gap: 4px;
+}
+
+.status-select {
+  width: 100%;
 }
 
 .project-table :deep(tr.p-datatable-row-selectable) {

@@ -5,10 +5,14 @@ import type { ProjectCreateArgs, ProjectUpdateArgs, ProjectSummary } from '../..
 /** プロジェクト一覧を取得する */
 export function listProjects(status?: Project['status']): Project[] {
   const db = getDatabase()
-  const s = status ?? 'active'
+  if (status) {
+    return db
+      .prepare('SELECT * FROM project WHERE status = ? ORDER BY updated_at DESC')
+      .all(status) as Project[]
+  }
   return db
-    .prepare('SELECT * FROM project WHERE status = ? ORDER BY updated_at DESC')
-    .all(s) as Project[]
+    .prepare("SELECT * FROM project WHERE status != 'archived' ORDER BY updated_at DESC")
+    .all() as Project[]
 }
 
 /** プロジェクトを1件取得する */
@@ -39,12 +43,13 @@ export function updateProject(args: ProjectUpdateArgs): Project | null {
   const description = args.description !== undefined ? args.description : project.description
   const startDate = args.start_date !== undefined ? args.start_date : project.start_date
   const endDate = args.end_date !== undefined ? args.end_date : project.end_date
+  const status = args.status ?? project.status
 
   return db
     .prepare(
-      "UPDATE project SET name = ?, description = ?, start_date = ?, end_date = ?, updated_at = datetime('now') WHERE id = ? RETURNING *"
+      "UPDATE project SET name = ?, description = ?, start_date = ?, end_date = ?, status = ?, updated_at = datetime('now') WHERE id = ? RETURNING *"
     )
-    .get(name, description, startDate, endDate, args.id) as Project
+    .get(name, description, startDate, endDate, status, args.id) as Project
 }
 
 /** プロジェクトをアーカイブする */
@@ -79,7 +84,7 @@ export function unarchiveProject(id: number): Project | undefined {
   const db = getDatabase()
   return db
     .prepare(
-      "UPDATE project SET status = 'active', updated_at = datetime('now') WHERE id = ? RETURNING *"
+      "UPDATE project SET status = 'planning', updated_at = datetime('now') WHERE id = ? RETURNING *"
     )
     .get(id) as Project | undefined
 }

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS project (
   description TEXT,
   start_date  TEXT,
   end_date    TEXT,
-  status      TEXT NOT NULL DEFAULT 'active',
+  status      TEXT NOT NULL DEFAULT 'planning',
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
