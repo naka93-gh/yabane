@@ -125,7 +125,7 @@ function confirmDelete(a: Arrow): void {
       </div>
     </div>
 
-    <div v-if="store.tree.length === 0 && !store.loading" class="empty-state">
+    <div v-if="store.visibleTree.length === 0 && !store.loading" class="empty-state">
       矢羽はまだありません
     </div>
 
@@ -137,7 +137,7 @@ function confirmDelete(a: Arrow): void {
         </div>
         <div class="gantt-left-body">
           <div
-            v-for="(node, i) in store.tree"
+            v-for="(node, i) in store.visibleTree"
             :key="node.arrow.id"
             class="left-row"
             :class="{ 'left-row--drag-over': reorder.dropIndex.value === i }"
@@ -146,10 +146,17 @@ function confirmDelete(a: Arrow): void {
             @dragstart="reorder.onDragStart(node, i, $event)"
             @dragover="reorder.onDragOver(node, i, $event)"
             @dragleave="reorder.onDragLeave"
-            @drop="reorder.onDrop(node, store.tree)"
+            @drop="reorder.onDrop(node, store.visibleTree)"
             @dragend="reorder.onDragEnd"
           >
             <i class="pi pi-bars drag-handle" />
+            <i
+              v-if="hasChildren(node.arrow.id)"
+              class="collapse-toggle"
+              :class="store.collapsedIds.has(node.arrow.id) ? 'pi pi-chevron-right' : 'pi pi-chevron-down'"
+              @click="store.toggleCollapse(node.arrow.id)"
+            />
+            <span v-else class="collapse-spacer" />
             <span class="left-row-name" :title="node.arrow.name">{{ node.arrow.name }}</span>
             <span class="left-row-actions">
               <Button
@@ -187,7 +194,7 @@ function confirmDelete(a: Arrow): void {
         </div>
         <div class="gantt-owner-body">
           <div
-            v-for="node in store.tree"
+            v-for="node in store.visibleTree"
             :key="node.arrow.id"
             class="owner-row"
             :style="{ height: `${ROW_HEIGHT}px` }"
@@ -217,7 +224,7 @@ function confirmDelete(a: Arrow): void {
             <!-- バー行 -->
             <div class="gantt-body">
               <div
-                v-for="node in store.tree"
+                v-for="node in store.visibleTree"
                 :key="node.arrow.id"
                 class="gantt-row"
                 :style="{ height: `${ROW_HEIGHT}px` }"
@@ -339,6 +346,24 @@ function confirmDelete(a: Arrow): void {
   padding: 4px 4px 4px 0;
   flex-shrink: 0;
   align-self: center;
+}
+
+.collapse-toggle {
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.collapse-toggle:hover {
+  color: var(--p-text-color);
+}
+
+.collapse-spacer {
+  width: 16px;
+  flex-shrink: 0;
 }
 
 .left-row-name {

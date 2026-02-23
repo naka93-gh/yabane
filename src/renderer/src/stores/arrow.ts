@@ -11,7 +11,7 @@ export interface ArrowNode {
 }
 
 /** 矢羽リストを親子関係に基づいてフラットなツリー配列に変換する */
-function flattenTree(arrows: Arrow[]): ArrowNode[] {
+function flattenTree(arrows: Arrow[], collapsedIds?: Set<number>): ArrowNode[] {
   const childrenMap = new Map<number | null, Arrow[]>()
   for (const a of arrows) {
     const key = a.parent_id
@@ -24,7 +24,9 @@ function flattenTree(arrows: Arrow[]): ArrowNode[] {
     const children = childrenMap.get(parentId) ?? []
     for (const arrow of children) {
       result.push({ arrow, depth })
-      walk(arrow.id, depth + 1)
+      if (!collapsedIds?.has(arrow.id)) {
+        walk(arrow.id, depth + 1)
+      }
     }
   }
   walk(null, 0)
@@ -34,9 +36,24 @@ function flattenTree(arrows: Arrow[]): ArrowNode[] {
 export const useArrowStore = defineStore('arrow', () => {
   const arrows = ref<Arrow[]>([])
   const loading = ref(false)
+  const collapsedIds = ref(new Set<number>())
 
-  /** 矢羽のツリー構造（フラット配列） */
+  /** 矢羽のツリー構造（フラット配列・全ノード） */
   const tree = computed<ArrowNode[]>(() => flattenTree(arrows.value))
+
+  /** 折りたたみ反映済みのツリー（表示用） */
+  const visibleTree = computed<ArrowNode[]>(() => flattenTree(arrows.value, collapsedIds.value))
+
+  /** 折りたたみ状態をトグルする */
+  function toggleCollapse(id: number): void {
+    const next = new Set(collapsedIds.value)
+    if (next.has(id)) {
+      next.delete(id)
+    } else {
+      next.add(id)
+    }
+    collapsedIds.value = next
+  }
 
   /** ガント表示用の日付レンジ（前後7日のマージン付き） */
   const dateRange = computed(() => {
@@ -124,11 +141,14 @@ export const useArrowStore = defineStore('arrow', () => {
     arrows,
     loading,
     tree,
+    visibleTree,
+    collapsedIds,
     dateRange,
     fetchArrows,
     addArrow,
     editArrow,
     removeArrow,
-    reorder
+    reorder,
+    toggleCollapse
   }
 })
