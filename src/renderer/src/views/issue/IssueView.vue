@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
+import SelectButton from 'primevue/selectbutton'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import { useProjectStore } from '../../stores/project'
@@ -24,6 +25,44 @@ const toast = useAppToast()
 
 const filterStatusOptions = [{ label: 'すべて', value: null }, ...ISSUE_STATUS_OPTIONS]
 const filterPriorityOptions = [{ label: 'すべて', value: null }, ...PRIORITY_OPTIONS]
+
+const SORT_OPTIONS = [
+  { label: '起票日順', value: 'created_at' },
+  { label: '期限順', value: 'due_date' },
+  { label: '優先度順', value: 'priority' }
+]
+
+const PRIORITY_ORDER: Record<string, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3
+}
+
+const sortMode = ref<'created_at' | 'due_date' | 'priority'>('created_at')
+
+const sortedIssues = computed(() => {
+  const issues = [...store.filteredIssues]
+  switch (sortMode.value) {
+    case 'created_at':
+      return issues.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+    case 'due_date':
+      return issues.sort((a, b) => {
+        if (!a.due_date && !b.due_date) return 0
+        if (!a.due_date) return 1
+        if (!b.due_date) return -1
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+      })
+    case 'priority':
+      return issues.sort(
+        (a, b) => (PRIORITY_ORDER[a.priority] ?? 99) - (PRIORITY_ORDER[b.priority] ?? 99)
+      )
+    default:
+      return issues
+  }
+})
 
 const expandedId = ref<number | null>(null)
 const issueDialog = ref<InstanceType<typeof IssueDialog> | null>(null)
@@ -104,9 +143,17 @@ const filterPriority = computed({
         placeholder="優先度"
         class="filter-select"
       />
+      <SelectButton
+        v-model="sortMode"
+        :options="SORT_OPTIONS"
+        option-label="label"
+        option-value="value"
+        :allow-empty="false"
+        class="sort-select"
+      />
     </div>
 
-    <div v-if="store.filteredIssues.length === 0 && !store.loading" class="empty-state">
+    <div v-if="sortedIssues.length === 0 && !store.loading" class="empty-state">
       課題はまだありません
     </div>
 
@@ -118,9 +165,10 @@ const filterPriority = computed({
         <span class="col-status">ステータス</span>
         <span class="col-owner">担当者</span>
         <span class="col-due">期限</span>
+        <span class="col-created">起票日</span>
         <span class="col-actions">&nbsp;</span>
       </div>
-      <div v-for="issue in store.filteredIssues" :key="issue.id" class="table-row-group">
+      <div v-for="issue in sortedIssues" :key="issue.id" class="table-row-group">
         <div class="table-row" @click="toggleExpand(issue.id)">
           <span class="col-title">
             <i
@@ -141,6 +189,7 @@ const filterPriority = computed({
           </span>
           <span class="col-owner">{{ issue.owner ?? '' }}</span>
           <span class="col-due">{{ formatDisplayDate(issue.due_date) }}</span>
+          <span class="col-created">{{ formatDisplayDate(issue.created_at) }}</span>
           <span class="col-actions" @click.stop>
             <Button
               icon="pi pi-pencil"
@@ -215,6 +264,10 @@ const filterPriority = computed({
 
 .filter-select {
   width: 160px;
+}
+
+.sort-select {
+  margin-left: auto;
 }
 
 .empty-state {
@@ -302,6 +355,14 @@ const filterPriority = computed({
 }
 
 .col-due {
+  width: 90px;
+  min-width: 90px;
+  padding: 0 8px;
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+}
+
+.col-created {
   width: 90px;
   min-width: 90px;
   padding: 0 8px;
