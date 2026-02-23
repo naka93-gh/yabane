@@ -82,6 +82,7 @@ interface MemberAPI {
   delete(args: { id: number }): Promise<Member>
   archive(args: { id: number }): Promise<Member>
   unarchive(args: { id: number }): Promise<Member>
+  reorder(args: { ids: number[] }): Promise<void>
 }
 
 interface ExportAPI {

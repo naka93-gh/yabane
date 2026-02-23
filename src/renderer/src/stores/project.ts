@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Project } from '@shared/types/models'
-import type { ProjectCreateArgs } from '@shared/types/ipc'
+import type { ProjectCreateArgs, ProjectUpdateArgs } from '@shared/types/ipc'
 import * as api from '../api/project'
 import { useMemberStore } from './member'
 
@@ -31,15 +31,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** プロジェクトを更新し一覧を再取得する */
-  async function updateProject(
-    id: number,
-    data: {
-      name?: string
-      description?: string
-      start_date?: string | null
-      end_date?: string | null
-    }
-  ): Promise<void> {
+  async function updateProject(id: number, data: Omit<ProjectUpdateArgs, 'id'>): Promise<void> {
     await api.updateProject({ id, ...data })
     await fetchProjects()
     if (currentProject.value?.id === id) {
