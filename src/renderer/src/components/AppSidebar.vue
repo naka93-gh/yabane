@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import Button from 'primevue/button'
+
 defineProps<{ activeSection: string }>()
-const emit = defineEmits<{ 'request-section': [key: string] }>()
+const emit = defineEmits<{
+  'request-section': [key: string]
+  'open-settings': []
+}>()
 
 const sections = [
   { key: 'purpose', label: '目的', icon: 'pi pi-file-edit' },
@@ -24,11 +29,24 @@ const sections = [
         <span>{{ section.label }}</span>
       </li>
     </ul>
+    <div class="sidebar-footer">
+      <Button
+        icon="pi pi-cog"
+        label="プロジェクト設定"
+        severity="secondary"
+        text
+        size="small"
+        class="settings-button"
+        @click="emit('open-settings')"
+      />
+    </div>
   </nav>
 </template>
 
 <style scoped>
 .sidebar {
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid var(--p-content-border-color);
   background: var(--p-content-hover-background);
   overflow-y: auto;
@@ -38,6 +56,7 @@ const sections = [
   list-style: none;
   margin: 0;
   padding: 8px 0;
+  flex: 1;
 }
 
 .sidebar-item {
@@ -65,5 +84,15 @@ const sections = [
   font-size: 16px;
   width: 20px;
   text-align: center;
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--p-content-border-color);
+  padding: 8px;
+}
+
+.settings-button {
+  width: 100%;
+  justify-content: flex-start;
 }
 </style>

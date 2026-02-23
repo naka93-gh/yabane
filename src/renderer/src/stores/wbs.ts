@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { Arrow, WbsItem } from '@shared/types/models'
 import * as api from '../api/wbs'
 import { useArrowStore } from './arrow'
+import { useProjectStore } from './project'
 
 export interface WbsTreeRow {
   type: 'parent' | 'child' | 'task'
@@ -184,6 +185,17 @@ export const useWbsStore = defineStore('wbs', () => {
 
   /** 日付レンジ計算 */
   const dateRange = computed<{ start: Date; end: Date }>(() => {
+    const projectStore = useProjectStore()
+    const project = projectStore.currentProject
+
+    // プロジェクトに期間が設定されている場合はそちらを優先
+    if (project?.start_date && project?.end_date) {
+      return {
+        start: new Date(project.start_date),
+        end: new Date(project.end_date)
+      }
+    }
+
     let min: number | null = null
     let max: number | null = null
     for (const item of items.value) {

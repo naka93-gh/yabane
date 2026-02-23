@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppSidebar from './components/AppSidebar.vue'
 import ProjectDialog from './components/ProjectDialog.vue'
+import ProjectSettingsDialog from './components/ProjectSettingsDialog.vue'
 import ExportDialog from './components/ExportDialog.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
 import PurposeView from './views/PurposeView.vue'
@@ -18,6 +19,7 @@ const store = useProjectStore()
 const guard = useNavigationGuard()
 const activeSection = ref('purpose')
 const exportDialog = ref<InstanceType<typeof ExportDialog> | null>(null)
+const settingsDialog = ref<InstanceType<typeof ProjectSettingsDialog> | null>(null)
 
 function onRequestSection(key: string): void {
   if (key === activeSection.value) return
@@ -51,6 +53,7 @@ onMounted(async () => {
       :active-section="activeSection"
       class="app-sidebar"
       @request-section="onRequestSection"
+      @open-settings="settingsDialog?.open()"
     />
     <main class="app-main">
       <PurposeView v-if="store.currentProject && activeSection === 'purpose'" />
@@ -62,6 +65,7 @@ onMounted(async () => {
     </main>
     <Toast />
     <ProjectDialog />
+    <ProjectSettingsDialog ref="settingsDialog" />
     <ExportDialog ref="exportDialog" />
   </div>
 </template>

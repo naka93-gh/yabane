@@ -24,7 +24,16 @@ export function registerProjectHandlers(): void {
 
   ipcMain.handle(
     'project:update',
-    (_e, args: { id: number; name?: string; description?: string }) => {
+    (
+      _e,
+      args: {
+        id: number
+        name?: string
+        description?: string
+        start_date?: string | null
+        end_date?: string | null
+      }
+    ) => {
       return updateProject(args)
     }
   )

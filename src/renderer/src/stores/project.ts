@@ -31,7 +31,7 @@ export const useProjectStore = defineStore('project', () => {
   /** プロジェクトを更新し一覧を再取得する */
   async function updateProject(
     id: number,
-    data: { name?: string; description?: string }
+    data: { name?: string; description?: string; start_date?: string | null; end_date?: string | null }
   ): Promise<void> {
     await api.updateProject({ id, ...data })
     await fetchProjects()

@@ -29,6 +29,8 @@ export function updateProject(args: {
   id: number
   name?: string
   description?: string
+  start_date?: string | null
+  end_date?: string | null
 }): Project | null {
   const db = getDatabase()
   const project = db.prepare('SELECT * FROM project WHERE id = ?').get(args.id) as
@@ -38,12 +40,14 @@ export function updateProject(args: {
 
   const name = args.name ?? project.name
   const description = args.description !== undefined ? args.description : project.description
+  const startDate = args.start_date !== undefined ? args.start_date : project.start_date
+  const endDate = args.end_date !== undefined ? args.end_date : project.end_date
 
   return db
     .prepare(
-      "UPDATE project SET name = ?, description = ?, updated_at = datetime('now') WHERE id = ? RETURNING *"
+      "UPDATE project SET name = ?, description = ?, start_date = ?, end_date = ?, updated_at = datetime('now') WHERE id = ? RETURNING *"
     )
-    .get(name, description, args.id) as Project
+    .get(name, description, startDate, endDate, args.id) as Project
 }
 
 /** プロジェクトをアーカイブする */

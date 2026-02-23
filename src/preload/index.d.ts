@@ -5,7 +5,13 @@ interface ProjectAPI {
   list(args?: { status?: Project['status'] }): Promise<Project[]>
   get(args: { id: number }): Promise<Project | null>
   create(args: { name: string; description?: string }): Promise<Project>
-  update(args: { id: number; name?: string; description?: string }): Promise<Project>
+  update(args: {
+    id: number
+    name?: string
+    description?: string
+    start_date?: string | null
+    end_date?: string | null
+  }): Promise<Project>
   archive(args: { id: number }): Promise<Project>
   unarchive(args: { id: number }): Promise<Project>
 }

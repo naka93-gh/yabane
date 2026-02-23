@@ -9,8 +9,13 @@ const api = {
     get: (args: { id: number }) => ipcRenderer.invoke('project:get', args),
     create: (args: { name: string; description?: string }) =>
       ipcRenderer.invoke('project:create', args),
-    update: (args: { id: number; name?: string; description?: string }) =>
-      ipcRenderer.invoke('project:update', args),
+    update: (args: {
+      id: number
+      name?: string
+      description?: string
+      start_date?: string | null
+      end_date?: string | null
+    }) => ipcRenderer.invoke('project:update', args),
     archive: (args: { id: number }) => ipcRenderer.invoke('project:archive', args),
     unarchive: (args: { id: number }) => ipcRenderer.invoke('project:unarchive', args)
   },

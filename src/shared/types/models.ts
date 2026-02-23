@@ -2,6 +2,8 @@ export interface Project {
   id: number
   name: string
   description: string | null
+  start_date: string | null
+  end_date: string | null
   status: 'active' | 'archived'
   created_at: string
   updated_at: string

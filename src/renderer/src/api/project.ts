@@ -20,6 +20,8 @@ export function updateProject(args: {
   id: number
   name?: string
   description?: string
+  start_date?: string | null
+  end_date?: string | null
 }): Promise<Project> {
   return window.api.project.update(args)
 }

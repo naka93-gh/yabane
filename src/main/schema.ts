@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS project (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   name        TEXT NOT NULL,
   description TEXT,
+  start_date  TEXT,
+  end_date    TEXT,
   status      TEXT NOT NULL DEFAULT 'active',
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))

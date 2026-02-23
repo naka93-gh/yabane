@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { Arrow } from '@shared/types/models'
 import * as api from '../api/arrow'
+import { useProjectStore } from './project'
 
 export interface ArrowNode {
   arrow: Arrow
@@ -38,6 +39,17 @@ export const useArrowStore = defineStore('arrow', () => {
 
   /** ガント表示用の日付レンジ（前後7日のマージン付き） */
   const dateRange = computed<{ start: Date; end: Date }>(() => {
+    const projectStore = useProjectStore()
+    const project = projectStore.currentProject
+
+    // プロジェクトに期間が設定されている場合はそちらを優先
+    if (project?.start_date && project?.end_date) {
+      return {
+        start: new Date(project.start_date),
+        end: new Date(project.end_date)
+      }
+    }
+
     let min: number | null = null
     let max: number | null = null
     for (const a of arrows.value) {

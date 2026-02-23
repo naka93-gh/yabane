@@ -16,8 +16,22 @@ export function getDatabase(): Database.Database {
   db.pragma('foreign_keys = ON')
 
   db.exec(SCHEMA_SQL)
+  migrate(db)
 
   return db
+}
+
+/** 既存 DB 向けマイグレーション */
+function migrate(db: Database.Database): void {
+  const columns = db.pragma('table_info(project)') as { name: string }[]
+  const names = new Set(columns.map((c) => c.name))
+
+  if (!names.has('start_date')) {
+    db.exec('ALTER TABLE project ADD COLUMN start_date TEXT')
+  }
+  if (!names.has('end_date')) {
+    db.exec('ALTER TABLE project ADD COLUMN end_date TEXT')
+  }
 }
 
 /** アプリ終了時に呼ぶ */
