@@ -8,6 +8,7 @@ import { useProjectStore } from '../../stores/project'
 import {
   buildAllDates,
   buildMonthHeaders,
+  buildJunHeaders,
   buildGridLines,
   buildMilestoneLines,
   calcTodayLeft,
@@ -29,6 +30,7 @@ const confirm = useConfirm()
 const toast = useAppToast()
 
 const ROW_HEIGHT = 40
+const HEADER_HEIGHT = 56
 const DAY_WIDTH = 5
 
 const showTodayLine = ref(true)
@@ -48,6 +50,7 @@ watch(
 const allDates = computed(() => buildAllDates(store.dateRange.start, store.dateRange.end))
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
 const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
+const junHeaders = computed(() => buildJunHeaders(allDates.value, DAY_WIDTH))
 const gridLines = computed<GridLine[]>(() => buildGridLines(allDates.value, DAY_WIDTH))
 const milestoneLines = computed(() =>
   buildMilestoneLines(
@@ -156,7 +159,7 @@ function confirmDelete(a: Arrow): void {
     <div v-else class="gantt-container">
       <!-- 左パネル: ツリーリスト -->
       <div class="gantt-left">
-        <div class="gantt-left-header" :style="{ height: `${ROW_HEIGHT}px` }">
+        <div class="gantt-left-header" :style="{ height: `${HEADER_HEIGHT}px` }">
           <span>名前</span>
         </div>
         <div class="gantt-left-body">
@@ -213,7 +216,7 @@ function confirmDelete(a: Arrow): void {
 
       <!-- 中パネル: 担当者 -->
       <div class="gantt-owner">
-        <div class="gantt-owner-header" :style="{ height: `${ROW_HEIGHT}px` }">
+        <div class="gantt-owner-header" :style="{ height: `${HEADER_HEIGHT}px` }">
           <span>担当者</span>
         </div>
         <div class="gantt-owner-body">
@@ -234,15 +237,23 @@ function confirmDelete(a: Arrow): void {
       <div class="gantt-right">
         <div class="gantt-right-scroll">
           <div class="gantt-right-inner" :style="{ width: `${ganttTotalWidth}px` }">
-            <!-- 月ヘッダー行 -->
-            <div class="gantt-month-row" :style="{ height: `${ROW_HEIGHT}px` }">
+            <!-- ヘッダー行（月 + 旬） -->
+            <div class="gantt-header" :style="{ height: `${HEADER_HEIGHT}px` }">
               <div
                 v-for="(mh, i) in monthHeaders"
-                :key="i"
+                :key="`m-${i}`"
                 class="month-cell"
-                :style="{ left: `${mh.left}px`, width: `${mh.width}px`, height: `${ROW_HEIGHT}px` }"
+                :style="{ left: `${mh.left}px`, width: `${mh.width}px` }"
               >
                 {{ mh.label }}
+              </div>
+              <div
+                v-for="(jh, i) in junHeaders"
+                :key="`j-${i}`"
+                class="jun-cell"
+                :style="{ left: `${jh.left}px`, width: `${jh.width}px` }"
+              >
+                {{ jh.label }}
               </div>
             </div>
             <!-- バー行 -->
@@ -469,25 +480,39 @@ function confirmDelete(a: Arrow): void {
   min-width: 100%;
 }
 
-/* 月ヘッダー */
-.gantt-month-row {
+/* ヘッダー（月 + 旬） */
+.gantt-header {
   position: sticky;
   top: 0;
   z-index: 1;
   background: var(--p-content-hover-background);
   border-bottom: 1px solid var(--p-content-border-color);
-  display: flex;
   position: relative;
 }
 
 .month-cell {
   position: absolute;
   top: 0;
+  height: 50%;
   display: flex;
   align-items: center;
   padding-left: 6px;
   font-size: 0.75rem;
   font-weight: 600;
+  color: var(--p-text-muted-color);
+  border-right: 1px solid var(--p-content-border-color);
+  border-bottom: 1px solid var(--p-content-border-color);
+  box-sizing: border-box;
+}
+
+.jun-cell {
+  position: absolute;
+  top: 50%;
+  height: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
   color: var(--p-text-muted-color);
   border-right: 1px solid var(--p-content-border-color);
   box-sizing: border-box;
