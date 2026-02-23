@@ -12,6 +12,7 @@ import {
 } from '../../utils/gantt-helper'
 import { useArrowStore } from '../../stores/arrow'
 import { useMilestoneStore } from '../../stores/milestone'
+import { useGanttDrag } from '../../composables/useGanttDrag'
 import type { Arrow } from '@shared/types/models'
 
 const store = useArrowStore()
@@ -25,6 +26,8 @@ defineProps<{
 const ROW_HEIGHT = 40
 const HEADER_HEIGHT = 56
 const DAY_WIDTH = 5
+
+const { dragging, barStyleOverride, onBarMouseDown } = useGanttDrag(DAY_WIDTH)
 
 const allDates = computed(() => buildAllDates(store.dateRange.start, store.dateRange.end))
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
@@ -113,9 +116,20 @@ function barTooltip(arrow: Arrow): string {
             <div
               v-if="barStyle(node.arrow)"
               class="gantt-bar"
-              :style="barStyle(node.arrow)!"
+              :class="{ 'gantt-bar--dragging': dragging?.arrowId === node.arrow.id }"
+              :style="barStyleOverride(node.arrow.id) ?? barStyle(node.arrow)!"
               :title="barTooltip(node.arrow)"
-            />
+              @mousedown.prevent="onBarMouseDown(node.arrow, 'move', $event)"
+            >
+              <div
+                class="bar-handle bar-handle--start"
+                @mousedown.stop.prevent="onBarMouseDown(node.arrow, 'resize-start', $event)"
+              />
+              <div
+                class="bar-handle bar-handle--end"
+                @mousedown.stop.prevent="onBarMouseDown(node.arrow, 'resize-end', $event)"
+              />
+            </div>
           </div>
           <!-- マイルストーン縦線 -->
           <div
@@ -228,6 +242,32 @@ function barTooltip(arrow: Arrow): string {
   height: 24px;
   border-radius: 4px;
   z-index: 1;
+  cursor: grab;
+}
+
+.gantt-bar--dragging {
+  opacity: 0.7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: grabbing;
+}
+
+.bar-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+.bar-handle--start {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.bar-handle--end {
+  right: 0;
+  border-radius: 0 4px 4px 0;
 }
 
 .milestone-line {
