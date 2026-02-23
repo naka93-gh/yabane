@@ -3,7 +3,10 @@ import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import DatePicker from 'primevue/datepicker'
+import Select from 'primevue/select'
 import Button from 'primevue/button'
+import type { Project } from '@shared/types/models'
+import { PROJECT_STATUSES } from '../../constants/project'
 import { useProjectStore } from '../../stores/project'
 import { useAppToast } from '../../composables/useAppToast'
 import { useNavigationGuard } from '../../composables/useNavigationGuard'
@@ -40,16 +43,20 @@ const summaryCards = computed(() => {
 })
 
 // --- 設定フォーム ---
+const statusOptions = PROJECT_STATUSES.filter((s) => s.value !== 'archived')
+
 const editName = ref('')
 const editDescription = ref('')
 const editStartDate = ref<Date | null>(null)
 const editEndDate = ref<Date | null>(null)
+const editStatus = ref<Project['status']>('planning')
 
 const savedSnapshot = ref({
   name: '',
   description: '',
   startDate: null as Date | null,
-  endDate: null as Date | null
+  endDate: null as Date | null,
+  status: 'planning' as Project['status']
 })
 
 function takeSnapshot(): void {
@@ -57,7 +64,8 @@ function takeSnapshot(): void {
     name: editName.value,
     description: editDescription.value,
     startDate: editStartDate.value,
-    endDate: editEndDate.value
+    endDate: editEndDate.value,
+    status: editStatus.value
   }
 }
 
@@ -67,7 +75,8 @@ const isDirty = computed(() => {
     editName.value !== s.name ||
     editDescription.value !== s.description ||
     editStartDate.value?.getTime() !== s.startDate?.getTime() ||
-    editEndDate.value?.getTime() !== s.endDate?.getTime()
+    editEndDate.value?.getTime() !== s.endDate?.getTime() ||
+    editStatus.value !== s.status
   )
 })
 
@@ -90,6 +99,7 @@ function loadForm(): void {
   editDescription.value = p.description ?? ''
   editStartDate.value = p.start_date ? new Date(p.start_date) : null
   editEndDate.value = p.end_date ? new Date(p.end_date) : null
+  editStatus.value = p.status
   takeSnapshot()
 }
 
@@ -111,7 +121,8 @@ async function handleSave(): Promise<void> {
       name: editName.value.trim(),
       description: editDescription.value.trim() || undefined,
       start_date: editStartDate.value ? formatDate(editStartDate.value) : null,
-      end_date: editEndDate.value ? formatDate(editEndDate.value) : null
+      end_date: editEndDate.value ? formatDate(editEndDate.value) : null,
+      status: editStatus.value
     })
     loadForm()
     toast.success('プロジェクト設定を更新しました')
@@ -182,6 +193,16 @@ async function handleSave(): Promise<void> {
         </div>
       </div>
       <small v-if="dateError" class="date-error">{{ dateError }}</small>
+      <div class="form-row">
+        <label>ステータス</label>
+        <Select
+          v-model="editStatus"
+          :options="statusOptions"
+          option-label="label"
+          option-value="value"
+          class="w-full"
+        />
+      </div>
     </div>
   </div>
 </template>
