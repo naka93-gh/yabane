@@ -5,7 +5,9 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Dialog from 'primevue/dialog'
+import ConfirmDialog from 'primevue/confirmdialog'
 import Textarea from 'primevue/textarea'
+import { useConfirm } from 'primevue/useconfirm'
 import type { Member } from '@shared/types/models'
 import { useProjectStore } from '../stores/project'
 import { useMemberStore } from '../stores/member'
@@ -13,6 +15,7 @@ import { useAppToast } from '../composables/useAppToast'
 
 const projectStore = useProjectStore()
 const store = useMemberStore()
+const confirm = useConfirm()
 const toast = useAppToast()
 
 const newName = ref('')
@@ -77,13 +80,22 @@ async function saveEdit(): Promise<void> {
   }
 }
 
-async function handleDelete(member: Member): Promise<void> {
-  try {
-    await store.removeMember(member.id)
-    toast.success('メンバーを削除しました')
-  } catch {
-    toast.error('メンバーの削除に失敗しました')
-  }
+function handleDelete(member: Member): void {
+  confirm.require({
+    message: `「${member.name}」を削除しますか？`,
+    header: '削除確認',
+    acceptLabel: '削除',
+    rejectLabel: 'キャンセル',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await store.removeMember(member.id)
+        toast.success('メンバーを削除しました')
+      } catch {
+        toast.error('メンバーの削除に失敗しました')
+      }
+    }
+  })
 }
 </script>
 
@@ -137,6 +149,7 @@ async function handleDelete(member: Member): Promise<void> {
       </Column>
     </DataTable>
 
+    <ConfirmDialog />
     <Dialog
       v-model:visible="editDialogVisible"
       header="メンバーを編集"
