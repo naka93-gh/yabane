@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
@@ -18,6 +18,15 @@ const editDescription = ref('')
 const editStartDate = ref<Date | null>(null)
 const editEndDate = ref<Date | null>(null)
 
+const dateError = computed(() => {
+  if (editStartDate.value && editEndDate.value && editStartDate.value > editEndDate.value) {
+    return '開始日は終了日以前にしてください'
+  }
+  return ''
+})
+
+const canSave = computed(() => !!editName.value.trim() && !dateError.value)
+
 // ダイアログを開く際にフォームを現在のプロジェクト情報で初期化
 watch(visible, (v) => {
   if (v && store.currentProject) {
@@ -30,7 +39,7 @@ watch(visible, (v) => {
 })
 
 async function handleSave(): Promise<void> {
-  if (!store.currentProject || !editName.value.trim()) return
+  if (!store.currentProject || !canSave.value) return
   try {
     await store.updateProject(store.currentProject.id, {
       name: editName.value.trim(),
@@ -88,10 +97,11 @@ defineExpose({ open })
           show-button-bar
         />
       </div>
+      <small v-if="dateError" class="date-error">{{ dateError }}</small>
     </div>
     <template #footer>
       <Button label="キャンセル" severity="secondary" text @click="visible = false" />
-      <Button label="保存" icon="pi pi-check" :disabled="!editName.trim()" @click="handleSave" />
+      <Button label="保存" icon="pi pi-check" :disabled="!canSave" @click="handleSave" />
     </template>
   </Dialog>
 </template>
@@ -116,5 +126,9 @@ defineExpose({ open })
 
 .form-input {
   width: 100%;
+}
+
+.date-error {
+  color: var(--p-red-400);
 }
 </style>
