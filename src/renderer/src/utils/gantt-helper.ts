@@ -71,6 +71,36 @@ export function buildMonthHeaders(dates: Date[], dayWidth: number): MonthHeader[
   }))
 }
 
+export interface JunHeader {
+  label: '上' | '中' | '下'
+  left: number
+  width: number
+}
+
+/** 旬ヘッダー（上旬/中旬/下旬）を算出する */
+export function buildJunHeaders(dates: Date[], dayWidth: number): JunHeader[] {
+  if (dates.length === 0) return []
+  const groups: { label: '上' | '中' | '下'; startIdx: number; count: number }[] = []
+  let currentKey = ''
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i]
+    const day = d.getDate()
+    const jun = day <= 10 ? '上' : day <= 20 ? '中' : '下'
+    const key = `${d.getFullYear()}-${d.getMonth()}-${jun}`
+    if (key !== currentKey) {
+      currentKey = key
+      groups.push({ label: jun, startIdx: i, count: 1 })
+    } else {
+      groups[groups.length - 1].count++
+    }
+  }
+  return groups.map((g) => ({
+    label: g.label,
+    left: g.startIdx * dayWidth,
+    width: g.count * dayWidth
+  }))
+}
+
 export interface GridLine {
   left: number
   type: 'month' | 'third'
