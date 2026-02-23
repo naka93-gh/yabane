@@ -14,23 +14,9 @@ import { useProjectStore } from '../../stores/project'
 import { listProjects } from '../../api/project'
 import { useAppToast } from '../../composables/useAppToast'
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
+import { PROJECT_STATUSES } from '../../constants/project'
 
-const STATUS_OPTIONS: { value: Project['status']; label: string }[] = [
-  { value: 'planning', label: '計画中' },
-  { value: 'active', label: '進行中' },
-  { value: 'completed', label: '完了' },
-  { value: 'on_hold', label: '保留' },
-  { value: 'cancelled', label: '中止' }
-]
-
-const STATUS_META: Record<string, { label: string; severity: string }> = {
-  planning: { label: '計画中', severity: 'info' },
-  active: { label: '進行中', severity: 'success' },
-  completed: { label: '完了', severity: 'secondary' },
-  on_hold: { label: '保留', severity: 'warn' },
-  cancelled: { label: '中止', severity: 'danger' },
-  archived: { label: 'アーカイブ', severity: 'secondary' }
-}
+const STATUS_OPTIONS = PROJECT_STATUSES.filter((s) => s.value !== 'archived')
 
 const store = useProjectStore()
 const toast = useAppToast()
@@ -49,33 +35,30 @@ const dateError = computed(() => {
   }
   return ''
 })
+
 const archivedProjects = ref<Project[]>([])
 
-const displayedProjects = ref<Project[]>([])
-
-watch(showArchived, async (val) => {
-  if (val) {
-    archivedProjects.value = await listProjects({ status: 'archived' })
-  }
-})
-
-watch(
-  [() => store.projects, () => archivedProjects.value, showArchived],
-  () => {
-    displayedProjects.value = showArchived.value ? archivedProjects.value : store.projects
-  },
-  { immediate: true }
+const displayedProjects = computed(() =>
+  showArchived.value ? archivedProjects.value : store.projects
 )
+
+async function fetchArchived(): Promise<void> {
+  archivedProjects.value = await listProjects({ status: 'archived' })
+}
+
+watch(showArchived, (val) => {
+  if (val) fetchArchived()
+})
 
 async function handleCreate(): Promise<void> {
   if (!newName.value.trim() || dateError.value) return
   try {
-    const project = await store.createProject(
-      newName.value.trim(),
-      newDescription.value.trim() || undefined,
-      newStartDate.value ? formatDate(newStartDate.value) : undefined,
-      newEndDate.value ? formatDate(newEndDate.value) : undefined
-    )
+    const project = await store.createProject({
+      name: newName.value.trim(),
+      description: newDescription.value.trim() || undefined,
+      start_date: newStartDate.value ? formatDate(newStartDate.value) : undefined,
+      end_date: newEndDate.value ? formatDate(newEndDate.value) : undefined
+    })
     newName.value = ''
     newDescription.value = ''
     newStartDate.value = null
@@ -90,7 +73,7 @@ async function handleCreate(): Promise<void> {
 async function handleArchive(project: Project): Promise<void> {
   try {
     await store.archiveProject(project.id)
-    archivedProjects.value = await listProjects({ status: 'archived' })
+    if (showArchived.value) await fetchArchived()
     toast.success('アーカイブしました')
   } catch {
     toast.error('アーカイブに失敗しました')
@@ -100,7 +83,7 @@ async function handleArchive(project: Project): Promise<void> {
 async function handleUnarchive(project: Project): Promise<void> {
   try {
     await store.unarchiveProject(project.id)
-    archivedProjects.value = await listProjects({ status: 'archived' })
+    await fetchArchived()
     await store.fetchProjects()
     toast.success('復元しました')
   } catch {
@@ -219,7 +202,7 @@ function handleRowClick(event: { data: Project }): void {
                 class="status-select"
                 @update:model-value="handleStatusChange(data, $event)"
               />
-              <Tag v-else :value="STATUS_META[data.status].label" :severity="STATUS_META[data.status].severity" />
+              <Tag v-else value="アーカイブ" severity="secondary" />
             </div>
           </template>
         </Column>

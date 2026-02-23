@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Project } from '@shared/types/models'
+import type { ProjectCreateArgs } from '@shared/types/ipc'
 import * as api from '../api/project'
 import { useMemberStore } from './member'
 
@@ -23,18 +24,8 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** プロジェクトを作成し一覧を再取得する */
-  async function createProject(
-    name: string,
-    description?: string,
-    startDate?: string,
-    endDate?: string
-  ): Promise<Project> {
-    const project = await api.createProject({
-      name,
-      description,
-      start_date: startDate,
-      end_date: endDate
-    })
+  async function createProject(args: ProjectCreateArgs): Promise<Project> {
+    const project = await api.createProject(args)
     await fetchProjects()
     return project
   }
