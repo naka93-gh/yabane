@@ -29,9 +29,10 @@ const confirm = useConfirm()
 const toast = useAppToast()
 
 const ROW_HEIGHT = 40
-const DAY_WIDTH = 14
+const DAY_WIDTH = 5
 
 const showTodayLine = ref(true)
+const showMilestones = ref(true)
 const arrowDialog = ref<InstanceType<typeof ArrowDialog> | null>(null)
 
 watch(
@@ -113,6 +114,14 @@ function confirmDelete(a: Arrow): void {
     <div class="arrow-header">
       <h2>矢羽</h2>
       <div class="arrow-header-actions">
+        <ToggleButton
+          v-model="showMilestones"
+          on-label="MS"
+          off-label="MS"
+          on-icon="pi pi-flag"
+          off-icon="pi pi-flag"
+          :pt="{ root: { class: 'today-toggle' } }"
+        />
         <ToggleButton
           v-model="showTodayLine"
           on-label="今日"
@@ -243,6 +252,7 @@ function confirmDelete(a: Arrow): void {
               <!-- マイルストーン縦線 -->
               <div
                 v-for="ml in milestoneLines"
+                v-show="showMilestones"
                 :key="`ms-${ml.id}`"
                 class="milestone-line"
                 :style="{ left: `${ml.left}px`, borderColor: ml.color }"
