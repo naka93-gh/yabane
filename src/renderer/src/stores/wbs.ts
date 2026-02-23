@@ -244,6 +244,15 @@ export const useWbsStore = defineStore('wbs', () => {
     items.value = items.value.filter((i) => i.id !== id)
   }
 
+  /** タスクを並べ替える */
+  async function reorder(ids: number[]): Promise<void> {
+    await api.reorderWbsItems({ ids })
+    const orderMap = new Map(ids.map((id, i) => [id, i]))
+    items.value = items.value
+      .map((i) => (orderMap.has(i.id) ? { ...i, sort_order: orderMap.get(i.id)! } : i))
+      .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+  }
+
   /** 矢羽削除時に該当タスクを除去 */
   function removeByArrowId(arrowId: number): void {
     items.value = items.value.filter((i) => i.arrow_id !== arrowId)
@@ -274,6 +283,7 @@ export const useWbsStore = defineStore('wbs', () => {
     addItem,
     editItem,
     removeItem,
+    reorder,
     removeByArrowId,
     setFilter,
     clearFilter
