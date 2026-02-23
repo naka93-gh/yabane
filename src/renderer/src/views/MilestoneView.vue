@@ -48,7 +48,9 @@ const formDescription = ref('')
 const formDueDate = ref<Date | null>(null)
 const formColor = ref('#6366f1')
 
-const dialogTitle = computed(() => (editingId.value ? 'マイルストーンを編集' : 'マイルストーンを追加'))
+const dialogTitle = computed(() =>
+  editingId.value ? 'マイルストーンを編集' : 'マイルストーンを追加'
+)
 
 // ソート済みマイルストーン
 const sortedMilestones = computed<Milestone[]>(() => {
@@ -255,7 +257,12 @@ async function onDrop(index: number): Promise<void> {
     </div>
 
     <!-- 作成/編集ダイアログ -->
-    <Dialog v-model:visible="dialogVisible" :header="dialogTitle" :modal="true" :style="{ width: '480px' }">
+    <Dialog
+      v-model:visible="dialogVisible"
+      :header="dialogTitle"
+      :modal="true"
+      :style="{ width: '480px' }"
+    >
       <div class="dialog-form">
         <div class="field">
           <label>名前</label>
@@ -263,11 +270,22 @@ async function onDrop(index: number): Promise<void> {
         </div>
         <div class="field">
           <label>期日</label>
-          <DatePicker v-model="formDueDate" date-format="yy/mm/dd" placeholder="期日を選択" class="w-full" />
+          <DatePicker
+            v-model="formDueDate"
+            date-format="yy/mm/dd"
+            placeholder="期日を選択"
+            class="w-full"
+          />
         </div>
         <div class="field">
           <label>メモ</label>
-          <Textarea v-model="formDescription" auto-resize rows="3" placeholder="メモ（任意）" class="w-full" />
+          <Textarea
+            v-model="formDescription"
+            auto-resize
+            rows="3"
+            placeholder="メモ（任意）"
+            class="w-full"
+          />
         </div>
         <div class="field">
           <label>カラー</label>
@@ -337,7 +355,9 @@ async function onDrop(index: number): Promise<void> {
   border-radius: 8px;
   padding: 16px;
   background: var(--p-content-background);
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .milestone-card--overdue {
@@ -435,6 +455,8 @@ async function onDrop(index: number): Promise<void> {
 
 .color-swatch.selected {
   border-color: var(--p-text-color);
-  box-shadow: 0 0 0 2px var(--p-content-background), 0 0 0 4px var(--p-text-muted-color);
+  box-shadow:
+    0 0 0 2px var(--p-content-background),
+    0 0 0 4px var(--p-text-muted-color);
 }
 </style>

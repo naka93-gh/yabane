@@ -362,7 +362,16 @@ function buildWbsSheet(arrows: Arrow[], wbsItems: WbsItem[]): WS {
   ]
   const { dates } = calcDateRange(allDateStrs)
 
-  const fixedHeaders = ['親矢羽', '子矢羽', 'タスク', '担当者', 'ステータス', '進捗', '開始日', '終了日']
+  const fixedHeaders = [
+    '親矢羽',
+    '子矢羽',
+    'タスク',
+    '担当者',
+    'ステータス',
+    '進捗',
+    '開始日',
+    '終了日'
+  ]
   const fixedCount = fixedHeaders.length
   const ws: WS = {}
   const totalCols = fixedCount + dates.length
@@ -390,7 +399,9 @@ function buildWbsSheet(arrows: Arrow[], wbsItems: WbsItem[]): WS {
         }
         currentKey = key
         groupStart = i
-        ws[XLSX.utils.encode_cell({ r: 0, c: fixedCount + i })] = headerCell(`${d.getMonth() + 1}月`)
+        ws[XLSX.utils.encode_cell({ r: 0, c: fixedCount + i })] = headerCell(
+          `${d.getMonth() + 1}月`
+        )
       }
     })
     merges.push({
@@ -516,8 +527,12 @@ function buildIssueSheet(issues: Issue[]): WS {
     const r = i + 1
     ws[XLSX.utils.encode_cell({ r, c: 0 })] = cell(issue.title)
     ws[XLSX.utils.encode_cell({ r, c: 1 })] = cell(issue.description)
-    ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(PRIORITY_LABELS[issue.priority] ?? issue.priority)
-    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(ISSUE_STATUS_LABELS[issue.status] ?? issue.status)
+    ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(
+      PRIORITY_LABELS[issue.priority] ?? issue.priority
+    )
+    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(
+      ISSUE_STATUS_LABELS[issue.status] ?? issue.status
+    )
     ws[XLSX.utils.encode_cell({ r, c: 4 })] = cell(issue.owner)
     ws[XLSX.utils.encode_cell({ r, c: 5 })] = cell(issue.due_date)
     ws[XLSX.utils.encode_cell({ r, c: 6 })] = cell(issue.resolution)
@@ -527,7 +542,15 @@ function buildIssueSheet(issues: Issue[]): WS {
     s: { r: 0, c: 0 },
     e: { r: issues.length, c: headers.length - 1 }
   })
-  ws['!cols'] = [{ wch: 30 }, { wch: 40 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 40 }]
+  ws['!cols'] = [
+    { wch: 30 },
+    { wch: 40 },
+    { wch: 10 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 40 }
+  ]
   return ws
 }
 

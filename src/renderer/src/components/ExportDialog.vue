@@ -105,20 +105,11 @@ defineExpose({ open })
 </script>
 
 <template>
-  <Dialog
-    v-model:visible="visible"
-    header="Excel出力"
-    :modal="true"
-    :style="{ width: '380px' }"
-  >
+  <Dialog v-model:visible="visible" header="Excel出力" :modal="true" :style="{ width: '380px' }">
     <p class="export-description">出力するセクションを選択してください。</p>
     <div class="section-list">
       <div v-for="s in sections" :key="s.key" class="section-item">
-        <Checkbox
-          v-model="selected"
-          :input-id="`export-${s.key}`"
-          :value="s.key"
-        />
+        <Checkbox v-model="selected" :input-id="`export-${s.key}`" :value="s.key" />
         <label :for="`export-${s.key}`" class="section-label">{{ s.label }}</label>
       </div>
     </div>

@@ -16,7 +16,6 @@ const props = defineProps<{
 const ROW_HEIGHT = 36
 const DAY_WIDTH = 24
 
-
 const allDates = computed(() => buildAllDates(props.dateRange.start, props.dateRange.end))
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
 const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
@@ -95,11 +94,7 @@ function barStyle(row: WbsTreeRow): Record<string, string> | null {
             class="gantt-row"
             :style="{ height: `${ROW_HEIGHT}px` }"
           >
-            <div
-              v-if="barStyle(row)"
-              class="gantt-bar"
-              :style="barStyle(row)!"
-            />
+            <div v-if="barStyle(row)" class="gantt-bar" :style="barStyle(row)!" />
           </div>
         </div>
       </div>

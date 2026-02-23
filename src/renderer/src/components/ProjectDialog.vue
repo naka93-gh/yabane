@@ -54,7 +54,10 @@ watch(
 async function handleCreate(): Promise<void> {
   if (!newName.value.trim()) return
   try {
-    const project = await store.createProject(newName.value.trim(), newDescription.value.trim() || undefined)
+    const project = await store.createProject(
+      newName.value.trim(),
+      newDescription.value.trim() || undefined
+    )
     await store.selectProject(project.id)
     newName.value = ''
     newDescription.value = ''
@@ -106,12 +109,7 @@ async function handleUnarchive(project: Project): Promise<void> {
         />
       </div>
       <div class="form-row">
-        <Textarea
-          v-model="newDescription"
-          placeholder="説明（任意）"
-          rows="2"
-          class="form-input"
-        />
+        <Textarea v-model="newDescription" placeholder="説明（任意）" rows="2" class="form-input" />
       </div>
       <Button
         label="作成"
