@@ -1,7 +1,7 @@
 import { getDatabase } from '../database'
 import type { Member } from '../../shared/types/models'
 import type { MemberCreateArgs, MemberUpdateArgs } from '../../shared/types/ipc'
-import { nextSortOrder } from './common'
+import { reorderRows, nextSortOrder } from './common'
 
 /** メンバー一覧を取得する */
 export function listMembers(projectId: number): Member[] {
@@ -51,4 +51,9 @@ export function updateMember(args: MemberUpdateArgs): Member | null {
 export function deleteMember(id: number): Member | undefined {
   const db = getDatabase()
   return db.prepare('DELETE FROM member WHERE id = ? RETURNING *').get(id) as Member | undefined
+}
+
+/** メンバーの並び順を更新する */
+export function reorderMembers(ids: number[]): void {
+  reorderRows('member', ids)
 }

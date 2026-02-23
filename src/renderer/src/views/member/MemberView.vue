@@ -7,6 +7,7 @@ import Column from 'primevue/column'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import type { Member } from '@shared/types/models'
+import type { DataTableRowReorderEvent } from 'primevue/datatable'
 import { useProjectStore } from '../../stores/project'
 import { useMemberStore } from '../../stores/member'
 import { useAppToast } from '../../composables/useAppToast'
@@ -47,6 +48,13 @@ async function handleAdd(): Promise<void> {
 function openEdit(member: Member): void {
   editTarget.value = member
   editDialogVisible.value = true
+}
+
+/** 行の並び替え後に永続化する */
+async function handleReorder(event: DataTableRowReorderEvent): Promise<void> {
+  const reordered = event.value as Member[]
+  store.members = reordered
+  await store.reorder(reordered.map((m) => m.id))
 }
 
 /** 確認ダイアログを表示してからメンバーを削除する */
@@ -90,7 +98,8 @@ function handleDelete(member: Member): void {
         />
       </div>
 
-      <DataTable :value="store.members" size="small" striped-rows>
+      <DataTable :value="store.members" size="small" striped-rows @row-reorder="handleReorder">
+        <Column row-reorder style="width: 32px" />
         <Column field="organization" header="組織" />
         <Column field="name" header="名前" />
         <Column field="role" header="役割" />

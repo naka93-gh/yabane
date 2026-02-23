@@ -20,3 +20,8 @@ export function updateMember(args: MemberUpdateArgs): Promise<Member> {
 export function deleteMember(args: { id: number }): Promise<Member> {
   return window.api.member.delete(args)
 }
+
+/** メンバーの並び順を更新する */
+export function reorderMembers(args: { ids: number[] }): Promise<void> {
+  return window.api.member.reorder(args)
+}

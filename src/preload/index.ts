@@ -64,7 +64,8 @@ const api = {
     list: (args: { projectId: number }) => ipcRenderer.invoke('member:list', args),
     create: (args: MemberCreateArgs) => ipcRenderer.invoke('member:create', args),
     update: (args: MemberUpdateArgs) => ipcRenderer.invoke('member:update', args),
-    delete: (args: { id: number }) => ipcRenderer.invoke('member:delete', args)
+    delete: (args: { id: number }) => ipcRenderer.invoke('member:delete', args),
+    reorder: (args: { ids: number[] }) => ipcRenderer.invoke('member:reorder', args)
   },
   export: {
     saveExcel: (args: ExportSaveArgs) => ipcRenderer.invoke('export:saveExcel', args)

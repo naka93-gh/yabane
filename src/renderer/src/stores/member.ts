@@ -41,5 +41,14 @@ export const useMemberStore = defineStore('member', () => {
     members.value = members.value.filter((m) => m.id !== id)
   }
 
-  return { members, loading, memberNames, fetchMembers, addMember, editMember, removeMember }
+  /** メンバーの並び順を更新する */
+  async function reorder(ids: number[]): Promise<void> {
+    await api.reorderMembers({ ids })
+    const orderMap = new Map(ids.map((id, i) => [id, i]))
+    members.value = members.value
+      .map((m) => (orderMap.has(m.id) ? { ...m, sort_order: orderMap.get(m.id)! } : m))
+      .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
+  }
+
+  return { members, loading, memberNames, fetchMembers, addMember, editMember, removeMember, reorder }
 })
