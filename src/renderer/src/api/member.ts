@@ -1,5 +1,5 @@
 import type { Member } from '@shared/types/models'
-import type { MemberCreateArgs, MemberUpdateArgs } from '@shared/types/ipc'
+import type { MemberCreateArgs, MemberUpdateArgs, CsvSaveArgs, CsvOpenResult } from '@shared/types/ipc'
 
 /** メンバー一覧を取得する */
 export function listMembers(args: { projectId: number }): Promise<Member[]> {
@@ -24,4 +24,14 @@ export function deleteMember(args: { id: number }): Promise<Member> {
 /** メンバーの並び順を更新する */
 export function reorderMembers(args: { ids: number[] }): Promise<void> {
   return window.api.member.reorder(args)
+}
+
+/** CSV ファイルを保存する */
+export function saveCsv(args: CsvSaveArgs): Promise<{ canceled: boolean; filePath?: string }> {
+  return window.api.export.saveCsv(args)
+}
+
+/** CSV ファイルを開く */
+export function openCsv(): Promise<CsvOpenResult> {
+  return window.api.import.openCsv()
 }

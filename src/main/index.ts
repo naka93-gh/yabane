@@ -11,6 +11,7 @@ import { registerWbsHandlers } from './ipc/wbs'
 import { registerIssueHandlers } from './ipc/issue'
 import { registerMemberHandlers } from './ipc/member'
 import { registerExportHandlers } from './ipc/export'
+import { registerImportHandlers } from './ipc/import'
 
 /** メインウィンドウを作成する */
 function createWindow(): void {
@@ -61,6 +62,7 @@ app.whenReady().then(() => {
   registerIssueHandlers()
   registerMemberHandlers()
   registerExportHandlers()
+  registerImportHandlers()
 
   createWindow()
 

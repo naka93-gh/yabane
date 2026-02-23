@@ -24,7 +24,9 @@ import type {
   IssueUpdateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
-  ExportSaveArgs
+  ExportSaveArgs,
+  CsvSaveArgs,
+  CsvOpenResult
 } from '../shared/types/ipc'
 
 interface ProjectAPI {
@@ -82,6 +84,11 @@ interface MemberAPI {
 
 interface ExportAPI {
   saveExcel(args: ExportSaveArgs): Promise<{ canceled: boolean; filePath?: string }>
+  saveCsv(args: CsvSaveArgs): Promise<{ canceled: boolean; filePath?: string }>
+}
+
+interface ImportAPI {
+  openCsv(): Promise<CsvOpenResult>
 }
 
 interface Api {
@@ -93,6 +100,7 @@ interface Api {
   issue: IssueAPI
   member: MemberAPI
   export: ExportAPI
+  import: ImportAPI
 }
 
 declare global {

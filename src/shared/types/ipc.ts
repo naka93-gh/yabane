@@ -177,3 +177,17 @@ export interface ExportSaveArgs {
   buffer: number[]
   defaultName: string
 }
+
+/** CSV 保存の引数 */
+export interface CsvSaveArgs {
+  content: string
+  defaultName: string
+}
+
+// --- インポート ---
+
+/** CSV 読み込みの戻り値 */
+export interface CsvOpenResult {
+  canceled: boolean
+  content?: string
+}

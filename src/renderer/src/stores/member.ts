@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { Member } from '@shared/types/models'
 import type { MemberCreateArgs, MemberUpdateArgs } from '@shared/types/ipc'
 import * as api from '../api/member'
+import { buildMemberCsv, parseMemberCsv } from '../utils/csv'
 
 export const useMemberStore = defineStore('member', () => {
   const members = ref<Member[]>([])
@@ -50,6 +51,26 @@ export const useMemberStore = defineStore('member', () => {
       .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
   }
 
+  /** メンバー一覧を CSV としてエクスポートする */
+  async function exportCsv(): Promise<boolean> {
+    const csv = buildMemberCsv(members.value)
+    const result = await api.saveCsv({ content: csv, defaultName: 'members.csv' })
+    return !result.canceled
+  }
+
+  /** CSV ファイルからメンバーを一括インポートする。追加件数を返す。 */
+  async function importCsv(projectId: number): Promise<number> {
+    const result = await api.openCsv()
+    if (result.canceled || !result.content) return 0
+
+    const rows = parseMemberCsv(result.content, projectId)
+    for (const row of rows) {
+      await api.createMember(row)
+    }
+    await fetchMembers(projectId)
+    return rows.length
+  }
+
   return {
     members,
     loading,
@@ -58,6 +79,8 @@ export const useMemberStore = defineStore('member', () => {
     addMember,
     editMember,
     removeMember,
-    reorder
+    reorder,
+    exportCsv,
+    importCsv
   }
 })

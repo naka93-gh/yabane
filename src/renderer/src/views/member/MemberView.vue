@@ -57,6 +57,28 @@ async function handleReorder(event: DataTableRowReorderEvent): Promise<void> {
   await store.reorder(reordered.map((m) => m.id))
 }
 
+/** メンバー一覧を CSV エクスポートする */
+async function handleExportCsv(): Promise<void> {
+  try {
+    const saved = await store.exportCsv()
+    if (saved) toast.success('CSV をエクスポートしました')
+  } catch {
+    toast.error('CSV エクスポートに失敗しました')
+  }
+}
+
+/** CSV ファイルからメンバーをインポートする */
+async function handleImportCsv(): Promise<void> {
+  const projectId = projectStore.currentProject?.id
+  if (!projectId) return
+  try {
+    const count = await store.importCsv(projectId)
+    if (count > 0) toast.success(`${count} 件のメンバーをインポートしました`)
+  } catch {
+    toast.error('CSV インポートに失敗しました')
+  }
+}
+
 /** 確認ダイアログを表示してからメンバーを削除する */
 function handleDelete(member: Member): void {
   confirm.require({
@@ -90,6 +112,21 @@ function handleDelete(member: Member): void {
           size="small"
           :disabled="!newName.trim()"
           @click="handleAdd"
+        />
+        <Button
+          v-tooltip.top="'CSV エクスポート'"
+          icon="pi pi-download"
+          severity="secondary"
+          size="small"
+          :disabled="store.members.length === 0"
+          @click="handleExportCsv"
+        />
+        <Button
+          v-tooltip.top="'CSV インポート'"
+          icon="pi pi-upload"
+          severity="secondary"
+          size="small"
+          @click="handleImportCsv"
         />
       </div>
 

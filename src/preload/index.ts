@@ -15,7 +15,8 @@ import type {
   IssueUpdateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
-  ExportSaveArgs
+  ExportSaveArgs,
+  CsvSaveArgs
 } from '../shared/types/ipc'
 
 /** renderer に公開する IPC ブリッジ */
@@ -68,7 +69,11 @@ const api = {
     reorder: (args: { ids: number[] }) => ipcRenderer.invoke('member:reorder', args)
   },
   export: {
-    saveExcel: (args: ExportSaveArgs) => ipcRenderer.invoke('export:saveExcel', args)
+    saveExcel: (args: ExportSaveArgs) => ipcRenderer.invoke('export:saveExcel', args),
+    saveCsv: (args: CsvSaveArgs) => ipcRenderer.invoke('export:saveCsv', args)
+  },
+  import: {
+    openCsv: () => ipcRenderer.invoke('import:openCsv')
   }
 }
 
