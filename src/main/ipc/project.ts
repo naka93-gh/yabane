@@ -5,7 +5,8 @@ import {
   createProject,
   updateProject,
   archiveProject,
-  unarchiveProject
+  unarchiveProject,
+  getProjectSummary
 } from '../service/project'
 import type { ProjectListArgs, ProjectCreateArgs, ProjectUpdateArgs } from '../../shared/types/ipc'
 
@@ -33,5 +34,9 @@ export function registerProjectHandlers(): void {
 
   ipcMain.handle('project:unarchive', (_e, args: { id: number }) => {
     return unarchiveProject(args.id)
+  })
+
+  ipcMain.handle('project:summary', (_e, args: { projectId: number }) => {
+    return getProjectSummary(args.projectId)
   })
 }

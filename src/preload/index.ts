@@ -26,7 +26,8 @@ const api = {
     create: (args: ProjectCreateArgs) => ipcRenderer.invoke('project:create', args),
     update: (args: ProjectUpdateArgs) => ipcRenderer.invoke('project:update', args),
     archive: (args: { id: number }) => ipcRenderer.invoke('project:archive', args),
-    unarchive: (args: { id: number }) => ipcRenderer.invoke('project:unarchive', args)
+    unarchive: (args: { id: number }) => ipcRenderer.invoke('project:unarchive', args),
+    summary: (args: { projectId: number }) => ipcRenderer.invoke('project:summary', args)
   },
   purpose: {
     get: (args: { projectId: number }) => ipcRenderer.invoke('purpose:get', args),
