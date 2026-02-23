@@ -4,8 +4,13 @@ import type { MemberCreateArgs, MemberUpdateArgs } from '../../shared/types/ipc'
 import { reorderRows, nextSortOrder } from './common'
 
 /** メンバー一覧を取得する */
-export function listMembers(projectId: number): Member[] {
+export function listMembers(projectId: number, archived?: number): Member[] {
   const db = getDatabase()
+  if (archived !== undefined) {
+    return db
+      .prepare('SELECT * FROM member WHERE project_id = ? AND archived = ? ORDER BY sort_order, id')
+      .all(projectId, archived) as Member[]
+  }
   return db
     .prepare('SELECT * FROM member WHERE project_id = ? ORDER BY sort_order, id')
     .all(projectId) as Member[]
@@ -51,6 +56,22 @@ export function updateMember(args: MemberUpdateArgs): Member | null {
 export function deleteMember(id: number): Member | undefined {
   const db = getDatabase()
   return db.prepare('DELETE FROM member WHERE id = ? RETURNING *').get(id) as Member | undefined
+}
+
+/** メンバーをアーカイブする */
+export function archiveMember(id: number): Member | undefined {
+  const db = getDatabase()
+  return db
+    .prepare('UPDATE member SET archived = 1 WHERE id = ? RETURNING *')
+    .get(id) as Member | undefined
+}
+
+/** メンバーのアーカイブを解除する */
+export function unarchiveMember(id: number): Member | undefined {
+  const db = getDatabase()
+  return db
+    .prepare('UPDATE member SET archived = 0 WHERE id = ? RETURNING *')
+    .get(id) as Member | undefined
 }
 
 /** メンバーの並び順を更新する */

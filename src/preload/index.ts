@@ -62,10 +62,13 @@ const api = {
     delete: (args: { id: number }) => ipcRenderer.invoke('issue:delete', args)
   },
   member: {
-    list: (args: { projectId: number }) => ipcRenderer.invoke('member:list', args),
+    list: (args: { projectId: number; archived?: number }) =>
+      ipcRenderer.invoke('member:list', args),
     create: (args: MemberCreateArgs) => ipcRenderer.invoke('member:create', args),
     update: (args: MemberUpdateArgs) => ipcRenderer.invoke('member:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('member:delete', args),
+    archive: (args: { id: number }) => ipcRenderer.invoke('member:archive', args),
+    unarchive: (args: { id: number }) => ipcRenderer.invoke('member:unarchive', args),
     reorder: (args: { ids: number[] }) => ipcRenderer.invoke('member:reorder', args)
   },
   export: {

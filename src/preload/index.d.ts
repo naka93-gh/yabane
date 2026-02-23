@@ -76,10 +76,12 @@ interface IssueAPI {
 }
 
 interface MemberAPI {
-  list(args: { projectId: number }): Promise<Member[]>
+  list(args: { projectId: number; archived?: number }): Promise<Member[]>
   create(args: MemberCreateArgs): Promise<Member>
   update(args: MemberUpdateArgs): Promise<Member>
   delete(args: { id: number }): Promise<Member>
+  archive(args: { id: number }): Promise<Member>
+  unarchive(args: { id: number }): Promise<Member>
 }
 
 interface ExportAPI {

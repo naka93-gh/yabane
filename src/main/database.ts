@@ -23,14 +23,21 @@ export function getDatabase(): Database.Database {
 
 /** 既存 DB 向けマイグレーション */
 function migrate(db: Database.Database): void {
-  const columns = db.pragma('table_info(project)') as { name: string }[]
-  const names = new Set(columns.map((c) => c.name))
+  const projectCols = db.pragma('table_info(project)') as { name: string }[]
+  const projectNames = new Set(projectCols.map((c) => c.name))
 
-  if (!names.has('start_date')) {
+  if (!projectNames.has('start_date')) {
     db.exec('ALTER TABLE project ADD COLUMN start_date TEXT')
   }
-  if (!names.has('end_date')) {
+  if (!projectNames.has('end_date')) {
     db.exec('ALTER TABLE project ADD COLUMN end_date TEXT')
+  }
+
+  const memberCols = db.pragma('table_info(member)') as { name: string }[]
+  const memberNames = new Set(memberCols.map((c) => c.name))
+
+  if (!memberNames.has('archived')) {
+    db.exec('ALTER TABLE member ADD COLUMN archived INTEGER NOT NULL DEFAULT 0')
   }
 }
 

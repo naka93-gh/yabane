@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import ConfirmDialog from 'primevue/confirmdialog'
+import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
 import type { Member } from '@shared/types/models'
 import type { DataTableRowReorderEvent } from 'primevue/datatable'
@@ -19,15 +20,16 @@ const confirm = useConfirm()
 const toast = useAppToast()
 
 const newName = ref('')
+const showArchived = ref(false)
 
 // 編集ダイアログ
 const editDialogVisible = ref(false)
 const editTarget = ref<Member | null>(null)
 
 watch(
-  () => projectStore.currentProject?.id,
-  async (id) => {
-    if (id) await store.fetchMembers(id)
+  [() => projectStore.currentProject?.id, showArchived],
+  async ([id, archived]) => {
+    if (id) await store.fetchMembers(id, archived ? undefined : 0)
   },
   { immediate: true }
 )
@@ -79,10 +81,38 @@ async function handleImportCsv(): Promise<void> {
   }
 }
 
+/** メンバーをアーカイブする */
+function handleArchive(member: Member): void {
+  confirm.require({
+    message: `「${member.name}」をアーカイブしますか？`,
+    header: 'アーカイブ確認',
+    acceptLabel: 'アーカイブ',
+    rejectLabel: 'キャンセル',
+    accept: async () => {
+      try {
+        await store.archiveMember(member.id)
+        toast.success('メンバーをアーカイブしました')
+      } catch {
+        toast.error('アーカイブに失敗しました')
+      }
+    }
+  })
+}
+
+/** アーカイブ済みメンバーを復元する */
+async function handleUnarchive(member: Member): Promise<void> {
+  try {
+    await store.unarchiveMember(member.id)
+    toast.success('メンバーを復元しました')
+  } catch {
+    toast.error('復元に失敗しました')
+  }
+}
+
 /** 確認ダイアログを表示してからメンバーを削除する */
 function handleDelete(member: Member): void {
   confirm.require({
-    message: `「${member.name}」を削除しますか？`,
+    message: `「${member.name}」を完全に削除しますか？この操作は取り消せません。`,
     header: '削除確認',
     acceptLabel: '削除',
     rejectLabel: 'キャンセル',
@@ -128,35 +158,67 @@ function handleDelete(member: Member): void {
           size="small"
           @click="handleImportCsv"
         />
+        <div class="archive-toggle">
+          <label>アーカイブ済みを表示</label>
+          <ToggleSwitch v-model="showArchived" />
+        </div>
       </div>
 
-      <DataTable :value="store.members" size="small" striped-rows @row-reorder="handleReorder">
+      <DataTable
+        :value="store.members"
+        size="small"
+        striped-rows
+        :row-class="(data: Member) => ({ 'archived-row': data.archived === 1 })"
+        @row-reorder="handleReorder"
+      >
         <Column row-reorder style="width: 32px" />
         <Column field="organization" header="組織" />
         <Column field="name" header="名前" />
         <Column field="role" header="役割" />
         <Column field="email" header="メール" />
-        <Column header="操作" style="width: 100px">
+        <Column header="操作" style="width: 140px">
           <template #body="{ data }">
             <div class="action-buttons">
-              <Button
-                v-tooltip.top="'編集'"
-                icon="pi pi-pencil"
-                severity="secondary"
-                text
-                rounded
-                size="small"
-                @click="openEdit(data)"
-              />
-              <Button
-                v-tooltip.top="'削除'"
-                icon="pi pi-trash"
-                severity="danger"
-                text
-                rounded
-                size="small"
-                @click="handleDelete(data)"
-              />
+              <template v-if="data.archived === 1">
+                <Button
+                  v-tooltip.top="'復元'"
+                  icon="pi pi-replay"
+                  severity="info"
+                  text
+                  rounded
+                  size="small"
+                  @click="handleUnarchive(data)"
+                />
+                <Button
+                  v-tooltip.top="'削除'"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text
+                  rounded
+                  size="small"
+                  @click="handleDelete(data)"
+                />
+              </template>
+              <template v-else>
+                <Button
+                  v-tooltip.top="'編集'"
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text
+                  rounded
+                  size="small"
+                  @click="openEdit(data)"
+                />
+                <Button
+                  v-tooltip.top="'アーカイブ'"
+                  icon="pi pi-inbox"
+                  severity="secondary"
+                  text
+                  rounded
+                  size="small"
+                  @click="handleArchive(data)"
+                />
+              </template>
             </div>
           </template>
         </Column>
@@ -198,5 +260,17 @@ function handleDelete(member: Member): void {
 .action-buttons {
   display: flex;
   gap: 4px;
+}
+
+.archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+:deep(.archived-row) {
+  opacity: 0.6;
 }
 </style>

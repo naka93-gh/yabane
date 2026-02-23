@@ -13,10 +13,10 @@ export const useMemberStore = defineStore('member', () => {
   const memberNames = computed(() => members.value.map((m) => m.name))
 
   /** メンバー一覧を取得してストアに反映する */
-  async function fetchMembers(projectId: number): Promise<void> {
+  async function fetchMembers(projectId: number, archived?: number): Promise<void> {
     loading.value = true
     try {
-      members.value = await api.listMembers({ projectId })
+      members.value = await api.listMembers({ projectId, archived })
     } finally {
       loading.value = false
     }
@@ -39,6 +39,18 @@ export const useMemberStore = defineStore('member', () => {
   /** メンバーを削除しストアから除去する */
   async function removeMember(id: number): Promise<void> {
     await api.deleteMember({ id })
+    members.value = members.value.filter((m) => m.id !== id)
+  }
+
+  /** メンバーをアーカイブしストアから除去する */
+  async function archiveMember(id: number): Promise<void> {
+    await api.archiveMember({ id })
+    members.value = members.value.filter((m) => m.id !== id)
+  }
+
+  /** メンバーのアーカイブを解除しストアから除去する */
+  async function unarchiveMember(id: number): Promise<void> {
+    await api.unarchiveMember({ id })
     members.value = members.value.filter((m) => m.id !== id)
   }
 
@@ -79,6 +91,8 @@ export const useMemberStore = defineStore('member', () => {
     addMember,
     editMember,
     removeMember,
+    archiveMember,
+    unarchiveMember,
     reorder,
     exportCsv,
     importCsv
