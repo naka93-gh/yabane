@@ -5,6 +5,7 @@ import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import DatePicker from 'primevue/datepicker'
+import SelectButton from 'primevue/selectbutton'
 import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import { formatDate } from '../utils/date-helper'
@@ -31,6 +32,14 @@ const PRESET_COLORS = [
   { name: 'gray', value: '#6b7280' }
 ]
 
+const SORT_OPTIONS = [
+  { label: '手動', value: 'manual' },
+  { label: '期日順', value: 'due_date' }
+]
+
+// ソートモード
+const sortMode = ref<'manual' | 'due_date'>('manual')
+
 // ダイアログ
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
@@ -40,6 +49,26 @@ const formDueDate = ref<Date | null>(null)
 const formColor = ref('#6366f1')
 
 const dialogTitle = computed(() => (editingId.value ? 'マイルストーンを編集' : 'マイルストーンを追加'))
+
+// ソート済みマイルストーン
+const sortedMilestones = computed<Milestone[]>(() => {
+  if (sortMode.value === 'due_date') {
+    return [...store.milestones].sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0
+      if (!a.due_date) return 1
+      if (!b.due_date) return -1
+      return a.due_date.localeCompare(b.due_date)
+    })
+  }
+  return store.milestones
+})
+
+// 期日超過判定
+function isOverdue(dateStr: string | null): boolean {
+  if (!dateStr) return false
+  const today = formatDate(new Date())
+  return dateStr < today
+}
 
 watch(
   () => projectStore.currentProject?.id,
@@ -68,7 +97,6 @@ function openEdit(m: Milestone): void {
   formColor.value = m.color
   dialogVisible.value = true
 }
-
 
 async function save(): Promise<void> {
   const projectId = projectStore.currentProject?.id
@@ -125,13 +153,56 @@ function displayDate(dateStr: string | null): string {
   const d = new Date(dateStr)
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
 }
+
+// --- ドラッグ並べ替え ---
+const dragIndex = ref<number | null>(null)
+const dropIndex = ref<number | null>(null)
+
+function onDragStart(index: number, e: DragEvent): void {
+  dragIndex.value = index
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onDragOver(index: number, e: DragEvent): void {
+  e.preventDefault()
+  dropIndex.value = index
+}
+
+function onDragEnd(): void {
+  dragIndex.value = null
+  dropIndex.value = null
+}
+
+async function onDrop(index: number): Promise<void> {
+  const from = dragIndex.value
+  if (from === null || from === index) {
+    onDragEnd()
+    return
+  }
+  const ids = store.milestones.map((m) => m.id)
+  const [moved] = ids.splice(from, 1)
+  ids.splice(index, 0, moved)
+  onDragEnd()
+  await store.reorder(ids)
+}
 </script>
 
 <template>
   <div class="milestone-view">
     <div class="milestone-header">
       <h2>マイルストーン</h2>
-      <Button label="追加" icon="pi pi-plus" @click="openCreate" />
+      <div class="milestone-header-actions">
+        <SelectButton
+          v-model="sortMode"
+          :options="SORT_OPTIONS"
+          option-label="label"
+          option-value="value"
+          :allow-empty="false"
+        />
+        <Button label="追加" icon="pi pi-plus" @click="openCreate" />
+      </div>
     </div>
 
     <div v-if="store.milestones.length === 0 && !store.loading" class="empty-state">
@@ -140,15 +211,29 @@ function displayDate(dateStr: string | null): string {
 
     <div class="milestone-list">
       <div
-        v-for="m in store.milestones"
+        v-for="(m, i) in sortedMilestones"
         :key="m.id"
         class="milestone-card"
+        :class="{
+          'milestone-card--overdue': isOverdue(m.due_date),
+          'milestone-card--drag-over': dropIndex === i && dragIndex !== i
+        }"
         :style="{ borderLeftColor: m.color }"
+        :draggable="sortMode === 'manual'"
+        @dragstart="sortMode === 'manual' && onDragStart(i, $event)"
+        @dragover="sortMode === 'manual' && onDragOver(i, $event)"
+        @drop="sortMode === 'manual' && onDrop(i)"
+        @dragend="onDragEnd"
       >
+        <i v-if="sortMode === 'manual'" class="pi pi-bars drag-handle" />
         <div class="card-body">
           <div class="card-main">
             <span class="card-name">{{ m.name }}</span>
-            <span v-if="m.due_date" class="card-due">
+            <span
+              v-if="m.due_date"
+              class="card-due"
+              :class="{ 'card-due--overdue': isOverdue(m.due_date) }"
+            >
               <i class="pi pi-calendar" />
               {{ displayDate(m.due_date) }}
             </span>
@@ -211,7 +296,7 @@ function displayDate(dateStr: string | null): string {
 
 <style scoped>
 .milestone-view {
-  max-width: 800px;
+  /* レスポンシブ: max-width 制限なし */
 }
 
 .milestone-header {
@@ -223,6 +308,12 @@ function displayDate(dateStr: string | null): string {
 
 .milestone-header h2 {
   margin: 0;
+}
+
+.milestone-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .empty-state {
@@ -246,6 +337,24 @@ function displayDate(dateStr: string | null): string {
   border-radius: 8px;
   padding: 16px;
   background: var(--p-content-background);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.milestone-card--overdue {
+  border-color: var(--p-red-200);
+  background: color-mix(in srgb, var(--p-red-50) 40%, var(--p-content-background));
+}
+
+.milestone-card--drag-over {
+  border-top: 2px solid var(--p-primary-color);
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--p-text-muted-color);
+  padding: 4px 8px 4px 0;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .card-body {
@@ -271,6 +380,11 @@ function displayDate(dateStr: string | null): string {
   gap: 4px;
   font-size: 0.85rem;
   color: var(--p-text-muted-color);
+}
+
+.card-due--overdue {
+  color: var(--p-red-500);
+  font-weight: 700;
 }
 
 .card-description {
