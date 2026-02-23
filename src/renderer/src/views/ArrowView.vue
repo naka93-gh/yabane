@@ -301,6 +301,25 @@ function confirmDelete(a: Arrow): void {
         </div>
       </div>
 
+      <!-- 中パネル: 担当者 -->
+      <div class="gantt-owner">
+        <div class="gantt-owner-header" :style="{ height: `${ROW_HEIGHT}px` }">
+          <span>担当者</span>
+        </div>
+        <div class="gantt-owner-body">
+          <div
+            v-for="node in store.tree"
+            :key="node.arrow.id"
+            class="owner-row"
+            :style="{ height: `${ROW_HEIGHT}px` }"
+          >
+            <span class="owner-row-text" :title="node.arrow.owner ?? ''">
+              {{ node.arrow.owner ?? '' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <!-- 右パネル: ガントバー -->
       <div class="gantt-right">
         <div class="gantt-right-scroll">
@@ -512,6 +531,43 @@ function confirmDelete(a: Arrow): void {
 .left-row-actions :deep(.p-button) {
   width: 28px;
   height: 28px;
+}
+
+/* === 中パネル: 担当者 === */
+.gantt-owner {
+  width: 100px;
+  min-width: 100px;
+  border-right: 1px solid var(--p-content-border-color);
+  flex-shrink: 0;
+}
+
+.gantt-owner-header {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color);
+  border-bottom: 1px solid var(--p-content-border-color);
+  position: sticky;
+  top: 0;
+  background: var(--p-content-hover-background);
+  z-index: 2;
+}
+
+.owner-row {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.owner-row-text {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* === 右パネル === */
