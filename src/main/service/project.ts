@@ -28,7 +28,12 @@ export function createProject(args: ProjectCreateArgs): Project {
     .prepare(
       'INSERT INTO project (name, description, start_date, end_date) VALUES (?, ?, ?, ?) RETURNING *'
     )
-    .get(args.name, args.description ?? null, args.start_date ?? null, args.end_date ?? null) as Project
+    .get(
+      args.name,
+      args.description ?? null,
+      args.start_date ?? null,
+      args.end_date ?? null
+    ) as Project
 }
 
 /** プロジェクトを更新する */

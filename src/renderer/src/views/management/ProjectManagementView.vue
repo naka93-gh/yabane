@@ -116,11 +116,7 @@ function handleRowClick(event: { data: Project }): void {
       </div>
       <div class="create-card-body">
         <div class="form-row">
-          <InputText
-            v-model="newName"
-            placeholder="プロジェクト名"
-            class="form-input"
-          />
+          <InputText v-model="newName" placeholder="プロジェクト名" class="form-input" />
         </div>
         <div class="form-row">
           <Textarea
