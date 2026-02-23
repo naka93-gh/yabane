@@ -21,7 +21,7 @@ export function registerProjectHandlers(): void {
   })
 
   ipcMain.handle('project:create', (_e, args: ProjectCreateArgs) => {
-    return createProject(args.name, args.description)
+    return createProject(args)
   })
 
   ipcMain.handle('project:update', (_e, args: ProjectUpdateArgs) => {

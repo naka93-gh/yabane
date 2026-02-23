@@ -15,6 +15,8 @@ export interface ProjectListArgs {
 export interface ProjectCreateArgs {
   name: string
   description?: string
+  start_date?: string
+  end_date?: string
 }
 
 /** プロジェクト更新の引数 */
@@ -24,6 +26,7 @@ export interface ProjectUpdateArgs {
   description?: string
   start_date?: string | null
   end_date?: string | null
+  status?: Project['status']
 }
 
 // --- 目的 ---

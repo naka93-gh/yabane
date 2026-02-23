@@ -1,17 +1,16 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Project } from '@shared/types/models'
+import type { ProjectCreateArgs } from '@shared/types/ipc'
 import * as api from '../api/project'
 import { useMemberStore } from './member'
 
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([])
   const currentProject = ref<Project | null>(null)
-  const dialogVisible = ref(false)
-
   /** プロジェクト一覧を取得してストアに反映する */
-  async function fetchProjects(status: 'active' | 'archived' = 'active'): Promise<void> {
-    projects.value = await api.listProjects({ status })
+  async function fetchProjects(status?: Project['status']): Promise<void> {
+    projects.value = await api.listProjects(status ? { status } : undefined)
   }
 
   /** プロジェクトを選択して currentProject に設定する */
@@ -25,8 +24,8 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** プロジェクトを作成し一覧を再取得する */
-  async function createProject(name: string, description?: string): Promise<Project> {
-    const project = await api.createProject({ name, description })
+  async function createProject(args: ProjectCreateArgs): Promise<Project> {
+    const project = await api.createProject(args)
     await fetchProjects()
     return project
   }
@@ -65,7 +64,6 @@ export const useProjectStore = defineStore('project', () => {
   return {
     projects,
     currentProject,
-    dialogVisible,
     fetchProjects,
     selectProject,
     createProject,

@@ -4,7 +4,7 @@ export interface Project {
   description: string | null
   start_date: string | null
   end_date: string | null
-  status: 'active' | 'archived'
+  status: 'planning' | 'active' | 'completed' | 'on_hold' | 'cancelled' | 'archived'
   created_at: string
   updated_at: string
 }
