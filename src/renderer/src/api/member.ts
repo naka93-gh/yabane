@@ -1,18 +1,22 @@
 import type { Member } from '@shared/types/models'
 import type { MemberCreateArgs, MemberUpdateArgs } from '@shared/types/ipc'
 
+/** メンバー一覧を取得する */
 export function listMembers(args: { projectId: number }): Promise<Member[]> {
   return window.api.member.list(args)
 }
 
+/** メンバーを作成する */
 export function createMember(args: MemberCreateArgs): Promise<Member> {
   return window.api.member.create(args)
 }
 
+/** メンバーを更新する */
 export function updateMember(args: MemberUpdateArgs): Promise<Member> {
   return window.api.member.update(args)
 }
 
+/** メンバーを削除する */
 export function deleteMember(args: { id: number }): Promise<Member> {
   return window.api.member.delete(args)
 }
