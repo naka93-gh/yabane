@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import Select from 'primevue/select'
+import { useProjectStore } from '../stores/project'
+
 defineProps<{ activeSection: string }>()
 const emit = defineEmits<{
   'request-section': [key: string]
 }>()
+
+const store = useProjectStore()
+
+const selectedProjectId = computed({
+  get: () => store.currentProject?.id ?? null,
+  set: (id: number | null) => {
+    if (id !== null) store.selectProject(id)
+  }
+})
 
 const sections = [
   { key: 'purpose', label: '目的', icon: 'pi pi-file-edit' },
@@ -17,6 +30,16 @@ const sections = [
 
 <template>
   <nav class="sidebar">
+    <div class="sidebar-project-select">
+      <Select
+        v-model="selectedProjectId"
+        :options="store.projects"
+        option-label="name"
+        option-value="id"
+        placeholder="プロジェクトを選択"
+        class="project-select"
+      />
+    </div>
     <ul class="sidebar-menu">
       <li
         v-for="section in sections"
@@ -38,6 +61,14 @@ const sections = [
   border-right: 1px solid var(--p-content-border-color);
   background: var(--p-content-hover-background);
   overflow-y: auto;
+}
+
+.sidebar-project-select {
+  padding: 12px 12px 4px;
+}
+
+.project-select {
+  width: 100%;
 }
 
 .sidebar-menu {

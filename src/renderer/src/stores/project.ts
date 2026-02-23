@@ -7,8 +7,6 @@ import { useMemberStore } from './member'
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([])
   const currentProject = ref<Project | null>(null)
-  const dialogVisible = ref(false)
-
   /** プロジェクト一覧を取得してストアに反映する */
   async function fetchProjects(status: 'active' | 'archived' = 'active'): Promise<void> {
     projects.value = await api.listProjects({ status })
@@ -65,7 +63,6 @@ export const useProjectStore = defineStore('project', () => {
   return {
     projects,
     currentProject,
-    dialogVisible,
     fetchProjects,
     selectProject,
     createProject,

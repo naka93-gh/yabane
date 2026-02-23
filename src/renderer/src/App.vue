@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppSidebar from './components/AppSidebar.vue'
-import ProjectDialog from './components/ProjectDialog.vue'
 import ExportDialog from './components/ExportDialog.vue'
+import ProjectManagementView from './views/management/ProjectManagementView.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
 import PurposeView from './views/PurposeView.vue'
 import MilestoneView from './views/milestone/MilestoneView.vue'
@@ -40,39 +40,70 @@ const sectionLabels: Record<Section, string> = {
   settings: 'プロジェクト設定'
 }
 
+/** 総合管理ページへ戻る */
+function goHome(): void {
+  if (!guard.confirmLeave()) return
+  guard.reset()
+  store.currentProject = null
+  activeSection.value = 'purpose'
+}
+
+/** プロジェクトを選択してセクション表示に切り替える */
+async function handleSelectProject(id: number): Promise<void> {
+  await store.selectProject(id)
+}
+
 onMounted(async () => {
   await store.fetchProjects()
-  if (store.projects.length > 0) {
-    await store.selectProject(store.projects[0].id)
-  }
 })
 </script>
 
 <template>
-  <div class="app-layout">
-    <AppHeader class="app-header" @export-excel="exportDialog?.open()" />
+  <!-- 総合管理ページ（プロジェクト未選択時） -->
+  <div v-if="!store.currentProject" class="app-layout-full">
+    <AppHeader class="app-header" @export-excel="exportDialog?.open()" @go-home="goHome" />
+    <main class="app-main-full">
+      <ProjectManagementView @select-project="handleSelectProject" />
+    </main>
+    <Toast />
+    <ExportDialog ref="exportDialog" />
+  </div>
+
+  <!-- 通常レイアウト（プロジェクト選択時） -->
+  <div v-else class="app-layout">
+    <AppHeader class="app-header" @export-excel="exportDialog?.open()" @go-home="goHome" />
     <AppSidebar
       :active-section="activeSection"
       class="app-sidebar"
       @request-section="onRequestSection"
     />
     <main class="app-main">
-      <PurposeView v-if="store.currentProject && activeSection === 'purpose'" />
-      <MilestoneView v-else-if="store.currentProject && activeSection === 'milestone'" />
-      <ArrowView v-else-if="store.currentProject && activeSection === 'arrow'" />
-      <WbsView v-else-if="store.currentProject && activeSection === 'wbs'" />
-      <IssueView v-else-if="store.currentProject && activeSection === 'issue'" />
-      <MemberView v-else-if="store.currentProject && activeSection === 'member'" />
-      <ProjectSettingsView v-else-if="store.currentProject && activeSection === 'settings'" />
+      <PurposeView v-if="activeSection === 'purpose'" />
+      <MilestoneView v-else-if="activeSection === 'milestone'" />
+      <ArrowView v-else-if="activeSection === 'arrow'" />
+      <WbsView v-else-if="activeSection === 'wbs'" />
+      <IssueView v-else-if="activeSection === 'issue'" />
+      <MemberView v-else-if="activeSection === 'member'" />
+      <ProjectSettingsView v-else-if="activeSection === 'settings'" />
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
     <Toast />
-    <ProjectDialog />
     <ExportDialog ref="exportDialog" />
   </div>
 </template>
 
 <style scoped>
+.app-layout-full {
+  display: grid;
+  grid-template-areas:
+    'header'
+    'main';
+  grid-template-columns: 1fr;
+  grid-template-rows: 48px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .app-layout {
   display: grid;
   grid-template-areas:
@@ -90,6 +121,11 @@ onMounted(async () => {
 
 .app-sidebar {
   grid-area: sidebar;
+}
+
+.app-main-full {
+  grid-area: main;
+  overflow: auto;
 }
 
 .app-main {
