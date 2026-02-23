@@ -1,6 +1,6 @@
 import { getDatabase } from '../database'
 import type { Project } from '../../shared/types/models'
-import type { ProjectUpdateArgs, ProjectSummary } from '../../shared/types/ipc'
+import type { ProjectCreateArgs, ProjectUpdateArgs, ProjectSummary } from '../../shared/types/ipc'
 
 /** プロジェクト一覧を取得する */
 export function listProjects(status?: Project['status']): Project[] {
@@ -18,11 +18,13 @@ export function getProject(id: number): Project | null {
 }
 
 /** プロジェクトを作成する */
-export function createProject(name: string, description?: string): Project {
+export function createProject(args: ProjectCreateArgs): Project {
   const db = getDatabase()
   return db
-    .prepare('INSERT INTO project (name, description) VALUES (?, ?) RETURNING *')
-    .get(name, description ?? null) as Project
+    .prepare(
+      'INSERT INTO project (name, description, start_date, end_date) VALUES (?, ?, ?, ?) RETURNING *'
+    )
+    .get(args.name, args.description ?? null, args.start_date ?? null, args.end_date ?? null) as Project
 }
 
 /** プロジェクトを更新する */

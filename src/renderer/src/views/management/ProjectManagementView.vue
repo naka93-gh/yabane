@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
+import DatePicker from 'primevue/datepicker'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -10,6 +11,7 @@ import type { Project } from '@shared/types/models'
 import { useProjectStore } from '../../stores/project'
 import { listProjects } from '../../api/project'
 import { useAppToast } from '../../composables/useAppToast'
+import { formatDate, formatDisplayDate } from '../../utils/date-helper'
 
 const store = useProjectStore()
 const toast = useAppToast()
@@ -18,7 +20,16 @@ const emit = defineEmits<{ selectProject: [id: number] }>()
 
 const newName = ref('')
 const newDescription = ref('')
+const newStartDate = ref<Date | null>(null)
+const newEndDate = ref<Date | null>(null)
 const showArchived = ref(false)
+
+const dateError = computed(() => {
+  if (newStartDate.value && newEndDate.value && newStartDate.value > newEndDate.value) {
+    return '開始日は終了日以前にしてください'
+  }
+  return ''
+})
 const archivedProjects = ref<Project[]>([])
 
 const displayedProjects = ref<Project[]>([])
@@ -38,14 +49,18 @@ watch(
 )
 
 async function handleCreate(): Promise<void> {
-  if (!newName.value.trim()) return
+  if (!newName.value.trim() || dateError.value) return
   try {
     const project = await store.createProject(
       newName.value.trim(),
-      newDescription.value.trim() || undefined
+      newDescription.value.trim() || undefined,
+      newStartDate.value ? formatDate(newStartDate.value) : undefined,
+      newEndDate.value ? formatDate(newEndDate.value) : undefined
     )
     newName.value = ''
     newDescription.value = ''
+    newStartDate.value = null
+    newEndDate.value = null
     toast.success('プロジェクトを作成しました')
     emit('selectProject', project.id)
   } catch {
@@ -84,15 +99,16 @@ function handleRowClick(event: { data: Project }): void {
   <div class="management-page">
     <h1 class="page-title">プロジェクト管理</h1>
 
-    <section class="create-section">
-      <h2>新規プロジェクト</h2>
-      <div class="create-form">
+    <section class="create-card">
+      <div class="create-card-header">
+        <h2>新規プロジェクト</h2>
+      </div>
+      <div class="create-card-body">
         <div class="form-row">
           <InputText
             v-model="newName"
             placeholder="プロジェクト名"
             class="form-input"
-            @keydown.enter="handleCreate"
           />
         </div>
         <div class="form-row">
@@ -103,11 +119,34 @@ function handleRowClick(event: { data: Project }): void {
             class="form-input"
           />
         </div>
+        <div class="form-row-group">
+          <div class="form-row">
+            <label>開始日</label>
+            <DatePicker
+              v-model="newStartDate"
+              date-format="yy/mm/dd"
+              placeholder="開始日を選択"
+              class="form-input"
+              show-button-bar
+            />
+          </div>
+          <div class="form-row">
+            <label>終了日</label>
+            <DatePicker
+              v-model="newEndDate"
+              date-format="yy/mm/dd"
+              placeholder="終了日を選択"
+              class="form-input"
+              show-button-bar
+            />
+          </div>
+        </div>
+        <small v-if="dateError" class="date-error">{{ dateError }}</small>
         <Button
           label="作成"
           icon="pi pi-plus"
           size="small"
-          :disabled="!newName.trim()"
+          :disabled="!newName.trim() || !!dateError"
           @click="handleCreate"
         />
       </div>
@@ -132,6 +171,13 @@ function handleRowClick(event: { data: Project }): void {
       >
         <Column field="name" header="名前" />
         <Column field="description" header="説明" />
+        <Column header="期間" style="width: 220px">
+          <template #body="{ data }">
+            <span v-if="data.start_date || data.end_date">
+              {{ formatDisplayDate(data.start_date) }} 〜 {{ formatDisplayDate(data.end_date) }}
+            </span>
+          </template>
+        </Column>
         <Column field="status" header="ステータス" style="width: 100px" />
         <Column header="操作" style="width: 120px">
           <template #body="{ data }">
@@ -177,18 +223,26 @@ function handleRowClick(event: { data: Project }): void {
   margin-bottom: 24px;
 }
 
-.create-section {
+.create-card {
   margin-bottom: 32px;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 8px;
+  background: var(--p-content-background);
 }
 
-.create-section h2 {
+.create-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.create-card-header h2 {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
-.create-form {
-  max-width: 480px;
+.create-card-body {
+  padding: 20px;
 }
 
 .form-row {
@@ -197,6 +251,25 @@ function handleRowClick(event: { data: Project }): void {
 
 .form-input {
   width: 100%;
+}
+
+.form-row-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.date-error {
+  display: block;
+  color: var(--p-red-400);
+  margin-bottom: 8px;
 }
 
 .list-section h2 {

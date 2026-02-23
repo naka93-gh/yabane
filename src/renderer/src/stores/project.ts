@@ -23,8 +23,18 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** プロジェクトを作成し一覧を再取得する */
-  async function createProject(name: string, description?: string): Promise<Project> {
-    const project = await api.createProject({ name, description })
+  async function createProject(
+    name: string,
+    description?: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<Project> {
+    const project = await api.createProject({
+      name,
+      description,
+      start_date: startDate,
+      end_date: endDate
+    })
     await fetchProjects()
     return project
   }
