@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import Button from 'primevue/button'
+import ToggleButton from 'primevue/togglebutton'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import DatePicker from 'primevue/datepicker'
@@ -14,6 +15,7 @@ import {
   buildMonthHeaders,
   buildGridLines,
   buildMilestoneLines,
+  calcTodayLeft,
   calcBarStyle,
   type GridLine
 } from '../utils/gantt-helper'
@@ -37,6 +39,9 @@ const STATUS_OPTIONS = [
   { label: '完了', value: 'done' }
 ]
 
+// 今日線
+const showTodayLine = ref(true)
+
 // ダイアログ
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
@@ -53,10 +58,7 @@ watch(
   () => projectStore.currentProject?.id,
   async (projectId) => {
     if (projectId) {
-      await Promise.all([
-        store.fetchArrows(projectId),
-        milestoneStore.fetchMilestones(projectId)
-      ])
+      await Promise.all([store.fetchArrows(projectId), milestoneStore.fetchMilestones(projectId)])
     }
   },
   { immediate: true }
@@ -67,7 +69,15 @@ const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
 const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
 const gridLines = computed<GridLine[]>(() => buildGridLines(allDates.value, DAY_WIDTH))
 const milestoneLines = computed(() =>
-  buildMilestoneLines(milestoneStore.milestones, store.dateRange.start, store.dateRange.end, DAY_WIDTH)
+  buildMilestoneLines(
+    milestoneStore.milestones,
+    store.dateRange.start,
+    store.dateRange.end,
+    DAY_WIDTH
+  )
+)
+const todayLeft = computed(() =>
+  calcTodayLeft(store.dateRange.start, store.dateRange.end, DAY_WIDTH)
 )
 
 function barStyle(arrow: Arrow): Record<string, string> | null {
@@ -170,7 +180,17 @@ function confirmDelete(a: Arrow): void {
   <div class="arrow-view">
     <div class="arrow-header">
       <h2>矢羽</h2>
-      <Button label="追加" icon="pi pi-plus" @click="openCreate(null)" />
+      <div class="arrow-header-actions">
+        <ToggleButton
+          v-model="showTodayLine"
+          on-label="今日"
+          off-label="今日"
+          on-icon="pi pi-calendar-clock"
+          off-icon="pi pi-calendar-clock"
+          :pt="{ root: { class: 'today-toggle' } }"
+        />
+        <Button label="追加" icon="pi pi-plus" @click="openCreate(null)" />
+      </div>
     </div>
 
     <div v-if="store.tree.length === 0 && !store.loading" class="empty-state">
@@ -258,6 +278,14 @@ function confirmDelete(a: Arrow): void {
                 <span class="milestone-line-label" :style="{ background: ml.color }">
                   {{ ml.name }}
                 </span>
+              </div>
+              <!-- 今日線 -->
+              <div
+                v-if="showTodayLine && todayLeft !== null"
+                class="today-line"
+                :style="{ left: `${todayLeft}px` }"
+              >
+                <span class="today-line-label">今日</span>
               </div>
             </div>
           </div>
@@ -502,6 +530,41 @@ function confirmDelete(a: Arrow): void {
   border-radius: 0 0 4px 4px;
   white-space: nowrap;
   pointer-events: auto;
+}
+
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--p-red-400);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.today-line-label {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--p-red-400);
+  padding: 1px 6px;
+  border-radius: 0 0 4px 4px;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.arrow-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.today-toggle {
+  font-size: 0.8rem;
 }
 
 /* === ダイアログ === */

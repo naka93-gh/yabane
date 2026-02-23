@@ -107,6 +107,14 @@ export const BAR_COLORS: Record<string, string> = {
   done: 'var(--p-green-500)'
 }
 
+/** 今日の日付の表示位置（px）を返す。範囲外なら null */
+export function calcTodayLeft(rangeStart: Date, rangeEnd: Date, dayWidth: number): number | null {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  if (today < rangeStart || today > rangeEnd) return null
+  return diffDays(rangeStart, today) * dayWidth + dayWidth / 2
+}
+
 /** ガントバーのスタイル（left, width, background）を算出する */
 export function calcBarStyle(
   startDate: string,
