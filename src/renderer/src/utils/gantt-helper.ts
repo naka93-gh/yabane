@@ -70,6 +70,36 @@ export function buildMonthBoundaries(dates: Date[], dayWidth: number): number[] 
   return lines
 }
 
+export interface MilestoneLine {
+  id: number
+  name: string
+  left: number
+  color: string
+}
+
+/** 表示範囲内のマイルストーン縦線位置を算出する */
+export function buildMilestoneLines(
+  milestones: { id: number; name: string; due_date: string | null; color: string }[],
+  rangeStart: Date,
+  rangeEnd: Date,
+  dayWidth: number
+): MilestoneLine[] {
+  const rangeEndTime = rangeEnd.getTime()
+  const rangeStartTime = rangeStart.getTime()
+  return milestones
+    .filter((m) => {
+      if (!m.due_date) return false
+      const t = new Date(m.due_date).getTime()
+      return t >= rangeStartTime && t <= rangeEndTime
+    })
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      left: diffDays(rangeStart, new Date(m.due_date!)) * dayWidth + dayWidth / 2,
+      color: m.color
+    }))
+}
+
 /** ステータスに応じたバーの色 */
 export const BAR_COLORS: Record<string, string> = {
   not_started: 'var(--p-text-muted-color)',

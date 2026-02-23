@@ -13,15 +13,18 @@ import {
   buildAllDates,
   buildMonthHeaders,
   buildGridLines,
+  buildMilestoneLines,
   calcBarStyle,
   type GridLine
 } from '../utils/gantt-helper'
 import { useArrowStore } from '../stores/arrow'
+import { useMilestoneStore } from '../stores/milestone'
 import { useAppToast } from '../composables/useAppToast'
 import type { Arrow } from '@shared/types/models'
 
 const projectStore = useProjectStore()
 const store = useArrowStore()
+const milestoneStore = useMilestoneStore()
 const confirm = useConfirm()
 const toast = useAppToast()
 
@@ -50,7 +53,10 @@ watch(
   () => projectStore.currentProject?.id,
   async (projectId) => {
     if (projectId) {
-      await store.fetchArrows(projectId)
+      await Promise.all([
+        store.fetchArrows(projectId),
+        milestoneStore.fetchMilestones(projectId)
+      ])
     }
   },
   { immediate: true }
@@ -60,6 +66,9 @@ const allDates = computed(() => buildAllDates(store.dateRange.start, store.dateR
 const ganttTotalWidth = computed(() => allDates.value.length * DAY_WIDTH)
 const monthHeaders = computed(() => buildMonthHeaders(allDates.value, DAY_WIDTH))
 const gridLines = computed<GridLine[]>(() => buildGridLines(allDates.value, DAY_WIDTH))
+const milestoneLines = computed(() =>
+  buildMilestoneLines(milestoneStore.milestones, store.dateRange.start, store.dateRange.end, DAY_WIDTH)
+)
 
 function barStyle(arrow: Arrow): Record<string, string> | null {
   if (!arrow.start_date || !arrow.end_date) return null
@@ -238,6 +247,17 @@ function confirmDelete(a: Arrow): void {
                 />
                 <!-- バー -->
                 <div v-if="barStyle(node.arrow)" class="gantt-bar" :style="barStyle(node.arrow)!" />
+              </div>
+              <!-- マイルストーン縦線 -->
+              <div
+                v-for="ml in milestoneLines"
+                :key="`ms-${ml.id}`"
+                class="milestone-line"
+                :style="{ left: `${ml.left}px`, borderColor: ml.color }"
+              >
+                <span class="milestone-line-label" :style="{ background: ml.color }">
+                  {{ ml.name }}
+                </span>
               </div>
             </div>
           </div>
@@ -458,6 +478,30 @@ function confirmDelete(a: Arrow): void {
   height: 24px;
   border-radius: 4px;
   z-index: 1;
+}
+
+.milestone-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.milestone-line-label {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 0 0 4px 4px;
+  white-space: nowrap;
+  pointer-events: auto;
 }
 
 /* === ダイアログ === */
