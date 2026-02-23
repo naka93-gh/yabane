@@ -123,7 +123,6 @@ function barStyle(row: WbsTreeRow): Record<string, string> | null {
   z-index: 2;
   background: var(--p-content-hover-background);
   border-bottom: 1px solid var(--p-content-border-color);
-  position: relative;
 }
 
 .month-cell {
@@ -145,7 +144,6 @@ function barStyle(row: WbsTreeRow): Record<string, string> | null {
   z-index: 2;
   background: var(--p-content-hover-background);
   border-bottom: 1px solid var(--p-content-border-color);
-  position: relative;
 }
 
 .day-cell {
