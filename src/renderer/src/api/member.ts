@@ -1,5 +1,10 @@
 import type { Member } from '@shared/types/models'
-import type { MemberCreateArgs, MemberUpdateArgs, CsvSaveArgs, CsvOpenResult } from '@shared/types/ipc'
+import type {
+  MemberCreateArgs,
+  MemberUpdateArgs,
+  CsvSaveArgs,
+  CsvOpenResult
+} from '@shared/types/ipc'
 
 /** メンバー一覧を取得する */
 export function listMembers(args: { projectId: number; archived?: number }): Promise<Member[]> {

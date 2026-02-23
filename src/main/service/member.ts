@@ -61,17 +61,17 @@ export function deleteMember(id: number): Member | undefined {
 /** メンバーをアーカイブする */
 export function archiveMember(id: number): Member | undefined {
   const db = getDatabase()
-  return db
-    .prepare('UPDATE member SET archived = 1 WHERE id = ? RETURNING *')
-    .get(id) as Member | undefined
+  return db.prepare('UPDATE member SET archived = 1 WHERE id = ? RETURNING *').get(id) as
+    | Member
+    | undefined
 }
 
 /** メンバーのアーカイブを解除する */
 export function unarchiveMember(id: number): Member | undefined {
   const db = getDatabase()
-  return db
-    .prepare('UPDATE member SET archived = 0 WHERE id = ? RETURNING *')
-    .get(id) as Member | undefined
+  return db.prepare('UPDATE member SET archived = 0 WHERE id = ? RETURNING *').get(id) as
+    | Member
+    | undefined
 }
 
 /** メンバーの並び順を更新する */
