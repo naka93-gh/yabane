@@ -155,6 +155,18 @@ export interface MemberUpdateArgs {
   note?: string
 }
 
+// --- プロジェクトサマリ ---
+
+/** プロジェクトの統計サマリ */
+export interface ProjectSummary {
+  arrowCount: number
+  wbsItemCount: number
+  issueCount: number
+  openIssueCount: number
+  milestoneCount: number
+  memberCount: number
+}
+
 // --- エクスポート ---
 
 /** Excel 保存の引数 */

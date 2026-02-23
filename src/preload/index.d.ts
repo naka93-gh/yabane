@@ -12,6 +12,7 @@ import type {
   ProjectListArgs,
   ProjectCreateArgs,
   ProjectUpdateArgs,
+  ProjectSummary,
   PurposeSaveArgs,
   MilestoneCreateArgs,
   MilestoneUpdateArgs,
@@ -33,6 +34,7 @@ interface ProjectAPI {
   update(args: ProjectUpdateArgs): Promise<Project>
   archive(args: { id: number }): Promise<Project>
   unarchive(args: { id: number }): Promise<Project>
+  summary(args: { projectId: number }): Promise<ProjectSummary>
 }
 
 interface PurposeAPI {

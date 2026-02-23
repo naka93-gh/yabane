@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppSidebar from './components/AppSidebar.vue'
 import ProjectDialog from './components/ProjectDialog.vue'
-import ProjectSettingsDialog from './components/ProjectSettingsDialog.vue'
 import ExportDialog from './components/ExportDialog.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
 import PurposeView from './views/PurposeView.vue'
@@ -12,6 +11,7 @@ import ArrowView from './views/arrow/ArrowView.vue'
 import WbsView from './views/wbs/WbsView.vue'
 import IssueView from './views/issue/IssueView.vue'
 import MemberView from './views/member/MemberView.vue'
+import ProjectSettingsView from './views/settings/ProjectSettingsView.vue'
 import Toast from 'primevue/toast'
 import { useProjectStore } from './stores/project'
 import { useNavigationGuard } from './composables/useNavigationGuard'
@@ -20,7 +20,6 @@ const store = useProjectStore()
 const guard = useNavigationGuard()
 const activeSection = ref('purpose')
 const exportDialog = ref<InstanceType<typeof ExportDialog> | null>(null)
-const settingsDialog = ref<InstanceType<typeof ProjectSettingsDialog> | null>(null)
 
 function onRequestSection(key: string): void {
   if (key === activeSection.value) return
@@ -29,7 +28,7 @@ function onRequestSection(key: string): void {
   activeSection.value = key
 }
 
-type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue' | 'member'
+type Section = 'purpose' | 'milestone' | 'arrow' | 'wbs' | 'issue' | 'member' | 'settings'
 
 const sectionLabels: Record<Section, string> = {
   purpose: '目的',
@@ -37,7 +36,8 @@ const sectionLabels: Record<Section, string> = {
   arrow: '矢羽',
   wbs: 'WBS',
   issue: '課題',
-  member: '関係者'
+  member: '関係者',
+  settings: 'プロジェクト設定'
 }
 
 onMounted(async () => {
@@ -55,7 +55,6 @@ onMounted(async () => {
       :active-section="activeSection"
       class="app-sidebar"
       @request-section="onRequestSection"
-      @open-settings="settingsDialog?.open()"
     />
     <main class="app-main">
       <PurposeView v-if="store.currentProject && activeSection === 'purpose'" />
@@ -64,11 +63,11 @@ onMounted(async () => {
       <WbsView v-else-if="store.currentProject && activeSection === 'wbs'" />
       <IssueView v-else-if="store.currentProject && activeSection === 'issue'" />
       <MemberView v-else-if="store.currentProject && activeSection === 'member'" />
+      <ProjectSettingsView v-else-if="store.currentProject && activeSection === 'settings'" />
       <PlaceholderView v-else :section-name="sectionLabels[activeSection as Section]" />
     </main>
     <Toast />
     <ProjectDialog />
-    <ProjectSettingsDialog ref="settingsDialog" />
     <ExportDialog ref="exportDialog" />
   </div>
 </template>
