@@ -1,6 +1,6 @@
-import { getDatabase } from '../database'
-import type { Purpose } from '../../shared/types/models'
 import type { PurposeSaveArgs } from '../../shared/types/ipc'
+import type { Purpose } from '../../shared/types/models'
+import { getDatabase } from '../database'
 
 /** プロジェクトの目的を取得する */
 export function getPurpose(projectId: number): Purpose | null {

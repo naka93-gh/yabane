@@ -1,4 +1,4 @@
-import XLSX from 'xlsx-js-style'
+import type XLSX from 'xlsx-js-style'
 
 type CellStyle = XLSX.CellStyle
 

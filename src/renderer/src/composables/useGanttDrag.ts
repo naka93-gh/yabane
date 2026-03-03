@@ -1,8 +1,8 @@
-import { ref, computed, onUnmounted, type Ref, type ComputedRef } from 'vue'
+import type { Arrow } from '@shared/types/models'
+import { type ComputedRef, computed, onUnmounted, type Ref, ref } from 'vue'
+import { useArrowStore } from '../stores/arrow'
 import { formatDate } from '../utils/date-helper'
 import { calcBarStyle } from '../utils/gantt-helper'
-import { useArrowStore } from '../stores/arrow'
-import type { Arrow } from '@shared/types/models'
 
 type DragMode = 'move' | 'resize-start' | 'resize-end'
 

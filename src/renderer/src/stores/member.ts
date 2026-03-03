@@ -1,7 +1,7 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
-import type { Member } from '@shared/types/models'
 import type { MemberCreateArgs, MemberUpdateArgs } from '@shared/types/ipc'
+import type { Member } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import * as api from '../api/member'
 import { buildMemberCsv, parseMemberCsv } from '../utils/csv'
 

@@ -1,7 +1,7 @@
-import XLSX from 'xlsx-js-style'
 import type { Arrow, WbsItem } from '@shared/types/models'
+import XLSX from 'xlsx-js-style'
 import { TASK_STATUS_LABELS } from '../constants'
-import { thinBorder, headerCell, cell, CELL_STYLE, BAR_COLORS } from '../excel-style'
+import { BAR_COLORS, CELL_STYLE, cell, headerCell, thinBorder } from '../excel-style'
 
 type WS = XLSX.WorkSheet
 

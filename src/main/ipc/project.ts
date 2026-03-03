@@ -1,14 +1,14 @@
 import { ipcMain } from 'electron'
+import type { ProjectCreateArgs, ProjectListArgs, ProjectUpdateArgs } from '../../shared/types/ipc'
 import {
-  listProjects,
-  getProject,
-  createProject,
-  updateProject,
   archiveProject,
+  createProject,
+  getProject,
+  getProjectSummary,
+  listProjects,
   unarchiveProject,
-  getProjectSummary
+  updateProject
 } from '../service/project'
-import type { ProjectListArgs, ProjectCreateArgs, ProjectUpdateArgs } from '../../shared/types/ipc'
 
 /** プロジェクト関連の IPC ハンドラを登録する */
 export function registerProjectHandlers(): void {

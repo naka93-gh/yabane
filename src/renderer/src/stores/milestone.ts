@@ -1,6 +1,6 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
 import type { Milestone } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import * as api from '../api/milestone'
 
 export const useMilestoneStore = defineStore('milestone', () => {

@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
 import type { Issue } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import * as api from '../api/issue'
 
 interface IssueFilter {

@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import Button from 'primevue/button'
-import Select from 'primevue/select'
-import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
-import { useProjectStore } from '../../stores/project'
-import { useArrowStore } from '../../stores/arrow'
-import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
-import WbsGantt from './WbsGantt.vue'
+import { useListReorder } from '../../composables/useListReorder'
+import { useArrowStore } from '../../stores/arrow'
+import { useProjectStore } from '../../stores/project'
+import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
+import { TASK_STATUS_LABELS, TASK_STATUS_OPTIONS } from '../../utils/constants'
 import WbsDialog from './WbsDialog.vue'
-import { TASK_STATUS_OPTIONS, TASK_STATUS_LABELS } from '../../utils/constants'
+import WbsGantt from './WbsGantt.vue'
 
 const projectStore = useProjectStore()
 const arrowStore = useArrowStore()
@@ -67,6 +65,16 @@ function confirmDelete(row: WbsTreeRow): void {
     }
   })
 }
+
+// ドラッグ並べ替え
+const reorder = useListReorder<WbsTreeRow>({
+  getId: (row) => row.task?.id ?? 0,
+  onReorder: (ids) => store.reorder(ids),
+  isSameGroup: (a, b) =>
+    a.type === 'task' && b.type === 'task' && a.childArrow?.id === b.childArrow?.id,
+  getGroupItems: (row, items) =>
+    items.filter((r) => r.type === 'task' && r.childArrow?.id === row.childArrow?.id)
+})
 
 // フィルタ
 const filterArrow = computed({
@@ -148,6 +156,7 @@ const filterOwner = computed({
       <!-- 左パネル: ツリー -->
       <div class="gantt-left">
         <div class="gantt-left-header" :style="{ height: `${ROW_HEIGHT * 2}px` }">
+          <span class="col-handle">&nbsp;</span>
           <span class="col-parent">親矢羽</span>
           <span class="col-child">子矢羽</span>
           <span class="col-task">タスク</span>
@@ -156,11 +165,25 @@ const filterOwner = computed({
         </div>
         <div class="gantt-left-body">
           <div
-            v-for="row in store.tree"
+            v-for="(row, i) in store.tree"
             :key="row.key"
             class="left-row"
+            :class="{
+              'left-row--drag-over': reorder.dropIndex.value === i,
+              'left-row--parent': row.type === 'parent',
+              'left-row--child': row.type === 'child'
+            }"
             :style="{ height: `${ROW_HEIGHT}px` }"
+            :draggable="row.type === 'task'"
+            @dragstart="reorder.onDragStart(row, i, $event)"
+            @dragover="reorder.onDragOver(row, i, $event)"
+            @dragleave="reorder.onDragLeave"
+            @drop="reorder.onDrop(row, store.tree)"
+            @dragend="reorder.onDragEnd"
           >
+            <span class="col-handle">
+              <i v-if="row.type === 'task'" class="pi pi-bars drag-handle" />
+            </span>
             <span class="col-parent" :class="{ 'cell-merged': !row.showParentName }">
               <template v-if="row.showParentName">{{ row.parentArrow?.name }}</template>
             </span>
@@ -347,6 +370,34 @@ const filterOwner = computed({
 .col-actions :deep(.p-button) {
   width: 26px;
   height: 26px;
+}
+
+.col-handle {
+  width: 20px;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--p-text-muted-color);
+  font-size: 0.7rem;
+}
+
+.left-row--parent {
+  background: var(--p-content-hover-background);
+  font-weight: 600;
+}
+
+.left-row--child {
+  background: color-mix(in srgb, var(--p-content-hover-background) 50%, transparent);
+}
+
+.left-row--drag-over {
+  border-top: 2px solid var(--p-primary-color);
 }
 
 .cell-merged {

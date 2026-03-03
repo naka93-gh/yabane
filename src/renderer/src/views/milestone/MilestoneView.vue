@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import type { Milestone } from '@shared/types/models'
 import Button from 'primevue/button'
-import SelectButton from 'primevue/selectbutton'
 import ConfirmDialog from 'primevue/confirmdialog'
+import SelectButton from 'primevue/selectbutton'
 import { useConfirm } from 'primevue/useconfirm'
-import { formatDate, formatDisplayDate } from '../../utils/date-helper'
-import { useProjectStore } from '../../stores/project'
-import { useMilestoneStore } from '../../stores/milestone'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useListReorder } from '../../composables/useListReorder'
-import type { Milestone } from '@shared/types/models'
+import { useMilestoneStore } from '../../stores/milestone'
+import { useProjectStore } from '../../stores/project'
+import { formatDate, formatDisplayDate } from '../../utils/date-helper'
 import MilestoneDialog from './MilestoneDialog.vue'
 
 const projectStore = useProjectStore()

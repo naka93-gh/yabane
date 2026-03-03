@@ -1,5 +1,5 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron'
-import { writeFileSync } from 'fs'
+import { writeFileSync } from 'node:fs'
+import { BrowserWindow, dialog, ipcMain } from 'electron'
 import type { CsvSaveArgs } from '../../shared/types/ipc'
 
 /** エクスポート関連の IPC ハンドラを登録する */

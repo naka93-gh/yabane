@@ -1,5 +1,5 @@
-import type { Issue } from '@shared/types/models'
 import type { IssueCreateArgs, IssueUpdateArgs } from '@shared/types/ipc'
+import type { Issue } from '@shared/types/models'
 
 /** 課題一覧を取得する */
 export function listIssues(args: { projectId: number }): Promise<Issue[]> {

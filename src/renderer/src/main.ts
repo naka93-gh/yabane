@@ -1,13 +1,13 @@
 import './assets/main.css'
 import 'primeicons/primeicons.css'
 
-import { createApp } from 'vue'
+import { definePreset } from '@primeuix/themes'
+import Aura from '@primeuix/themes/aura'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
-import { definePreset } from '@primeuix/themes'
-import Aura from '@primeuix/themes/aura'
+import { createApp } from 'vue'
 import App from './App.vue'
 import { useThemeStore } from './stores/theme'
 

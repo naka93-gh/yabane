@@ -1,6 +1,6 @@
-import { getDatabase } from '../database'
+import type { ProjectCreateArgs, ProjectSummary, ProjectUpdateArgs } from '../../shared/types/ipc'
 import type { Project } from '../../shared/types/models'
-import type { ProjectCreateArgs, ProjectUpdateArgs, ProjectSummary } from '../../shared/types/ipc'
+import { getDatabase } from '../database'
 
 /** プロジェクト一覧を取得する */
 export function listProjects(status?: Project['status']): Project[] {

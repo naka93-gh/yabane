@@ -1,14 +1,14 @@
 import { ipcMain } from 'electron'
-import {
-  listMembers,
-  createMember,
-  updateMember,
-  deleteMember,
-  archiveMember,
-  unarchiveMember,
-  reorderMembers
-} from '../service/member'
 import type { MemberCreateArgs, MemberUpdateArgs } from '../../shared/types/ipc'
+import {
+  archiveMember,
+  createMember,
+  deleteMember,
+  listMembers,
+  reorderMembers,
+  unarchiveMember,
+  updateMember
+} from '../service/member'
 
 /** メンバー関連の IPC ハンドラを登録する */
 export function registerMemberHandlers(): void {

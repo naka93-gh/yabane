@@ -1,12 +1,12 @@
 import { ipcMain } from 'electron'
-import {
-  listWbsItems,
-  createWbsItem,
-  updateWbsItem,
-  deleteWbsItem,
-  reorderWbsItems
-} from '../service/wbs'
 import type { WbsCreateArgs, WbsUpdateArgs } from '../../shared/types/ipc'
+import {
+  createWbsItem,
+  deleteWbsItem,
+  listWbsItems,
+  reorderWbsItems,
+  updateWbsItem
+} from '../service/wbs'
 
 /** WBS 関連の IPC ハンドラを登録する */
 export function registerWbsHandlers(): void {

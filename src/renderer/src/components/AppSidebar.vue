@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import Select from 'primevue/select'
+import { computed } from 'vue'
 import { useProjectStore } from '../stores/project'
 
 defineProps<{ activeSection: string }>()

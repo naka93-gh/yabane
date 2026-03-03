@@ -2,7 +2,7 @@
  * IPC 通信で使用する引数型の一元定義。
  * service / ipc / preload / renderer の全レイヤーからこのファイルを参照する。
  */
-import type { Project, Arrow, WbsItem, Issue } from './models'
+import type { Arrow, Issue, Project, WbsItem } from './models'
 
 // --- プロジェクト ---
 

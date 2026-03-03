@@ -1,22 +1,22 @@
-import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
 import type {
-  ProjectListArgs,
-  ProjectCreateArgs,
-  ProjectUpdateArgs,
-  PurposeSaveArgs,
-  MilestoneCreateArgs,
-  MilestoneUpdateArgs,
   ArrowCreateArgs,
   ArrowUpdateArgs,
-  WbsCreateArgs,
-  WbsUpdateArgs,
+  CsvSaveArgs,
+  ExportSaveArgs,
   IssueCreateArgs,
   IssueUpdateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
-  ExportSaveArgs,
-  CsvSaveArgs
+  MilestoneCreateArgs,
+  MilestoneUpdateArgs,
+  ProjectCreateArgs,
+  ProjectListArgs,
+  ProjectUpdateArgs,
+  PurposeSaveArgs,
+  WbsCreateArgs,
+  WbsUpdateArgs
 } from '../shared/types/ipc'
 
 /** renderer に公開する IPC ブリッジ */
@@ -88,8 +88,8 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.api = api
 }

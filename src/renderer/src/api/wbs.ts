@@ -1,5 +1,5 @@
-import type { WbsItem } from '@shared/types/models'
 import type { WbsCreateArgs, WbsUpdateArgs } from '@shared/types/ipc'
+import type { WbsItem } from '@shared/types/models'
 
 /** WBS 一覧を取得する */
 export function listWbsItems(args: { projectId: number }): Promise<WbsItem[]> {

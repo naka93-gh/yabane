@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue'
+import { readonly, ref } from 'vue'
 
 /** モジュールレベルの状態（全コンポーネントで共有） */
 const dirty = ref(false)

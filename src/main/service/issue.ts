@@ -1,6 +1,6 @@
-import { getDatabase } from '../database'
-import type { Issue } from '../../shared/types/models'
 import type { IssueCreateArgs, IssueUpdateArgs } from '../../shared/types/ipc'
+import type { Issue } from '../../shared/types/models'
+import { getDatabase } from '../database'
 
 /** 課題一覧を取得する */
 export function listIssues(projectId: number): Issue[] {

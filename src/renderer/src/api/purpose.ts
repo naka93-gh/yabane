@@ -1,5 +1,5 @@
-import type { Purpose } from '@shared/types/models'
 import type { PurposeSaveArgs } from '@shared/types/ipc'
+import type { Purpose } from '@shared/types/models'
 
 /** プロジェクトの目的を取得する */
 export function getPurpose(args: { projectId: number }): Promise<Purpose | null> {

@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import type { Arrow } from '@shared/types/models'
 import { computed } from 'vue'
-import {
-  buildAllDates,
-  buildMonthHeaders,
-  buildJunHeaders,
-  buildGridLines,
-  buildMilestoneLines,
-  calcTodayLeft,
-  calcBarStyle,
-  type GridLine
-} from '../../utils/gantt-helper'
+import { useGanttDrag } from '../../composables/useGanttDrag'
 import { useArrowStore } from '../../stores/arrow'
 import { useMilestoneStore } from '../../stores/milestone'
-import { useGanttDrag } from '../../composables/useGanttDrag'
-import type { Arrow } from '@shared/types/models'
+import {
+  buildAllDates,
+  buildGridLines,
+  buildJunHeaders,
+  buildMilestoneLines,
+  buildMonthHeaders,
+  calcBarStyle,
+  calcTodayLeft,
+  type GridLine
+} from '../../utils/gantt-helper'
 
 const store = useArrowStore()
 const milestoneStore = useMilestoneStore()
