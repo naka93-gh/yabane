@@ -22,6 +22,17 @@ CREATE TABLE IF NOT EXISTS purpose (
   updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS purpose_history (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  purpose_id   INTEGER NOT NULL REFERENCES purpose(id) ON DELETE CASCADE,
+  background   TEXT,
+  objective    TEXT,
+  scope        TEXT,
+  out_of_scope TEXT,
+  assumption   TEXT,
+  saved_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS milestone (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id  INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,

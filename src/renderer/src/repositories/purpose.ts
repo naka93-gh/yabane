@@ -1,5 +1,5 @@
 import type { PurposeSaveArgs } from '@shared/types/ipc'
-import type { Purpose } from '@shared/types/models'
+import type { Purpose, PurposeHistory } from '@shared/types/models'
 
 /** プロジェクトの目的を取得する */
 export function getPurpose(args: { projectId: number }): Promise<Purpose | null> {
@@ -9,4 +9,9 @@ export function getPurpose(args: { projectId: number }): Promise<Purpose | null>
 /** プロジェクトの目的を保存する */
 export function savePurpose(args: PurposeSaveArgs): Promise<Purpose> {
   return window.api.purpose.save(args)
+}
+
+/** 目的の変更履歴を取得する */
+export function getPurposeHistory(args: { projectId: number }): Promise<PurposeHistory[]> {
+  return window.api.purpose.history(args)
 }

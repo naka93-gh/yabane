@@ -20,6 +20,17 @@ export interface Purpose {
   updated_at: string
 }
 
+export interface PurposeHistory {
+  id: number
+  purpose_id: number
+  background: string | null
+  objective: string | null
+  scope: string | null
+  out_of_scope: string | null
+  assumption: string | null
+  saved_at: string
+}
+
 export interface Milestone {
   id: number
   project_id: number

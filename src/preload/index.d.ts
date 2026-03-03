@@ -2,6 +2,7 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   Project,
   Purpose,
+  PurposeHistory,
   Milestone,
   Arrow,
   WbsItem,
@@ -42,6 +43,7 @@ interface ProjectAPI {
 interface PurposeAPI {
   get(args: { projectId: number }): Promise<Purpose | null>
   save(args: PurposeSaveArgs): Promise<Purpose>
+  history(args: { projectId: number }): Promise<PurposeHistory[]>
 }
 
 interface MilestoneAPI {

@@ -1,4 +1,4 @@
-import type { Purpose } from '@shared/types/models'
+import type { Purpose, PurposeHistory } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import * as repository from '../repositories/purpose'
@@ -6,6 +6,7 @@ import * as repository from '../repositories/purpose'
 export const usePurposeStore = defineStore('purpose', () => {
   const purpose = ref<Purpose | null>(null)
   const loading = ref(false)
+  const history = ref<PurposeHistory[]>([])
 
   /** 目的を取得してストアに反映する */
   async function fetchPurpose(projectId: number): Promise<void> {
@@ -29,10 +30,17 @@ export const usePurposeStore = defineStore('purpose', () => {
     purpose.value = await repository.savePurpose(data)
   }
 
+  /** 変更履歴を取得する */
+  async function fetchHistory(projectId: number): Promise<void> {
+    history.value = await repository.getPurposeHistory({ projectId })
+  }
+
   return {
     purpose,
     loading,
+    history,
     fetchPurpose,
-    savePurpose
+    savePurpose,
+    fetchHistory
   }
 })

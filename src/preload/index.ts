@@ -32,7 +32,8 @@ const api = {
   },
   purpose: {
     get: (args: { projectId: number }) => ipcRenderer.invoke('purpose:get', args),
-    save: (args: PurposeSaveArgs) => ipcRenderer.invoke('purpose:save', args)
+    save: (args: PurposeSaveArgs) => ipcRenderer.invoke('purpose:save', args),
+    history: (args: { projectId: number }) => ipcRenderer.invoke('purpose:history', args)
   },
   milestone: {
     list: (args: { projectId: number }) => ipcRenderer.invoke('milestone:list', args),

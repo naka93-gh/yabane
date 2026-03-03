@@ -12,7 +12,7 @@ import ProjectManagementView from './views/management/ProjectManagementView.vue'
 import MemberView from './views/member/MemberView.vue'
 import MilestoneView from './views/milestone/MilestoneView.vue'
 import PlaceholderView from './views/PlaceholderView.vue'
-import PurposeView from './views/PurposeView.vue'
+import PurposeView from './views/purpose/PurposeView.vue'
 import ProjectSettingsView from './views/settings/ProjectSettingsView.vue'
 import WbsView from './views/wbs/WbsView.vue'
 
