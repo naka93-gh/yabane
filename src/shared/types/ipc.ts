@@ -59,6 +59,7 @@ export interface MilestoneUpdateArgs {
   description?: string
   dueDate?: string
   color?: string
+  completed?: number
 }
 
 // --- 矢羽 ---

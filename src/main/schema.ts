@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS milestone (
   description TEXT,
   due_date    TEXT,
   color       TEXT NOT NULL DEFAULT '#6366f1',
+  completed   INTEGER NOT NULL DEFAULT 0,
   sort_order  INTEGER NOT NULL DEFAULT 0,
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );

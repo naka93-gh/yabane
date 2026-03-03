@@ -43,12 +43,13 @@ export function updateMilestone(args: MilestoneUpdateArgs): Milestone | null {
   const description = args.description !== undefined ? args.description : milestone.description
   const dueDate = args.dueDate !== undefined ? args.dueDate : milestone.due_date
   const color = args.color ?? milestone.color
+  const completed = args.completed !== undefined ? args.completed : milestone.completed
 
   return db
     .prepare(
-      'UPDATE milestone SET name = ?, description = ?, due_date = ?, color = ? WHERE id = ? RETURNING *'
+      'UPDATE milestone SET name = ?, description = ?, due_date = ?, color = ?, completed = ? WHERE id = ? RETURNING *'
     )
-    .get(name, description, dueDate, color, args.id) as Milestone
+    .get(name, description, dueDate, color, completed, args.id) as Milestone
 }
 
 /** マイルストーンを削除する */

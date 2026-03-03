@@ -39,6 +39,13 @@ function migrate(db: Database.Database): void {
   if (!memberNames.has('archived')) {
     db.exec('ALTER TABLE member ADD COLUMN archived INTEGER NOT NULL DEFAULT 0')
   }
+
+  const milestoneCols = db.pragma('table_info(milestone)') as { name: string }[]
+  const milestoneNames = new Set(milestoneCols.map((c) => c.name))
+
+  if (!milestoneNames.has('completed')) {
+    db.exec('ALTER TABLE milestone ADD COLUMN completed INTEGER NOT NULL DEFAULT 0')
+  }
 }
 
 /** アプリ終了時に呼ぶ */

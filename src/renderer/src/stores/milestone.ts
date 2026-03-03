@@ -37,6 +37,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
     description?: string
     dueDate?: string
     color?: string
+    completed?: number
   }): Promise<void> {
     const updated = await repository.updateMilestone(data)
     const idx = milestones.value.findIndex((m) => m.id === data.id)
@@ -59,6 +60,13 @@ export const useMilestoneStore = defineStore('milestone', () => {
     })
   }
 
+  /** 完了状態をトグルする */
+  async function toggleCompleted(id: number): Promise<void> {
+    const m = milestones.value.find((m) => m.id === id)
+    if (!m) return
+    await editMilestone({ id, completed: m.completed ? 0 : 1 })
+  }
+
   return {
     milestones,
     loading,
@@ -66,6 +74,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
     addMilestone,
     editMilestone,
     removeMilestone,
-    reorder
+    reorder,
+    toggleCompleted
   }
 })

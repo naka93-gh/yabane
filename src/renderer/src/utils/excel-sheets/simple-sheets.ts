@@ -29,7 +29,7 @@ export function buildPurposeSheet(purpose: Purpose | null): WS {
 
 /** マイルストーンシートを構築する */
 export function buildMilestoneSheet(milestones: Milestone[]): WS {
-  const headers = ['名前', '説明', '期限', 'カラー']
+  const headers = ['名前', '説明', '期限', '完了', 'カラー']
   const ws: WS = {}
 
   headers.forEach((h, c) => {
@@ -41,7 +41,8 @@ export function buildMilestoneSheet(milestones: Milestone[]): WS {
     ws[XLSX.utils.encode_cell({ r, c: 0 })] = cell(m.name)
     ws[XLSX.utils.encode_cell({ r, c: 1 })] = cell(m.description)
     ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(m.due_date)
-    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(m.color, {
+    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(m.completed ? '○' : '')
+    ws[XLSX.utils.encode_cell({ r, c: 4 })] = cell(m.color, {
       ...CELL_STYLE,
       fill: { fgColor: { rgb: m.color.replace('#', '') } }
     })
@@ -51,7 +52,7 @@ export function buildMilestoneSheet(milestones: Milestone[]): WS {
     s: { r: 0, c: 0 },
     e: { r: milestones.length, c: headers.length - 1 }
   })
-  ws['!cols'] = [{ wch: 24 }, { wch: 40 }, { wch: 14 }, { wch: 10 }]
+  ws['!cols'] = [{ wch: 24 }, { wch: 40 }, { wch: 14 }, { wch: 6 }, { wch: 10 }]
   return ws
 }
 

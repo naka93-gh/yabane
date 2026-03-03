@@ -3,6 +3,7 @@ import type { Milestone } from '@shared/types/models'
 import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import SelectButton from 'primevue/selectbutton'
+import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
@@ -23,18 +24,23 @@ const SORT_OPTIONS = [
 ]
 
 const sortMode = ref<'manual' | 'due_date'>('manual')
+const showCompleted = ref(true)
 const milestoneDialog = ref<InstanceType<typeof MilestoneDialog> | null>(null)
 
 const sortedMilestones = computed<Milestone[]>(() => {
+  let list = store.milestones
+  if (!showCompleted.value) {
+    list = list.filter((m) => !m.completed)
+  }
   if (sortMode.value === 'due_date') {
-    return [...store.milestones].sort((a, b) => {
+    return [...list].sort((a, b) => {
       if (!a.due_date && !b.due_date) return 0
       if (!a.due_date) return 1
       if (!b.due_date) return -1
       return a.due_date.localeCompare(b.due_date)
     })
   }
-  return store.milestones
+  return list
 })
 
 function isOverdue(dateStr: string | null): boolean {
@@ -83,6 +89,10 @@ const reorder = useListReorder<Milestone>({
     <div class="view-header">
       <h2>マイルストーン</h2>
       <div class="milestone-header-actions">
+        <div class="completed-toggle">
+          <label>完了済みを表示</label>
+          <ToggleSwitch v-model="showCompleted" />
+        </div>
         <SelectButton
           v-model="sortMode"
           :options="SORT_OPTIONS"
@@ -104,18 +114,25 @@ const reorder = useListReorder<Milestone>({
         :key="m.id"
         class="milestone-card"
         :class="{
-          'milestone-card--overdue': isOverdue(m.due_date),
+          'milestone-card--overdue': isOverdue(m.due_date) && !m.completed,
+          'milestone-card--completed': !!m.completed,
           'milestone-card--drag-over':
             reorder.dropIndex.value === i && reorder.dragIndex.value !== i
         }"
-        :style="{ borderLeftColor: m.color }"
+        :style="{ borderLeftColor: m.color, cursor: sortMode === 'manual' ? 'grab' : undefined }"
         :draggable="sortMode === 'manual'"
         @dragstart="sortMode === 'manual' && reorder.onDragStart(m, i, $event)"
         @dragover="sortMode === 'manual' && reorder.onDragOver(m, i, $event)"
         @drop="sortMode === 'manual' && reorder.onDrop(m, sortedMilestones)"
         @dragend="reorder.onDragEnd"
       >
-        <i v-if="sortMode === 'manual'" class="pi pi-bars drag-handle" />
+        <button
+          class="complete-btn"
+          :title="m.completed ? '未完了に戻す' : '完了にする'"
+          @click.stop="store.toggleCompleted(m.id)"
+        >
+          <i :class="m.completed ? 'pi pi-check-circle' : 'pi pi-circle'" />
+        </button>
         <div class="card-body">
           <div class="card-main">
             <span class="card-name">{{ m.name }}</span>
@@ -156,10 +173,6 @@ const reorder = useListReorder<Milestone>({
 </template>
 
 <style scoped>
-.milestone-view {
-  /* レスポンシブ: max-width 制限なし */
-}
-
 .milestone-header-actions {
   display: flex;
   align-items: center;
@@ -180,8 +193,8 @@ const reorder = useListReorder<Milestone>({
 
 .milestone-card {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   border: 1px solid var(--p-content-border-color);
   border-left: 4px solid;
   border-radius: 8px;
@@ -190,6 +203,14 @@ const reorder = useListReorder<Milestone>({
   transition:
     background 0.15s,
     border-color 0.15s;
+}
+
+.milestone-card--completed {
+  opacity: 0.6;
+}
+
+.milestone-card--completed .card-name {
+  text-decoration: line-through;
 }
 
 .milestone-card--overdue {
@@ -201,12 +222,26 @@ const reorder = useListReorder<Milestone>({
   border-top: 2px solid var(--p-primary-color);
 }
 
-.drag-handle {
-  cursor: grab;
+.complete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.15rem;
   color: var(--p-text-muted-color);
-  padding: 4px 8px 4px 0;
   flex-shrink: 0;
-  align-self: center;
+  transition: color 0.15s;
+}
+
+.complete-btn:hover {
+  color: var(--p-primary-color);
+}
+
+.milestone-card--completed .complete-btn {
+  color: var(--p-primary-color);
 }
 
 .card-body {
@@ -250,5 +285,13 @@ const reorder = useListReorder<Milestone>({
   display: flex;
   gap: 4px;
   flex-shrink: 0;
+}
+
+.completed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color);
 }
 </style>
