@@ -4,6 +4,7 @@ import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Select from 'primevue/select'
 import SelectButton from 'primevue/selectbutton'
+import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
@@ -113,6 +114,10 @@ const filterPriority = computed({
   get: () => store.filter.priority,
   set: (v) => store.setFilter({ priority: v })
 })
+const filterOwner = computed({
+  get: () => store.filter.owner,
+  set: (v) => store.setFilter({ owner: v })
+})
 </script>
 
 <template>
@@ -121,7 +126,7 @@ const filterPriority = computed({
       <h2>課題</h2>
       <div class="issue-header-actions">
         <Button
-          v-if="store.filter.status !== null || store.filter.priority !== null"
+          v-if="store.filter.status !== null || store.filter.priority !== null || store.filter.owner !== null"
           label="フィルタ解除"
           text
           size="small"
@@ -149,6 +154,18 @@ const filterPriority = computed({
         placeholder="優先度"
         class="filter-select"
       />
+      <Select
+        v-model="filterOwner"
+        :options="store.ownerOptions"
+        option-label="label"
+        option-value="value"
+        placeholder="担当者"
+        class="filter-select"
+      />
+      <div class="closed-toggle">
+        <label>完了済みを表示</label>
+        <ToggleSwitch v-model="store.showClosed" />
+      </div>
       <SelectButton
         v-model="sortMode"
         :options="SORT_OPTIONS"
@@ -269,6 +286,15 @@ const filterPriority = computed({
 
 .filter-select {
   width: 160px;
+}
+
+.closed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color);
+  white-space: nowrap;
 }
 
 .sort-select {

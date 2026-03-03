@@ -6,23 +6,38 @@ import * as repository from '../repositories/issue'
 interface IssueFilter {
   status: string | null
   priority: string | null
+  owner: string | null
 }
 
 export const useIssueStore = defineStore('issue', () => {
   const issues = ref<Issue[]>([])
   const loading = ref(false)
-  const filter = ref<IssueFilter>({ status: null, priority: null })
+  const filter = ref<IssueFilter>({ status: null, priority: null, owner: null })
+  const showClosed = ref(true)
 
   /** フィルタ後の課題一覧 */
   const filteredIssues = computed(() => {
     let result = issues.value
+    if (!showClosed.value) {
+      result = result.filter((i) => i.status !== 'resolved' && i.status !== 'closed')
+    }
     if (filter.value.status !== null) {
       result = result.filter((i) => i.status === filter.value.status)
     }
     if (filter.value.priority !== null) {
       result = result.filter((i) => i.priority === filter.value.priority)
     }
+    if (filter.value.owner !== null) {
+      result = result.filter((i) => i.owner === filter.value.owner)
+    }
     return result
+  })
+
+  /** 担当者の選択肢一覧（重複排除） */
+  const ownerOptions = computed(() => {
+    const owners = [...new Set(issues.value.map((i) => i.owner).filter(Boolean))] as string[]
+    owners.sort()
+    return [{ label: 'すべて', value: null }, ...owners.map((o) => ({ label: o, value: o }))]
   })
 
   /** 課題一覧を取得する */
@@ -77,18 +92,21 @@ export const useIssueStore = defineStore('issue', () => {
   function setFilter(f: Partial<IssueFilter>): void {
     if (f.status !== undefined) filter.value.status = f.status
     if (f.priority !== undefined) filter.value.priority = f.priority
+    if (f.owner !== undefined) filter.value.owner = f.owner
   }
 
   /** フィルタ条件を全てリセットする */
   function clearFilter(): void {
-    filter.value = { status: null, priority: null }
+    filter.value = { status: null, priority: null, owner: null }
   }
 
   return {
     issues,
     loading,
     filter,
+    showClosed,
     filteredIssues,
+    ownerOptions,
     fetchIssues,
     addIssue,
     editIssue,
