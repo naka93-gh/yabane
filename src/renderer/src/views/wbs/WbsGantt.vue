@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { WbsTreeRow } from '../../stores/wbs'
+import { TASK_STATUS_LABELS } from '../../utils/constants'
 import {
   buildAllDates,
-  buildMonthHeaders,
   buildMonthBoundaries,
+  buildMonthHeaders,
   calcBarStyle
 } from '../../utils/gantt-helper'
-import { TASK_STATUS_LABELS } from '../../utils/constants'
 
 const props = defineProps<{
   rows: WbsTreeRow[]
@@ -102,6 +102,10 @@ function barTooltip(row: WbsTreeRow): string {
             v-for="row in rows"
             :key="row.key"
             class="gantt-row"
+            :class="{
+              'gantt-row--parent': row.type === 'parent',
+              'gantt-row--child': row.type === 'child'
+            }"
             :style="{ height: `${ROW_HEIGHT}px` }"
           >
             <div
@@ -204,6 +208,14 @@ function barTooltip(row: WbsTreeRow): string {
 .gantt-row {
   position: relative;
   border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.gantt-row--parent {
+  background: var(--p-content-hover-background);
+}
+
+.gantt-row--child {
+  background: color-mix(in srgb, var(--p-content-hover-background) 50%, transparent);
 }
 
 .gantt-bar {

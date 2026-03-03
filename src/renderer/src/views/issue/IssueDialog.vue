@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import type { Issue } from '@shared/types/models'
+import AutoComplete from 'primevue/autocomplete'
+import Button from 'primevue/button'
+import DatePicker from 'primevue/datepicker'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import AutoComplete from 'primevue/autocomplete'
-import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
-import Button from 'primevue/button'
-import { formatDate } from '../../utils/date-helper'
-import { useProjectStore } from '../../stores/project'
-import { useIssueStore } from '../../stores/issue'
+import Textarea from 'primevue/textarea'
+import { computed, ref } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useOwnerSuggestions } from '../../composables/useOwnerSuggestions'
+import { useIssueStore } from '../../stores/issue'
+import { useProjectStore } from '../../stores/project'
 import { ISSUE_STATUS_OPTIONS, PRIORITY_OPTIONS } from '../../utils/constants'
-import type { Issue } from '@shared/types/models'
+import { formatDate } from '../../utils/date-helper'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()

@@ -1,5 +1,5 @@
-import type { Member } from '@shared/types/models'
 import type { MemberCreateArgs } from '@shared/types/ipc'
+import type { Member } from '@shared/types/models'
 
 const HEADERS = ['組織', '名前', '役割', 'メール', '備考']
 
@@ -19,7 +19,7 @@ export function buildMemberCsv(members: Member[]): string {
       .map(escapeField)
       .join(',')
   )
-  return '\uFEFF' + [header, ...rows].join('\r\n') + '\r\n'
+  return `\uFEFF${[header, ...rows].join('\r\n')}\r\n`
 }
 
 /** RFC 4180 準拠で CSV 行をフィールドに分割する */

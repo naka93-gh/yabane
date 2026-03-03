@@ -1,6 +1,6 @@
-import { app } from 'electron'
-import { join } from 'path'
+import { join } from 'node:path'
 import Database from 'better-sqlite3'
+import { app } from 'electron'
 import { SCHEMA_SQL } from './schema'
 
 let db: Database.Database | null = null

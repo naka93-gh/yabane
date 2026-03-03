@@ -1,17 +1,17 @@
-import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { join } from 'node:path'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
-import { getDatabase, closeDatabase } from './database'
-import { registerProjectHandlers } from './ipc/project'
-import { registerPurposeHandlers } from './ipc/purpose'
-import { registerMilestoneHandlers } from './ipc/milestone'
+import { closeDatabase, getDatabase } from './database'
 import { registerArrowHandlers } from './ipc/arrow'
-import { registerWbsHandlers } from './ipc/wbs'
-import { registerIssueHandlers } from './ipc/issue'
-import { registerMemberHandlers } from './ipc/member'
 import { registerExportHandlers } from './ipc/export'
 import { registerImportHandlers } from './ipc/import'
+import { registerIssueHandlers } from './ipc/issue'
+import { registerMemberHandlers } from './ipc/member'
+import { registerMilestoneHandlers } from './ipc/milestone'
+import { registerProjectHandlers } from './ipc/project'
+import { registerPurposeHandlers } from './ipc/purpose'
+import { registerWbsHandlers } from './ipc/wbs'
 
 /** メインウィンドウを作成する */
 function createWindow(): void {
@@ -36,8 +36,8 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }

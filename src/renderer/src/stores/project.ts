@@ -1,7 +1,7 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import type { Project } from '@shared/types/models'
 import type { ProjectCreateArgs } from '@shared/types/ipc'
+import type { Project } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import * as api from '../api/project'
 import { useMemberStore } from './member'
 

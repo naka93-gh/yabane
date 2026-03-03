@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import Button from 'primevue/button'
-import Select from 'primevue/select'
-import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
-import { useProjectStore } from '../../stores/project'
-import { useArrowStore } from '../../stores/arrow'
-import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useListReorder } from '../../composables/useListReorder'
+import { useArrowStore } from '../../stores/arrow'
+import { useProjectStore } from '../../stores/project'
+import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
+import { TASK_STATUS_LABELS, TASK_STATUS_OPTIONS } from '../../utils/constants'
+import type WbsDialog from './WbsDialog.vue'
 import WbsGantt from './WbsGantt.vue'
-import WbsDialog from './WbsDialog.vue'
-import { TASK_STATUS_OPTIONS, TASK_STATUS_LABELS } from '../../utils/constants'
 
 const projectStore = useProjectStore()
 const arrowStore = useArrowStore()
@@ -171,7 +168,11 @@ const filterOwner = computed({
             v-for="(row, i) in store.tree"
             :key="row.key"
             class="left-row"
-            :class="{ 'left-row--drag-over': reorder.dropIndex.value === i }"
+            :class="{
+              'left-row--drag-over': reorder.dropIndex.value === i,
+              'left-row--parent': row.type === 'parent',
+              'left-row--child': row.type === 'child'
+            }"
             :style="{ height: `${ROW_HEIGHT}px` }"
             :draggable="row.type === 'task'"
             @dragstart="reorder.onDragStart(row, i, $event)"
@@ -384,6 +385,15 @@ const filterOwner = computed({
   cursor: grab;
   color: var(--p-text-muted-color);
   font-size: 0.7rem;
+}
+
+.left-row--parent {
+  background: var(--p-content-hover-background);
+  font-weight: 600;
+}
+
+.left-row--child {
+  background: color-mix(in srgb, var(--p-content-hover-background) 50%, transparent);
 }
 
 .left-row--drag-over {

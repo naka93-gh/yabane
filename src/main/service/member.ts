@@ -1,7 +1,7 @@
-import { getDatabase } from '../database'
-import type { Member } from '../../shared/types/models'
 import type { MemberCreateArgs, MemberUpdateArgs } from '../../shared/types/ipc'
-import { reorderRows, nextSortOrder } from './common'
+import type { Member } from '../../shared/types/models'
+import { getDatabase } from '../database'
+import { nextSortOrder, reorderRows } from './common'
 
 /** メンバー一覧を取得する */
 export function listMembers(projectId: number, archived?: number): Member[] {
@@ -61,17 +61,17 @@ export function deleteMember(id: number): Member | undefined {
 /** メンバーをアーカイブする */
 export function archiveMember(id: number): Member | undefined {
   const db = getDatabase()
-  return db
-    .prepare('UPDATE member SET archived = 1 WHERE id = ? RETURNING *')
-    .get(id) as Member | undefined
+  return db.prepare('UPDATE member SET archived = 1 WHERE id = ? RETURNING *').get(id) as
+    | Member
+    | undefined
 }
 
 /** メンバーのアーカイブを解除する */
 export function unarchiveMember(id: number): Member | undefined {
   const db = getDatabase()
-  return db
-    .prepare('UPDATE member SET archived = 0 WHERE id = ? RETURNING *')
-    .get(id) as Member | undefined
+  return db.prepare('UPDATE member SET archived = 0 WHERE id = ? RETURNING *').get(id) as
+    | Member
+    | undefined
 }
 
 /** メンバーの並び順を更新する */

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import Button from 'primevue/button'
+import { computed } from 'vue'
 import { useProjectStore } from '../stores/project'
-import { useThemeStore } from '../stores/theme'
 import type { ThemeMode } from '../stores/theme'
+import { useThemeStore } from '../stores/theme'
 
 const store = useProjectStore()
 const themeStore = useThemeStore()

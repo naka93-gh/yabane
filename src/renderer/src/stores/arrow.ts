@@ -1,9 +1,9 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
 import type { Arrow } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import * as api from '../api/arrow'
-import { useProjectStore } from './project'
 import { calcDateRange } from '../utils/gantt-helper'
+import { useProjectStore } from './project'
 
 export interface ArrowNode {
   arrow: Arrow

@@ -1,12 +1,12 @@
 import { ipcMain } from 'electron'
-import {
-  listMilestones,
-  createMilestone,
-  updateMilestone,
-  deleteMilestone,
-  reorderMilestones
-} from '../service/milestone'
 import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '../../shared/types/ipc'
+import {
+  createMilestone,
+  deleteMilestone,
+  listMilestones,
+  reorderMilestones,
+  updateMilestone
+} from '../service/milestone'
 
 /** マイルストーン関連の IPC ハンドラを登録する */
 export function registerMilestoneHandlers(): void {

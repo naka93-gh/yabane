@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import type { Issue } from '@shared/types/models'
 import Button from 'primevue/button'
+import ConfirmDialog from 'primevue/confirmdialog'
 import Select from 'primevue/select'
 import SelectButton from 'primevue/selectbutton'
-import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
-import { useProjectStore } from '../../stores/project'
-import { useIssueStore } from '../../stores/issue'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
-import { formatDisplayDate } from '../../utils/date-helper'
+import { useIssueStore } from '../../stores/issue'
+import { useProjectStore } from '../../stores/project'
 import {
-  ISSUE_STATUS_OPTIONS,
   ISSUE_STATUS_LABELS,
-  PRIORITY_OPTIONS,
-  PRIORITY_LABELS
+  ISSUE_STATUS_OPTIONS,
+  PRIORITY_LABELS,
+  PRIORITY_OPTIONS
 } from '../../utils/constants'
-import type { Issue } from '@shared/types/models'
-import IssueDialog from './IssueDialog.vue'
+import { formatDisplayDate } from '../../utils/date-helper'
+import type IssueDialog from './IssueDialog.vue'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()

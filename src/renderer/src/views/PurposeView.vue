@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
-import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
-import { useProjectStore } from '../stores/project'
-import { usePurposeStore } from '../stores/purpose'
+import Textarea from 'primevue/textarea'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useAppToast } from '../composables/useAppToast'
 import { useNavigationGuard } from '../composables/useNavigationGuard'
+import { useProjectStore } from '../stores/project'
+import { usePurposeStore } from '../stores/purpose'
 
 const projectStore = useProjectStore()
 const purposeStore = usePurposeStore()

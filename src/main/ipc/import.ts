@@ -1,5 +1,5 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron'
-import { readFileSync } from 'fs'
+import { readFileSync } from 'node:fs'
+import { BrowserWindow, dialog, ipcMain } from 'electron'
 import type { CsvOpenResult } from '../../shared/types/ipc'
 
 /** インポート関連の IPC ハンドラを登録する */

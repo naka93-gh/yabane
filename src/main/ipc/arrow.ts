@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
-import { listArrows, createArrow, updateArrow, deleteArrow, reorderArrows } from '../service/arrow'
 import type { ArrowCreateArgs, ArrowUpdateArgs } from '../../shared/types/ipc'
+import { createArrow, deleteArrow, listArrows, reorderArrows, updateArrow } from '../service/arrow'
 
 /** 矢羽関連の IPC ハンドラを登録する */
 export function registerArrowHandlers(): void {

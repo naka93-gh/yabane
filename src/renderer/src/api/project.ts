@@ -1,10 +1,10 @@
-import type { Project } from '@shared/types/models'
 import type {
-  ProjectListArgs,
   ProjectCreateArgs,
-  ProjectUpdateArgs,
-  ProjectSummary
+  ProjectListArgs,
+  ProjectSummary,
+  ProjectUpdateArgs
 } from '@shared/types/ipc'
+import type { Project } from '@shared/types/models'
 
 /** プロジェクト一覧を取得する */
 export function listProjects(args?: ProjectListArgs): Promise<Project[]> {

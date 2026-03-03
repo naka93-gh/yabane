@@ -1,7 +1,7 @@
-import { getDatabase } from '../database'
-import type { Arrow } from '../../shared/types/models'
 import type { ArrowCreateArgs, ArrowUpdateArgs } from '../../shared/types/ipc'
-import { reorderRows, nextSortOrder } from './common'
+import type { Arrow } from '../../shared/types/models'
+import { getDatabase } from '../database'
+import { nextSortOrder, reorderRows } from './common'
 
 /** 矢羽一覧を取得する */
 export function listArrows(projectId: number): Arrow[] {

@@ -1,7 +1,7 @@
-import { getDatabase } from '../database'
-import type { Milestone } from '../../shared/types/models'
 import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '../../shared/types/ipc'
-import { reorderRows, nextSortOrder } from './common'
+import type { Milestone } from '../../shared/types/models'
+import { getDatabase } from '../database'
+import { nextSortOrder, reorderRows } from './common'
 
 /** マイルストーン一覧を取得する */
 export function listMilestones(projectId: number): Milestone[] {

@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
-import { getPurpose, savePurpose } from '../service/purpose'
 import type { PurposeSaveArgs } from '../../shared/types/ipc'
+import { getPurpose, savePurpose } from '../service/purpose'
 
 /** 目的関連の IPC ハンドラを登録する */
 export function registerPurposeHandlers(): void {

@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
-import { listIssues, createIssue, updateIssue, deleteIssue } from '../service/issue'
 import type { IssueCreateArgs, IssueUpdateArgs } from '../../shared/types/ipc'
+import { createIssue, deleteIssue, listIssues, updateIssue } from '../service/issue'
 
 /** 課題関連の IPC ハンドラを登録する */
 export function registerIssueHandlers(): void {

@@ -1,10 +1,10 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
 import type { Arrow, WbsItem } from '@shared/types/models'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import * as api from '../api/wbs'
+import { calcDateRange } from '../utils/gantt-helper'
 import { useArrowStore } from './arrow'
 import { useProjectStore } from './project'
-import { calcDateRange } from '../utils/gantt-helper'
 
 export interface WbsTreeRow {
   type: 'parent' | 'child' | 'task'
@@ -76,7 +76,7 @@ export const useWbsStore = defineStore('wbs', () => {
     for (const a of arrows) {
       if (a.parent_id !== null) {
         if (!childrenMap.has(a.parent_id)) childrenMap.set(a.parent_id, [])
-        childrenMap.get(a.parent_id)!.push(a)
+        childrenMap.get(a.parent_id)?.push(a)
       }
     }
     for (const children of childrenMap.values()) {
@@ -87,7 +87,7 @@ export const useWbsStore = defineStore('wbs', () => {
     const taskMap = new Map<number, WbsItem[]>()
     for (const t of taskItems) {
       if (!taskMap.has(t.arrow_id)) taskMap.set(t.arrow_id, [])
-      taskMap.get(t.arrow_id)!.push(t)
+      taskMap.get(t.arrow_id)?.push(t)
     }
     for (const tasks of taskMap.values()) {
       tasks.sort((a, b) => a.sort_order - b.sort_order || a.id - b.id)
@@ -109,72 +109,57 @@ export const useWbsStore = defineStore('wbs', () => {
         if (!hasActiveChild) continue
       }
 
-      let isFirstParentRow = true
+      // 親矢羽行
+      rows.push({
+        type: 'parent',
+        parentArrow: parent,
+        childArrow: null,
+        task: null,
+        key: `parent-${parent.id}`,
+        startDate: parent.start_date,
+        endDate: parent.end_date,
+        status: parent.status,
+        owner: parent.owner,
+        name: parent.name,
+        showParentName: true,
+        showChildName: false
+      })
 
       for (const child of children) {
         // フィルタ時: タスクがない子矢羽をスキップ
         if (activeArrowIds && !activeArrowIds.has(child.id)) continue
 
-        const tasks = taskMap.get(child.id) ?? []
-        let isFirstChildRow = true
+        // 子矢羽行（常に表示）
+        rows.push({
+          type: 'child',
+          parentArrow: parent,
+          childArrow: child,
+          task: null,
+          key: `child-${child.id}`,
+          startDate: child.start_date,
+          endDate: child.end_date,
+          status: child.status,
+          owner: child.owner,
+          name: child.name,
+          showParentName: false,
+          showChildName: true
+        })
 
-        if (tasks.length === 0) {
-          // タスクなしでも子矢羽行は表示（追加ボタン用）
+        // タスク行
+        const tasks = taskMap.get(child.id) ?? []
+        for (const task of tasks) {
           rows.push({
-            type: 'child',
+            type: 'task',
             parentArrow: parent,
             childArrow: child,
-            task: null,
-            key: `child-${child.id}`,
-            startDate: child.start_date,
-            endDate: child.end_date,
-            status: child.status,
-            owner: child.owner,
-            name: child.name,
-            showParentName: isFirstParentRow,
-            showChildName: true
-          })
-          isFirstParentRow = false
-        } else {
-          for (const task of tasks) {
-            rows.push({
-              type: 'task',
-              parentArrow: parent,
-              childArrow: child,
-              task,
-              key: `task-${task.id}`,
-              startDate: task.start_date,
-              endDate: task.end_date,
-              status: task.status,
-              owner: task.owner,
-              name: task.name,
-              showParentName: isFirstParentRow,
-              showChildName: isFirstChildRow
-            })
-            isFirstParentRow = false
-            isFirstChildRow = false
-          }
-        }
-      }
-
-      // 子矢羽がない親矢羽も表示
-      if (
-        children.length === 0 ||
-        (activeArrowIds && !rows.some((r) => r.parentArrow?.id === parent.id))
-      ) {
-        if (!activeArrowIds) {
-          rows.push({
-            type: 'parent',
-            parentArrow: parent,
-            childArrow: null,
-            task: null,
-            key: `parent-${parent.id}`,
-            startDate: parent.start_date,
-            endDate: parent.end_date,
-            status: parent.status,
-            owner: parent.owner,
-            name: parent.name,
-            showParentName: true,
+            task,
+            key: `task-${task.id}`,
+            startDate: task.start_date,
+            endDate: task.end_date,
+            status: task.status,
+            owner: task.owner,
+            name: task.name,
+            showParentName: false,
             showChildName: false
           })
         }

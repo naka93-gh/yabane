@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
+import type { Member } from '@shared/types/models'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
-import type { Member } from '@shared/types/models'
-import { useMemberStore } from '../../stores/member'
+import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
+import { useMemberStore } from '../../stores/member'
 import { validateEmail } from '../../utils/validators'
 
 const visible = defineModel<boolean>('visible', { default: false })

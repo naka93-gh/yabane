@@ -1,5 +1,5 @@
-import type { Arrow } from '@shared/types/models'
 import type { ArrowCreateArgs, ArrowUpdateArgs } from '@shared/types/ipc'
+import type { Arrow } from '@shared/types/models'
 
 /** 矢羽一覧を取得する */
 export function listArrows(args: { projectId: number }): Promise<Arrow[]> {

@@ -1,5 +1,5 @@
-import type { Milestone } from '@shared/types/models'
 import type { MilestoneCreateArgs, MilestoneUpdateArgs } from '@shared/types/ipc'
+import type { Milestone } from '@shared/types/models'
 
 /** マイルストーン一覧を取得する */
 export function listMilestones(args: { projectId: number }): Promise<Milestone[]> {

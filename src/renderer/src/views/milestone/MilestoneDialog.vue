@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import type { Milestone } from '@shared/types/models'
+import Button from 'primevue/button'
+import DatePicker from 'primevue/datepicker'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
-import DatePicker from 'primevue/datepicker'
-import Button from 'primevue/button'
-import { formatDate } from '../../utils/date-helper'
-import { useProjectStore } from '../../stores/project'
-import { useMilestoneStore } from '../../stores/milestone'
+import { computed, ref } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
-import type { Milestone } from '@shared/types/models'
+import { useMilestoneStore } from '../../stores/milestone'
+import { useProjectStore } from '../../stores/project'
+import { formatDate } from '../../utils/date-helper'
 
 const PRESET_COLORS = [
   { name: 'red', value: '#ef4444' },

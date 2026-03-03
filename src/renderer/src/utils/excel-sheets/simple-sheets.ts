@@ -1,7 +1,7 @@
+import type { Issue, Member, Milestone, Purpose } from '@shared/types/models'
 import XLSX from 'xlsx-js-style'
-import type { Purpose, Milestone, Issue, Member } from '@shared/types/models'
 import { ISSUE_STATUS_LABELS, PRIORITY_LABELS } from '../constants'
-import { headerCell, labelCell, cell, CELL_STYLE } from '../excel-style'
+import { CELL_STYLE, cell, headerCell, labelCell } from '../excel-style'
 
 type WS = XLSX.WorkSheet
 
