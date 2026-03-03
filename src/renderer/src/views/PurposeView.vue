@@ -103,7 +103,7 @@ const fields = [
 
 <template>
   <div class="purpose-view">
-    <div class="purpose-header">
+    <div class="view-header">
       <h2>目的</h2>
       <Button
         label="保存"
@@ -131,17 +131,6 @@ const fields = [
 <style scoped>
 .purpose-view {
   height: 100%;
-}
-
-.purpose-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.purpose-header h2 {
-  margin: 0;
 }
 
 .field-section {

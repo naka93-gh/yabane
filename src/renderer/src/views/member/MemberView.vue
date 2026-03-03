@@ -131,7 +131,9 @@ function handleDelete(member: Member): void {
 
 <template>
   <div class="member-view">
-    <h2>関係者</h2>
+    <div class="view-header">
+      <h2>関係者</h2>
+    </div>
     <div v-if="!projectStore.currentProject" class="no-project">プロジェクトを選択してください</div>
     <template v-else>
       <div class="add-form">
@@ -237,9 +239,6 @@ function handleDelete(member: Member): void {
   flex-direction: column;
 }
 
-.member-view h2 {
-  margin: 0 0 12px;
-}
 
 .no-project {
   padding: 24px;

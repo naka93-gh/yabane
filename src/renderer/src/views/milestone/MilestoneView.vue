@@ -80,7 +80,7 @@ const reorder = useListReorder<Milestone>({
 
 <template>
   <div class="milestone-view">
-    <div class="milestone-header">
+    <div class="view-header">
       <h2>マイルストーン</h2>
       <div class="milestone-header-actions">
         <SelectButton
@@ -158,17 +158,6 @@ const reorder = useListReorder<Milestone>({
 <style scoped>
 .milestone-view {
   /* レスポンシブ: max-width 制限なし */
-}
-
-.milestone-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.milestone-header h2 {
-  margin: 0;
 }
 
 .milestone-header-actions {

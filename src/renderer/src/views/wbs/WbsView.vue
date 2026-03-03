@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Button from 'primevue/button'
+import ConfirmDialog from 'primevue/confirmdialog'
+import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
@@ -93,7 +96,7 @@ const filterOwner = computed({
 
 <template>
   <div class="wbs-view">
-    <div class="wbs-header">
+    <div class="view-header">
       <h2>WBS</h2>
       <div class="wbs-header-actions">
         <Button
@@ -249,18 +252,6 @@ const filterOwner = computed({
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.wbs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  flex-shrink: 0;
-}
-
-.wbs-header h2 {
-  margin: 0;
 }
 
 .wbs-header-actions {

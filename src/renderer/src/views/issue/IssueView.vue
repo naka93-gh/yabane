@@ -111,7 +111,7 @@ const filterPriority = computed({
 
 <template>
   <div class="issue-view">
-    <div class="issue-header">
+    <div class="view-header">
       <h2>課題</h2>
       <div class="issue-header-actions">
         <Button
@@ -235,18 +235,6 @@ const filterPriority = computed({
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.issue-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  flex-shrink: 0;
-}
-
-.issue-header h2 {
-  margin: 0;
 }
 
 .issue-header-actions {

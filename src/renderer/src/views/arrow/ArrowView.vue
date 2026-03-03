@@ -76,7 +76,7 @@ function confirmDelete(a: Arrow): void {
 
 <template>
   <div class="arrow-view">
-    <div class="arrow-header">
+    <div class="view-header">
       <h2>矢羽</h2>
       <div class="arrow-header-actions">
         <ToggleButton
@@ -196,18 +196,6 @@ function confirmDelete(a: Arrow): void {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.arrow-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex-shrink: 0;
-}
-
-.arrow-header h2 {
-  margin: 0;
 }
 
 .empty-state {

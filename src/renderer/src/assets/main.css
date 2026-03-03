@@ -22,6 +22,20 @@ body {
   height: 100%;
 }
 
+/* === 画面共通ヘッダー === */
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 37px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.view-header h2 {
+  margin: 0;
+}
+
 /* === 共通バッジ === */
 .status-badge,
 .priority-badge {

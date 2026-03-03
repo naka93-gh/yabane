@@ -130,7 +130,7 @@ async function handleSave(): Promise<void> {
 
 <template>
   <div class="settings-view">
-    <div class="settings-header">
+    <div class="view-header">
       <h2>プロジェクト設定</h2>
       <Button
         label="保存"
@@ -206,17 +206,6 @@ async function handleSave(): Promise<void> {
 <style scoped>
 .settings-view {
   height: 100%;
-}
-
-.settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.settings-header h2 {
-  margin: 0;
 }
 
 /* サマリカード */
