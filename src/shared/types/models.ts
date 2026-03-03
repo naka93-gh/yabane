@@ -106,3 +106,12 @@ export interface IssueComment {
   body: string
   created_at: string
 }
+
+export interface IssueTag {
+  id: number
+  project_id: number
+  name: string
+  color: string
+  sort_order: number
+  created_at: string
+}

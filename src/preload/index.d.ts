@@ -8,6 +8,7 @@ import type {
   WbsItem,
   Issue,
   IssueComment,
+  IssueTag,
   Member
 } from '../shared/types/models'
 import type {
@@ -25,6 +26,9 @@ import type {
   IssueCreateArgs,
   IssueUpdateArgs,
   IssueCommentCreateArgs,
+  IssueTagCreateArgs,
+  IssueTagSyncArgs,
+  IssueTagUpdateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
   ExportSaveArgs,
@@ -85,6 +89,15 @@ interface IssueCommentAPI {
   delete(args: { id: number }): Promise<IssueComment>
 }
 
+interface IssueTagAPI {
+  list(args: { projectId: number }): Promise<IssueTag[]>
+  create(args: IssueTagCreateArgs): Promise<IssueTag>
+  update(args: IssueTagUpdateArgs): Promise<IssueTag>
+  delete(args: { id: number }): Promise<IssueTag>
+  listMap(args: { projectId: number }): Promise<{ issue_id: number; tag_id: number }[]>
+  syncMap(args: IssueTagSyncArgs): Promise<void>
+}
+
 interface MemberAPI {
   list(args: { projectId: number; archived?: number }): Promise<Member[]>
   create(args: MemberCreateArgs): Promise<Member>
@@ -112,6 +125,7 @@ interface Api {
   wbs: WbsItemAPI
   issue: IssueAPI
   issueComment: IssueCommentAPI
+  issueTag: IssueTagAPI
   member: MemberAPI
   export: ExportAPI
   import: ImportAPI

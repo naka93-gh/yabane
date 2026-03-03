@@ -9,20 +9,8 @@ import { computed, ref } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useMilestoneStore } from '../../stores/milestone'
 import { useProjectStore } from '../../stores/project'
+import { PRESET_COLORS } from '../../utils/constants'
 import { formatDate } from '../../utils/date-helper'
-
-const PRESET_COLORS = [
-  { name: 'red', value: '#ef4444' },
-  { name: 'orange', value: '#f97316' },
-  { name: 'yellow', value: '#eab308' },
-  { name: 'green', value: '#22c55e' },
-  { name: 'cyan', value: '#06b6d4' },
-  { name: 'blue', value: '#3b82f6' },
-  { name: 'indigo', value: '#6366f1' },
-  { name: 'purple', value: '#a855f7' },
-  { name: 'pink', value: '#ec4899' },
-  { name: 'gray', value: '#6b7280' }
-]
 
 const projectStore = useProjectStore()
 const store = useMilestoneStore()

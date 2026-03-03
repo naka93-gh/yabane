@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Issue } from '@shared/types/models'
+import type { Issue, IssueTag } from '@shared/types/models'
 import AutoComplete from 'primevue/autocomplete'
 import Button from 'primevue/button'
 import DatePicker from 'primevue/datepicker'
@@ -11,12 +11,14 @@ import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useOwnerSuggestions } from '../../composables/useOwnerSuggestions'
 import { useIssueStore } from '../../stores/issue'
+import { useIssueTagStore } from '../../stores/issue-tag'
 import { useProjectStore } from '../../stores/project'
 import { ISSUE_STATUS_OPTIONS, PRIORITY_OPTIONS } from '../../utils/constants'
 import { formatDate } from '../../utils/date-helper'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
+const tagStore = useIssueTagStore()
 const toast = useAppToast()
 const { suggestions, search } = useOwnerSuggestions()
 
@@ -30,6 +32,56 @@ const formStatus = ref<Issue['status']>('open')
 const formDueDate = ref<Date | null>(null)
 const formResolvedAt = ref<Date | null>(null)
 const formResolution = ref('')
+const formSelectedTags = ref<IssueTag[]>([])
+const tagInput = ref('')
+const tagSuggestions = ref<(IssueTag | { id: -1; name: string; color: string; _create: true })[]>(
+  []
+)
+
+function searchTags(event: { query: string }): void {
+  const query = event.query.toLowerCase().trim()
+  const filtered = tagStore.tags.filter(
+    (t) =>
+      t.name.toLowerCase().includes(query) && !formSelectedTags.value.some((s) => s.id === t.id)
+  )
+  if (
+    query &&
+    !tagStore.tags.some((t) => t.name.toLowerCase() === query) &&
+    !formSelectedTags.value.some((s) => s.name.toLowerCase() === query)
+  ) {
+    tagSuggestions.value = [
+      ...filtered,
+      {
+        id: -1,
+        name: `「${query}」を新規作成`,
+        color: '#6366f1',
+        _create: true,
+        _rawName: query
+      } as never
+    ]
+  } else {
+    tagSuggestions.value = filtered
+  }
+}
+
+async function onTagSelect(event: {
+  value: IssueTag | { _create: true; _rawName: string }
+}): Promise<void> {
+  const item = event.value as { _create?: true; _rawName?: string; id?: number } & IssueTag
+  if (item._create && item._rawName) {
+    const projectId = projectStore.currentProject?.id
+    if (!projectId) return
+    const created = await tagStore.addTag({ projectId, name: item._rawName })
+    formSelectedTags.value.push(created)
+  } else if (item.id && item.id > 0) {
+    formSelectedTags.value.push(item as IssueTag)
+  }
+  tagInput.value = ''
+}
+
+function removeSelectedTag(tagId: number): void {
+  formSelectedTags.value = formSelectedTags.value.filter((t) => t.id !== tagId)
+}
 
 const dialogTitle = computed(() => (editingId.value ? '課題を編集' : '課題を追加'))
 const isResolved = computed(() => formStatus.value === 'resolved' || formStatus.value === 'closed')
@@ -48,6 +100,7 @@ function openCreate(): void {
   formDueDate.value = null
   formResolvedAt.value = null
   formResolution.value = ''
+  formSelectedTags.value = []
   dialogVisible.value = true
 }
 
@@ -61,6 +114,7 @@ function openEdit(issue: Issue): void {
   formDueDate.value = issue.due_date ? new Date(issue.due_date) : null
   formResolvedAt.value = issue.resolved_at ? new Date(issue.resolved_at) : null
   formResolution.value = issue.resolution ?? ''
+  formSelectedTags.value = [...tagStore.getTagsByIssueId(issue.id)]
   dialogVisible.value = true
 }
 
@@ -75,6 +129,7 @@ async function save(): Promise<void> {
   const isEdit = !!editingId.value
 
   try {
+    let issueId: number
     if (editingId.value) {
       await store.editIssue({
         id: editingId.value,
@@ -87,8 +142,9 @@ async function save(): Promise<void> {
         resolvedAt,
         resolution: formResolution.value || undefined
       })
+      issueId = editingId.value
     } else {
-      await store.addIssue({
+      const created = await store.addIssue({
         projectId,
         title: formTitle.value.trim(),
         description: formDescription.value || undefined,
@@ -97,7 +153,12 @@ async function save(): Promise<void> {
         status: formStatus.value,
         dueDate
       })
+      issueId = created.id
     }
+    await tagStore.syncIssueTags(
+      issueId,
+      formSelectedTags.value.map((t) => t.id)
+    )
     dialogVisible.value = false
     toast.success(isEdit ? '更新しました' : '作成しました')
     emit('saved')
@@ -174,6 +235,39 @@ defineExpose({ openCreate, openEdit })
           />
         </div>
       </div>
+      <div class="field">
+        <label>タグ</label>
+        <AutoComplete
+          v-model="tagInput"
+          :suggestions="tagSuggestions"
+          option-label="name"
+          dropdown
+          placeholder="タグを選択"
+          fluid
+          @complete="searchTags"
+          @item-select="onTagSelect"
+        >
+          <template #option="{ option }">
+            <span
+              class="tag-badge-option"
+              :style="{ backgroundColor: option.color }"
+            />
+            <span>{{ option._create ? option.name : `#${option.name}` }}</span>
+          </template>
+        </AutoComplete>
+        <div v-if="formSelectedTags.length > 0" class="selected-tags">
+          <span
+            v-for="tag in formSelectedTags"
+            :key="tag.id"
+            class="selected-tag"
+            :style="{ color: tag.color }"
+            title="クリックで外す"
+            @click="removeSelectedTag(tag.id)"
+          >
+            #{{ tag.name }} <i class="pi pi-times selected-tag-remove" />
+          </span>
+        </div>
+      </div>
       <div v-if="editingId" class="field-row">
         <div class="field">
           <label>対応完了日</label>
@@ -227,4 +321,38 @@ defineExpose({ openCreate, openEdit })
   width: 100%;
 }
 
+.tag-badge-option {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.selected-tag:hover {
+  opacity: 0.7;
+}
+
+.selected-tag-remove {
+  font-size: 0.6rem;
+  margin-left: 2px;
+}
 </style>

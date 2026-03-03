@@ -43,3 +43,17 @@ export const PRIORITY_LABELS: Record<string, string> = {
   high: '高',
   critical: '最優先'
 }
+
+/** プリセットカラー */
+export const PRESET_COLORS = [
+  { name: 'red', value: '#ef4444' },
+  { name: 'orange', value: '#f97316' },
+  { name: 'yellow', value: '#eab308' },
+  { name: 'green', value: '#22c55e' },
+  { name: 'cyan', value: '#06b6d4' },
+  { name: 'blue', value: '#3b82f6' },
+  { name: 'indigo', value: '#6366f1' },
+  { name: 'purple', value: '#a855f7' },
+  { name: 'pink', value: '#ec4899' },
+  { name: 'gray', value: '#6b7280' }
+]

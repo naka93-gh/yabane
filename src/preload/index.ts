@@ -7,6 +7,9 @@ import type {
   ExportSaveArgs,
   IssueCommentCreateArgs,
   IssueCreateArgs,
+  IssueTagCreateArgs,
+  IssueTagSyncArgs,
+  IssueTagUpdateArgs,
   IssueUpdateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
@@ -67,6 +70,14 @@ const api = {
     list: (args: { issueId: number }) => ipcRenderer.invoke('issue-comment:list', args),
     create: (args: IssueCommentCreateArgs) => ipcRenderer.invoke('issue-comment:create', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('issue-comment:delete', args)
+  },
+  issueTag: {
+    list: (args: { projectId: number }) => ipcRenderer.invoke('issue-tag:list', args),
+    create: (args: IssueTagCreateArgs) => ipcRenderer.invoke('issue-tag:create', args),
+    update: (args: IssueTagUpdateArgs) => ipcRenderer.invoke('issue-tag:update', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('issue-tag:delete', args),
+    listMap: (args: { projectId: number }) => ipcRenderer.invoke('issue-tag:listMap', args),
+    syncMap: (args: IssueTagSyncArgs) => ipcRenderer.invoke('issue-tag:syncMap', args)
   },
   member: {
     list: (args: { projectId: number; archived?: number }) =>

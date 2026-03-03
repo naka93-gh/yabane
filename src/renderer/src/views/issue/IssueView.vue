@@ -9,6 +9,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useIssueStore } from '../../stores/issue'
+import { useIssueTagStore } from '../../stores/issue-tag'
 import { useProjectStore } from '../../stores/project'
 import {
   ISSUE_STATUS_LABELS,
@@ -19,9 +20,11 @@ import {
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
 import IssueCommentDialog from './IssueCommentDialog.vue'
 import IssueDialog from './IssueDialog.vue'
+import IssueTagManageDialog from './IssueTagManageDialog.vue'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
+const tagStore = useIssueTagStore()
 const confirm = useConfirm()
 const toast = useAppToast()
 
@@ -42,9 +45,18 @@ const PRIORITY_ORDER: Record<string, number> = {
 }
 
 const sortMode = ref<'created_at' | 'due_date' | 'priority'>('created_at')
+const filterTag = ref<number | null>(null)
+
+const filterTagOptions = computed(() => [{ label: 'すべて', value: null }, ...tagStore.tagOptions])
 
 const sortedIssues = computed(() => {
-  const issues = [...store.filteredIssues]
+  let issues = [...store.filteredIssues]
+  if (filterTag.value !== null) {
+    issues = issues.filter((i) => {
+      const ids = tagStore.tagMap.get(i.id)
+      return ids?.includes(filterTag.value!)
+    })
+  }
   switch (sortMode.value) {
     case 'created_at':
       return issues.sort(
@@ -69,6 +81,7 @@ const sortedIssues = computed(() => {
 const expandedId = ref<number | null>(null)
 const issueDialog = ref<InstanceType<typeof IssueDialog> | null>(null)
 const commentDialog = ref<InstanceType<typeof IssueCommentDialog> | null>(null)
+const tagManageDialog = ref<InstanceType<typeof IssueTagManageDialog> | null>(null)
 
 function toggleExpand(id: number): void {
   expandedId.value = expandedId.value === id ? null : id
@@ -78,7 +91,7 @@ watch(
   () => projectStore.currentProject?.id,
   async (projectId) => {
     if (projectId) {
-      await store.fetchIssues(projectId)
+      await Promise.all([store.fetchIssues(projectId), tagStore.fetchAll(projectId)])
     }
   },
   { immediate: true }
@@ -128,11 +141,18 @@ const filterOwner = computed({
       <h2>課題</h2>
       <div class="issue-header-actions">
         <Button
-          v-if="store.filter.status !== null || store.filter.priority !== null || store.filter.owner !== null"
+          v-if="store.filter.status !== null || store.filter.priority !== null || store.filter.owner !== null || filterTag !== null"
           label="フィルタ解除"
           text
           size="small"
-          @click="store.clearFilter()"
+          @click="store.clearFilter(); filterTag = null"
+        />
+        <Button
+          icon="pi pi-tag"
+          label="タグ管理"
+          text
+          size="small"
+          @click="tagManageDialog?.open()"
         />
         <Button label="追加" icon="pi pi-plus" @click="issueDialog?.openCreate()" />
       </div>
@@ -164,6 +184,14 @@ const filterOwner = computed({
         placeholder="担当者"
         class="filter-select"
       />
+      <Select
+        v-model="filterTag"
+        :options="filterTagOptions"
+        option-label="label"
+        option-value="value"
+        placeholder="タグ"
+        class="filter-select"
+      />
       <div class="closed-toggle">
         <label>完了済みを表示</label>
         <ToggleSwitch v-model="store.showClosed" />
@@ -188,6 +216,7 @@ const filterOwner = computed({
         <span class="col-expand">&nbsp;</span>
         <span class="col-number">ID</span>
         <span class="col-title">タイトル</span>
+        <span class="col-tags">タグ</span>
         <span class="col-priority">優先度</span>
         <span class="col-status">ステータス</span>
         <span class="col-owner">担当者</span>
@@ -210,6 +239,16 @@ const filterOwner = computed({
           </span>
           <span class="col-number">#{{ issue.issue_number }}</span>
           <span class="col-title">{{ issue.title }}</span>
+          <span class="col-tags">
+            <span
+              v-for="tag in tagStore.getTagsByIssueId(issue.id)"
+              :key="tag.id"
+              class="tag-label"
+              :style="{ color: tag.color }"
+            >
+              #{{ tag.name }}
+            </span>
+          </span>
           <span class="col-priority">
             <span class="priority-badge" :class="`priority--${issue.priority}`">
               {{ PRIORITY_LABELS[issue.priority] }}
@@ -270,6 +309,7 @@ const filterOwner = computed({
 
     <IssueDialog ref="issueDialog" />
     <IssueCommentDialog ref="commentDialog" />
+    <IssueTagManageDialog ref="tagManageDialog" />
     <ConfirmDialog />
   </div>
 </template>
@@ -394,6 +434,22 @@ const filterOwner = computed({
   font-size: 0.7rem;
   color: var(--p-text-muted-color);
   flex-shrink: 0;
+}
+
+.col-tags {
+  width: 120px;
+  min-width: 120px;
+  padding: 0 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.tag-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .col-priority {

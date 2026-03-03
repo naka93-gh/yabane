@@ -148,6 +148,28 @@ export interface IssueCommentCreateArgs {
   body: string
 }
 
+// --- 課題タグ ---
+
+/** 課題タグ作成の引数 */
+export interface IssueTagCreateArgs {
+  projectId: number
+  name: string
+  color?: string
+}
+
+/** 課題タグ更新の引数 */
+export interface IssueTagUpdateArgs {
+  id: number
+  name?: string
+  color?: string
+}
+
+/** 課題タグマッピング同期の引数 */
+export interface IssueTagSyncArgs {
+  issueId: number
+  tagIds: number[]
+}
+
 // --- メンバー ---
 
 export interface MemberCreateArgs {
