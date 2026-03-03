@@ -1,12 +1,13 @@
+import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
-import { join } from 'node:path'
 import icon from '../../resources/icon.png?asset'
 import { closeDatabase, getDatabase } from './database'
 import { registerArrowHandlers } from './ipc/arrow'
 import { registerExportHandlers } from './ipc/export'
 import { registerImportHandlers } from './ipc/import'
 import { registerIssueHandlers } from './ipc/issue'
+import { registerIssueCommentHandlers } from './ipc/issue-comment'
 import { registerMemberHandlers } from './ipc/member'
 import { registerMilestoneHandlers } from './ipc/milestone'
 import { registerProjectHandlers } from './ipc/project'
@@ -65,6 +66,7 @@ app.whenReady().then(() => {
   registerArrowHandlers()
   registerWbsHandlers()
   registerIssueHandlers()
+  registerIssueCommentHandlers()
   registerMemberHandlers()
   registerExportHandlers()
   registerImportHandlers()

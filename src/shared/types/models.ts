@@ -99,3 +99,10 @@ export interface Member {
   sort_order: number
   created_at: string
 }
+
+export interface IssueComment {
+  id: number
+  issue_id: number
+  body: string
+  created_at: string
+}

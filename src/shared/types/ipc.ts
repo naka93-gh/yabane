@@ -140,6 +140,14 @@ export interface IssueUpdateArgs {
   resolution?: string
 }
 
+// --- 課題コメント ---
+
+/** 課題コメント作成の引数 */
+export interface IssueCommentCreateArgs {
+  issueId: number
+  body: string
+}
+
 // --- メンバー ---
 
 export interface MemberCreateArgs {

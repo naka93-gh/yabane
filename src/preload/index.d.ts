@@ -7,6 +7,7 @@ import type {
   Arrow,
   WbsItem,
   Issue,
+  IssueComment,
   Member
 } from '../shared/types/models'
 import type {
@@ -23,6 +24,7 @@ import type {
   WbsUpdateArgs,
   IssueCreateArgs,
   IssueUpdateArgs,
+  IssueCommentCreateArgs,
   MemberCreateArgs,
   MemberUpdateArgs,
   ExportSaveArgs,
@@ -77,6 +79,12 @@ interface IssueAPI {
   delete(args: { id: number }): Promise<Issue>
 }
 
+interface IssueCommentAPI {
+  list(args: { issueId: number }): Promise<IssueComment[]>
+  create(args: IssueCommentCreateArgs): Promise<IssueComment>
+  delete(args: { id: number }): Promise<IssueComment>
+}
+
 interface MemberAPI {
   list(args: { projectId: number; archived?: number }): Promise<Member[]>
   create(args: MemberCreateArgs): Promise<Member>
@@ -103,6 +111,7 @@ interface Api {
   arrow: ArrowAPI
   wbs: WbsItemAPI
   issue: IssueAPI
+  issueComment: IssueCommentAPI
   member: MemberAPI
   export: ExportAPI
   import: ImportAPI

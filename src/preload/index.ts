@@ -5,6 +5,7 @@ import type {
   ArrowUpdateArgs,
   CsvSaveArgs,
   ExportSaveArgs,
+  IssueCommentCreateArgs,
   IssueCreateArgs,
   IssueUpdateArgs,
   MemberCreateArgs,
@@ -61,6 +62,11 @@ const api = {
     create: (args: IssueCreateArgs) => ipcRenderer.invoke('issue:create', args),
     update: (args: IssueUpdateArgs) => ipcRenderer.invoke('issue:update', args),
     delete: (args: { id: number }) => ipcRenderer.invoke('issue:delete', args)
+  },
+  issueComment: {
+    list: (args: { issueId: number }) => ipcRenderer.invoke('issue-comment:list', args),
+    create: (args: IssueCommentCreateArgs) => ipcRenderer.invoke('issue-comment:create', args),
+    delete: (args: { id: number }) => ipcRenderer.invoke('issue-comment:delete', args)
   },
   member: {
     list: (args: { projectId: number; archived?: number }) =>

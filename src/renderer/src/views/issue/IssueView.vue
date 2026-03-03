@@ -17,6 +17,7 @@ import {
   PRIORITY_OPTIONS
 } from '../../utils/constants'
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
+import IssueCommentDialog from './IssueCommentDialog.vue'
 import IssueDialog from './IssueDialog.vue'
 
 const projectStore = useProjectStore()
@@ -67,6 +68,7 @@ const sortedIssues = computed(() => {
 
 const expandedId = ref<number | null>(null)
 const issueDialog = ref<InstanceType<typeof IssueDialog> | null>(null)
+const commentDialog = ref<InstanceType<typeof IssueCommentDialog> | null>(null)
 
 function toggleExpand(id: number): void {
   expandedId.value = expandedId.value === id ? null : id
@@ -226,6 +228,13 @@ const filterOwner = computed({
           <span class="col-created">{{ formatDisplayDate(issue.created_at) }}</span>
           <span class="col-actions" @click.stop>
             <Button
+              icon="pi pi-comment"
+              text
+              rounded
+              size="small"
+              @click="commentDialog?.open(issue)"
+            />
+            <Button
               icon="pi pi-pencil"
               text
               rounded
@@ -260,6 +269,7 @@ const filterOwner = computed({
     </div>
 
     <IssueDialog ref="issueDialog" />
+    <IssueCommentDialog ref="commentDialog" />
     <ConfirmDialog />
   </div>
 </template>
@@ -438,8 +448,8 @@ const filterOwner = computed({
 }
 
 .col-actions {
-  width: 64px;
-  min-width: 64px;
+  width: 96px;
+  min-width: 96px;
   display: flex;
   gap: 0;
   flex-shrink: 0;
