@@ -10,7 +10,7 @@ import { useListReorder } from '../../composables/useListReorder'
 import { useMilestoneStore } from '../../stores/milestone'
 import { useProjectStore } from '../../stores/project'
 import { formatDate, formatDisplayDate } from '../../utils/date-helper'
-import type MilestoneDialog from './MilestoneDialog.vue'
+import MilestoneDialog from './MilestoneDialog.vue'
 
 const projectStore = useProjectStore()
 const store = useMilestoneStore()

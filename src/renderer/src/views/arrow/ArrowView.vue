@@ -11,7 +11,7 @@ import type { ArrowNode } from '../../stores/arrow'
 import { useArrowStore } from '../../stores/arrow'
 import { useMilestoneStore } from '../../stores/milestone'
 import { useProjectStore } from '../../stores/project'
-import type ArrowDialog from './ArrowDialog.vue'
+import ArrowDialog from './ArrowDialog.vue'
 import GanttPanel from './GanttPanel.vue'
 
 const projectStore = useProjectStore()

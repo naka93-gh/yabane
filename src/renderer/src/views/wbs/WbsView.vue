@@ -7,7 +7,7 @@ import { useArrowStore } from '../../stores/arrow'
 import { useProjectStore } from '../../stores/project'
 import { useWbsStore, type WbsTreeRow } from '../../stores/wbs'
 import { TASK_STATUS_LABELS, TASK_STATUS_OPTIONS } from '../../utils/constants'
-import type WbsDialog from './WbsDialog.vue'
+import WbsDialog from './WbsDialog.vue'
 import WbsGantt from './WbsGantt.vue'
 
 const projectStore = useProjectStore()

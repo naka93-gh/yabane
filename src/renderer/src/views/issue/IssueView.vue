@@ -16,7 +16,7 @@ import {
   PRIORITY_OPTIONS
 } from '../../utils/constants'
 import { formatDisplayDate } from '../../utils/date-helper'
-import type IssueDialog from './IssueDialog.vue'
+import IssueDialog from './IssueDialog.vue'
 
 const projectStore = useProjectStore()
 const store = useIssueStore()
