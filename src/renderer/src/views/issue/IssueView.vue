@@ -15,7 +15,7 @@ import {
   PRIORITY_LABELS,
   PRIORITY_OPTIONS
 } from '../../utils/constants'
-import { formatDisplayDate } from '../../utils/date-helper'
+import { formatDate, formatDisplayDate } from '../../utils/date-helper'
 import IssueDialog from './IssueDialog.vue'
 
 const projectStore = useProjectStore()
@@ -99,6 +99,12 @@ function confirmDelete(issue: Issue): void {
   })
 }
 
+function isOverdue(issue: Issue): boolean {
+  if (!issue.due_date) return false
+  if (issue.status === 'resolved' || issue.status === 'closed') return false
+  return issue.due_date < formatDate(new Date())
+}
+
 const filterStatus = computed({
   get: () => store.filter.status,
   set: (v) => store.setFilter({ status: v })
@@ -169,7 +175,11 @@ const filterPriority = computed({
         <span class="col-actions">&nbsp;</span>
       </div>
       <div v-for="issue in sortedIssues" :key="issue.id" class="table-row-group">
-        <div class="table-row" @click="toggleExpand(issue.id)">
+        <div
+          class="table-row"
+          :class="{ 'table-row--overdue': isOverdue(issue) }"
+          @click="toggleExpand(issue.id)"
+        >
           <span class="col-title">
             <i
               class="pi expand-icon"
@@ -188,7 +198,9 @@ const filterPriority = computed({
             </span>
           </span>
           <span class="col-owner">{{ issue.owner ?? '' }}</span>
-          <span class="col-due">{{ formatDisplayDate(issue.due_date) }}</span>
+          <span class="col-due" :class="{ 'col-due--overdue': isOverdue(issue) }">
+            {{ formatDisplayDate(issue.due_date) }}
+          </span>
           <span class="col-created">{{ formatDisplayDate(issue.created_at) }}</span>
           <span class="col-actions" @click.stop>
             <Button
@@ -301,6 +313,14 @@ const filterPriority = computed({
   background: var(--p-content-hover-background);
 }
 
+.table-row--overdue {
+  background: color-mix(in srgb, var(--p-red-50) 40%, var(--p-content-background));
+}
+
+.table-row--overdue:hover {
+  background: color-mix(in srgb, var(--p-red-50) 60%, var(--p-content-background));
+}
+
 .col-title {
   flex: 1;
   min-width: 0;
@@ -348,6 +368,11 @@ const filterPriority = computed({
   padding: 0 8px;
   font-size: 0.8rem;
   color: var(--p-text-muted-color);
+}
+
+.col-due--overdue {
+  color: var(--p-red-500);
+  font-weight: 700;
 }
 
 .col-created {
