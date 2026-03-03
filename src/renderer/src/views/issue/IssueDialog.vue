@@ -7,7 +7,7 @@ import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useAppToast } from '../../composables/useAppToast'
 import { useOwnerSuggestions } from '../../composables/useOwnerSuggestions'
 import { useIssueStore } from '../../stores/issue'
@@ -28,9 +28,15 @@ const formOwner = ref('')
 const formPriority = ref<Issue['priority']>('medium')
 const formStatus = ref<Issue['status']>('open')
 const formDueDate = ref<Date | null>(null)
+const formResolvedAt = ref<Date | null>(null)
 const formResolution = ref('')
 
 const dialogTitle = computed(() => (editingId.value ? '課題を編集' : '課題を追加'))
+const isResolved = computed(() => formStatus.value === 'resolved' || formStatus.value === 'closed')
+
+watch(isResolved, (resolved) => {
+  if (!resolved) formResolvedAt.value = null
+})
 
 function openCreate(): void {
   editingId.value = null
@@ -40,6 +46,7 @@ function openCreate(): void {
   formPriority.value = 'medium'
   formStatus.value = 'open'
   formDueDate.value = null
+  formResolvedAt.value = null
   formResolution.value = ''
   dialogVisible.value = true
 }
@@ -52,6 +59,7 @@ function openEdit(issue: Issue): void {
   formPriority.value = issue.priority
   formStatus.value = issue.status
   formDueDate.value = issue.due_date ? new Date(issue.due_date) : null
+  formResolvedAt.value = issue.resolved_at ? new Date(issue.resolved_at) : null
   formResolution.value = issue.resolution ?? ''
   dialogVisible.value = true
 }
@@ -63,6 +71,7 @@ async function save(): Promise<void> {
   if (!projectId || !formTitle.value.trim()) return
 
   const dueDate = formDueDate.value ? formatDate(formDueDate.value) : undefined
+  const resolvedAt = formResolvedAt.value ? formatDate(formResolvedAt.value) : null
   const isEdit = !!editingId.value
 
   try {
@@ -75,6 +84,7 @@ async function save(): Promise<void> {
         priority: formPriority.value,
         status: formStatus.value,
         dueDate,
+        resolvedAt,
         resolution: formResolution.value || undefined
       })
     } else {
@@ -150,7 +160,7 @@ defineExpose({ openCreate, openEdit })
             :suggestions="suggestions"
             placeholder="担当者（任意）"
             complete-on-focus
-            class="w-full"
+            fluid
             @complete="search"
           />
         </div>
@@ -160,9 +170,22 @@ defineExpose({ openCreate, openEdit })
             v-model="formDueDate"
             date-format="yy/mm/dd"
             placeholder="期限を選択"
-            class="w-full"
+            fluid
           />
         </div>
+      </div>
+      <div v-if="editingId" class="field-row">
+        <div class="field">
+          <label>対応完了日</label>
+          <DatePicker
+            v-model="formResolvedAt"
+            date-format="yy/mm/dd"
+            placeholder="対応完了日を選択"
+            :disabled="!isResolved"
+            fluid
+          />
+        </div>
+        <div class="field" />
       </div>
       <div v-if="editingId" class="field">
         <label>対応内容</label>
@@ -185,6 +208,7 @@ defineExpose({ openCreate, openEdit })
 .dialog-form .field {
   margin-bottom: 14px;
   flex: 1;
+  min-width: 0;
 }
 
 .dialog-form .field label {
@@ -202,4 +226,5 @@ defineExpose({ openCreate, openEdit })
 .w-full {
   width: 100%;
 }
+
 </style>

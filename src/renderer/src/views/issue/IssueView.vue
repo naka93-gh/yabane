@@ -166,11 +166,14 @@ const filterPriority = computed({
     <!-- テーブル -->
     <div v-else class="issue-table">
       <div class="table-header">
+        <span class="col-expand">&nbsp;</span>
+        <span class="col-number">ID</span>
         <span class="col-title">タイトル</span>
         <span class="col-priority">優先度</span>
         <span class="col-status">ステータス</span>
         <span class="col-owner">担当者</span>
         <span class="col-due">期限</span>
+        <span class="col-resolved">対応完了日</span>
         <span class="col-created">起票日</span>
         <span class="col-actions">&nbsp;</span>
       </div>
@@ -180,13 +183,14 @@ const filterPriority = computed({
           :class="{ 'table-row--overdue': isOverdue(issue) }"
           @click="toggleExpand(issue.id)"
         >
-          <span class="col-title">
+          <span class="col-expand">
             <i
               class="pi expand-icon"
               :class="expandedId === issue.id ? 'pi-chevron-down' : 'pi-chevron-right'"
             />
-            {{ issue.title }}
           </span>
+          <span class="col-number">#{{ issue.issue_number }}</span>
+          <span class="col-title">{{ issue.title }}</span>
           <span class="col-priority">
             <span class="priority-badge" :class="`priority--${issue.priority}`">
               {{ PRIORITY_LABELS[issue.priority] }}
@@ -201,6 +205,7 @@ const filterPriority = computed({
           <span class="col-due" :class="{ 'col-due--overdue': isOverdue(issue) }">
             {{ formatDisplayDate(issue.due_date) }}
           </span>
+          <span class="col-resolved">{{ formatDisplayDate(issue.resolved_at) }}</span>
           <span class="col-created">{{ formatDisplayDate(issue.created_at) }}</span>
           <span class="col-actions" @click.stop>
             <Button
@@ -321,6 +326,24 @@ const filterPriority = computed({
   background: color-mix(in srgb, var(--p-red-50) 60%, var(--p-content-background));
 }
 
+.col-expand {
+  width: 28px;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.col-number {
+  width: 56px;
+  min-width: 56px;
+  padding: 0 8px 0 12px;
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  font-variant-numeric: tabular-nums;
+}
+
 .col-title {
   flex: 1;
   min-width: 0;
@@ -329,9 +352,6 @@ const filterPriority = computed({
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .expand-icon {
@@ -373,6 +393,14 @@ const filterPriority = computed({
 .col-due--overdue {
   color: var(--p-red-500);
   font-weight: 700;
+}
+
+.col-resolved {
+  width: 100px;
+  min-width: 100px;
+  padding: 0 8px;
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
 }
 
 .col-created {

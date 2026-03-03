@@ -1,6 +1,6 @@
-import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
+import { join } from 'node:path'
 import icon from '../../resources/icon.png?asset'
 import { closeDatabase, getDatabase } from './database'
 import { registerArrowHandlers } from './ipc/arrow'
@@ -45,6 +45,11 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.yabane')
+
+  // F12 でDevTools等の開発用ショートカットを有効にする
+  app.on('browser-window-created', (_, window) => {
+    optimizer.watchWindowShortcuts(window)
+  })
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

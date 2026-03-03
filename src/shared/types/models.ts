@@ -74,6 +74,7 @@ export interface WbsItem {
 export interface Issue {
   id: number
   project_id: number
+  issue_number: number
   title: string
   description: string | null
   owner: string | null
@@ -81,6 +82,7 @@ export interface Issue {
   status: 'open' | 'in_progress' | 'resolved' | 'closed'
   due_date: string | null
   resolution: string | null
+  resolved_at: string | null
   created_at: string
   updated_at: string
 }

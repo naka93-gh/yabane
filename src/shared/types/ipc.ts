@@ -136,6 +136,7 @@ export interface IssueUpdateArgs {
   priority?: Issue['priority']
   status?: Issue['status']
   dueDate?: string
+  resolvedAt?: string | null
   resolution?: string
 }
 

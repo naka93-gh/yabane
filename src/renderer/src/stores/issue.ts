@@ -59,6 +59,7 @@ export const useIssueStore = defineStore('issue', () => {
     priority?: Issue['priority']
     status?: Issue['status']
     dueDate?: string
+    resolvedAt?: string | null
     resolution?: string
   }): Promise<void> {
     const updated = await repository.updateIssue(data)

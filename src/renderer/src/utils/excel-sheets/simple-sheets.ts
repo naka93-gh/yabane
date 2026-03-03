@@ -58,7 +58,17 @@ export function buildMilestoneSheet(milestones: Milestone[]): WS {
 
 /** 課題シートを構築する */
 export function buildIssueSheet(issues: Issue[]): WS {
-  const headers = ['タイトル', '説明', '優先度', 'ステータス', '担当者', '期限', '対応内容']
+  const headers = [
+    'ID',
+    'タイトル',
+    '説明',
+    '優先度',
+    'ステータス',
+    '担当者',
+    '期限',
+    '対応完了日',
+    '対応内容'
+  ]
   const ws: WS = {}
 
   headers.forEach((h, c) => {
@@ -67,17 +77,19 @@ export function buildIssueSheet(issues: Issue[]): WS {
 
   issues.forEach((issue, i) => {
     const r = i + 1
-    ws[XLSX.utils.encode_cell({ r, c: 0 })] = cell(issue.title)
-    ws[XLSX.utils.encode_cell({ r, c: 1 })] = cell(issue.description)
-    ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(
+    ws[XLSX.utils.encode_cell({ r, c: 0 })] = cell(`#${issue.issue_number}`)
+    ws[XLSX.utils.encode_cell({ r, c: 1 })] = cell(issue.title)
+    ws[XLSX.utils.encode_cell({ r, c: 2 })] = cell(issue.description)
+    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(
       PRIORITY_LABELS[issue.priority] ?? issue.priority
     )
-    ws[XLSX.utils.encode_cell({ r, c: 3 })] = cell(
+    ws[XLSX.utils.encode_cell({ r, c: 4 })] = cell(
       ISSUE_STATUS_LABELS[issue.status] ?? issue.status
     )
-    ws[XLSX.utils.encode_cell({ r, c: 4 })] = cell(issue.owner)
-    ws[XLSX.utils.encode_cell({ r, c: 5 })] = cell(issue.due_date)
-    ws[XLSX.utils.encode_cell({ r, c: 6 })] = cell(issue.resolution)
+    ws[XLSX.utils.encode_cell({ r, c: 5 })] = cell(issue.owner)
+    ws[XLSX.utils.encode_cell({ r, c: 6 })] = cell(issue.due_date)
+    ws[XLSX.utils.encode_cell({ r, c: 7 })] = cell(issue.resolved_at)
+    ws[XLSX.utils.encode_cell({ r, c: 8 })] = cell(issue.resolution)
   })
 
   ws['!ref'] = XLSX.utils.encode_range({
@@ -85,9 +97,11 @@ export function buildIssueSheet(issues: Issue[]): WS {
     e: { r: issues.length, c: headers.length - 1 }
   })
   ws['!cols'] = [
+    { wch: 6 },
     { wch: 30 },
     { wch: 40 },
     { wch: 10 },
+    { wch: 12 },
     { wch: 12 },
     { wch: 12 },
     { wch: 12 },

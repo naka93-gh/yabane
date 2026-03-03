@@ -97,3 +97,11 @@ body {
   background: var(--p-red-100);
   color: var(--p-red-700);
 }
+
+/* === Input 共通: 高さを Select に揃える === */
+.p-autocomplete-input,
+.p-datepicker-input,
+.p-inputtext {
+  padding-block: 0.5rem;
+  padding-inline: 0.75rem;
+}

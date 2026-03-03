@@ -13,13 +13,19 @@ export function listIssues(projectId: number): Issue[] {
 /** 課題を作成する */
 export function createIssue(args: IssueCreateArgs): Issue {
   const db = getDatabase()
+  const row = db
+    .prepare('SELECT COALESCE(MAX(issue_number), 0) AS max_num FROM issue WHERE project_id = ?')
+    .get(args.projectId) as { max_num: number }
+  const issueNumber = row.max_num + 1
+
   return db
     .prepare(
-      `INSERT INTO issue (project_id, title, description, owner, priority, status, due_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`
+      `INSERT INTO issue (project_id, issue_number, title, description, owner, priority, status, due_date)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`
     )
     .get(
       args.projectId,
+      issueNumber,
       args.title,
       args.description ?? null,
       args.owner ?? null,
@@ -44,13 +50,37 @@ export function updateIssue(args: IssueUpdateArgs): Issue | null {
   const dueDate = args.dueDate !== undefined ? args.dueDate : issue.due_date
   const resolution = args.resolution !== undefined ? args.resolution : issue.resolution
 
+  let resolvedAt: string | null
+  if (args.resolvedAt !== undefined) {
+    resolvedAt = args.resolvedAt
+  } else {
+    const isClosed = status === 'resolved' || status === 'closed'
+    const wasClosed = issue.status === 'resolved' || issue.status === 'closed'
+    resolvedAt = issue.resolved_at
+    if (isClosed && !wasClosed) {
+      resolvedAt = new Date().toISOString().slice(0, 10)
+    } else if (!isClosed && wasClosed) {
+      resolvedAt = null
+    }
+  }
+
   return db
     .prepare(
       `UPDATE issue SET title = ?, description = ?, owner = ?, priority = ?, status = ?,
-       due_date = ?, resolution = ?, updated_at = datetime('now')
+       due_date = ?, resolution = ?, resolved_at = ?, updated_at = datetime('now')
        WHERE id = ? RETURNING *`
     )
-    .get(title, description, owner, priority, status, dueDate, resolution, args.id) as Issue
+    .get(
+      title,
+      description,
+      owner,
+      priority,
+      status,
+      dueDate,
+      resolution,
+      resolvedAt,
+      args.id
+    ) as Issue
 }
 
 /** 課題を削除する */

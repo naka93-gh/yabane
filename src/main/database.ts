@@ -46,6 +46,28 @@ function migrate(db: Database.Database): void {
   if (!milestoneNames.has('completed')) {
     db.exec('ALTER TABLE milestone ADD COLUMN completed INTEGER NOT NULL DEFAULT 0')
   }
+
+  const issueCols = db.pragma('table_info(issue)') as { name: string }[]
+  const issueNames = new Set(issueCols.map((c) => c.name))
+
+  if (!issueNames.has('resolved_at')) {
+    db.exec('ALTER TABLE issue ADD COLUMN resolved_at TEXT')
+  }
+  if (!issueNames.has('issue_number')) {
+    db.exec('ALTER TABLE issue ADD COLUMN issue_number INTEGER NOT NULL DEFAULT 0')
+    // 既存レコードにプロジェクト内連番を振る
+    const rows = db.prepare('SELECT id, project_id FROM issue ORDER BY project_id, id').all() as {
+      id: number
+      project_id: number
+    }[]
+    const counters = new Map<number, number>()
+    const stmt = db.prepare('UPDATE issue SET issue_number = ? WHERE id = ?')
+    for (const row of rows) {
+      const n = (counters.get(row.project_id) ?? 0) + 1
+      counters.set(row.project_id, n)
+      stmt.run(n, row.id)
+    }
+  }
 }
 
 /** アプリ終了時に呼ぶ */

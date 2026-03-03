@@ -74,15 +74,17 @@ CREATE TABLE IF NOT EXISTS wbs_item (
 );
 
 CREATE TABLE IF NOT EXISTS issue (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  project_id  INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
-  title       TEXT NOT NULL,
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id   INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+  issue_number INTEGER NOT NULL DEFAULT 0,
+  title        TEXT NOT NULL,
   description TEXT,
   owner       TEXT,
   priority    TEXT NOT NULL DEFAULT 'medium',
   status      TEXT NOT NULL DEFAULT 'open',
   due_date    TEXT,
   resolution  TEXT,
+  resolved_at TEXT,
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
