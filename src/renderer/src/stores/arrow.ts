@@ -1,7 +1,7 @@
 import type { Arrow } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import * as api from '../api/arrow'
+import * as repository from '../repositories/arrow'
 import { calcDateRange } from '../utils/gantt-helper'
 import { useProjectStore } from './project'
 
@@ -33,6 +33,7 @@ function flattenTree(arrows: Arrow[], collapsedIds?: Set<number>): ArrowNode[] {
   return result
 }
 
+// TODO: Store 間連携が複雑化した場合、Service 層への切り出しを検討（useProjectStore に依存）
 export const useArrowStore = defineStore('arrow', () => {
   const arrows = ref<Arrow[]>([])
   const loading = ref(false)
@@ -68,7 +69,7 @@ export const useArrowStore = defineStore('arrow', () => {
   async function fetchArrows(projectId: number): Promise<void> {
     loading.value = true
     try {
-      arrows.value = await api.listArrows({ projectId })
+      arrows.value = await repository.listArrows({ projectId })
     } finally {
       loading.value = false
     }
@@ -84,7 +85,7 @@ export const useArrowStore = defineStore('arrow', () => {
     owner?: string
     status?: Arrow['status']
   }): Promise<Arrow> {
-    const created = await api.createArrow(data)
+    const created = await repository.createArrow(data)
     arrows.value.push(created)
     return created
   }
@@ -99,14 +100,14 @@ export const useArrowStore = defineStore('arrow', () => {
     status?: Arrow['status']
     parentId?: number | null
   }): Promise<void> {
-    const updated = await api.updateArrow(data)
+    const updated = await repository.updateArrow(data)
     const idx = arrows.value.findIndex((a) => a.id === data.id)
     if (idx !== -1) arrows.value[idx] = updated
   }
 
   /** 矢羽を削除する（子孫もローカル状態から除去） */
   async function removeArrow(id: number): Promise<void> {
-    await api.deleteArrow({ id })
+    await repository.deleteArrow({ id })
     // CASCADE で子も削除されるためフィルタ
     const removedIds = collectDescendantIds(id)
     arrows.value = arrows.value.filter((a) => !removedIds.has(a.id))
@@ -130,7 +131,7 @@ export const useArrowStore = defineStore('arrow', () => {
 
   /** 並び順を更新しローカル状態に反映する（兄弟 ID のみ渡す） */
   async function reorder(ids: number[]): Promise<void> {
-    await api.reorderArrows({ ids })
+    await repository.reorderArrows({ ids })
     const orderMap = new Map(ids.map((id, i) => [id, i]))
     arrows.value = arrows.value
       .map((a) => (orderMap.has(a.id) ? { ...a, sort_order: orderMap.get(a.id)! } : a))

@@ -1,7 +1,7 @@
 import type { Purpose } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as api from '../api/purpose'
+import * as repository from '../repositories/purpose'
 
 export const usePurposeStore = defineStore('purpose', () => {
   const purpose = ref<Purpose | null>(null)
@@ -11,7 +11,7 @@ export const usePurposeStore = defineStore('purpose', () => {
   async function fetchPurpose(projectId: number): Promise<void> {
     loading.value = true
     try {
-      purpose.value = await api.getPurpose({ projectId })
+      purpose.value = await repository.getPurpose({ projectId })
     } finally {
       loading.value = false
     }
@@ -26,7 +26,7 @@ export const usePurposeStore = defineStore('purpose', () => {
     out_of_scope?: string
     assumption?: string
   }): Promise<void> {
-    purpose.value = await api.savePurpose(data)
+    purpose.value = await repository.savePurpose(data)
   }
 
   return {

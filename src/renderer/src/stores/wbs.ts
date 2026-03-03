@@ -1,7 +1,7 @@
 import type { Arrow, WbsItem } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import * as api from '../api/wbs'
+import * as repository from '../repositories/wbs'
 import { calcDateRange } from '../utils/gantt-helper'
 import { useArrowStore } from './arrow'
 import { useProjectStore } from './project'
@@ -27,6 +27,7 @@ interface WbsFilter {
   owner: string | null
 }
 
+// TODO: Store 間連携が複雑化した場合、Service 層への切り出しを検討（useArrowStore・useProjectStore に依存）
 export const useWbsStore = defineStore('wbs', () => {
   const items = ref<WbsItem[]>([])
   const loading = ref(false)
@@ -183,7 +184,7 @@ export const useWbsStore = defineStore('wbs', () => {
   async function fetchItems(projectId: number): Promise<void> {
     loading.value = true
     try {
-      items.value = await api.listWbsItems({ projectId })
+      items.value = await repository.listWbsItems({ projectId })
     } finally {
       loading.value = false
     }
@@ -200,7 +201,7 @@ export const useWbsStore = defineStore('wbs', () => {
     progress?: number
     estimatedHours?: number
   }): Promise<WbsItem> {
-    const created = await api.createWbsItem(data)
+    const created = await repository.createWbsItem(data)
     items.value.push(created)
     return created
   }
@@ -218,20 +219,20 @@ export const useWbsStore = defineStore('wbs', () => {
     estimatedHours?: number
     actualHours?: number
   }): Promise<void> {
-    const updated = await api.updateWbsItem(data)
+    const updated = await repository.updateWbsItem(data)
     const idx = items.value.findIndex((i) => i.id === data.id)
     if (idx !== -1) items.value[idx] = updated
   }
 
   /** WBS タスクを削除する */
   async function removeItem(id: number): Promise<void> {
-    await api.deleteWbsItem({ id })
+    await repository.deleteWbsItem({ id })
     items.value = items.value.filter((i) => i.id !== id)
   }
 
   /** タスクを並べ替える */
   async function reorder(ids: number[]): Promise<void> {
-    await api.reorderWbsItems({ ids })
+    await repository.reorderWbsItems({ ids })
     const orderMap = new Map(ids.map((id, i) => [id, i]))
     items.value = items.value
       .map((i) => (orderMap.has(i.id) ? { ...i, sort_order: orderMap.get(i.id)! } : i))

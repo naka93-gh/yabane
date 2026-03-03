@@ -2,7 +2,7 @@ import type { ProjectCreateArgs, ProjectUpdateArgs } from '@shared/types/ipc'
 import type { Project } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as api from '../api/project'
+import * as repository from '../repositories/project'
 import { useMemberStore } from './member'
 
 export const useProjectStore = defineStore('project', () => {
@@ -10,29 +10,29 @@ export const useProjectStore = defineStore('project', () => {
   const currentProject = ref<Project | null>(null)
   /** プロジェクト一覧を取得してストアに反映する */
   async function fetchProjects(status?: Project['status']): Promise<void> {
-    projects.value = await api.listProjects(status ? { status } : undefined)
+    projects.value = await repository.listProjects(status ? { status } : undefined)
   }
 
   /** プロジェクトを選択して currentProject に設定する */
   async function selectProject(id: number): Promise<void> {
-    const project = await api.getProject({ id })
+    const project = await repository.getProject({ id })
     if (project) {
       currentProject.value = project
-      // メンバー一覧をバックグラウンドで取得
+      // TODO: Store 間連携が複雑化した場合、Service 層への切り出しを検討
       useMemberStore().fetchMembers(id)
     }
   }
 
   /** プロジェクトを作成し一覧を再取得する */
   async function createProject(args: ProjectCreateArgs): Promise<Project> {
-    const project = await api.createProject(args)
+    const project = await repository.createProject(args)
     await fetchProjects()
     return project
   }
 
   /** プロジェクトを更新し一覧を再取得する */
   async function updateProject(id: number, data: Omit<ProjectUpdateArgs, 'id'>): Promise<void> {
-    await api.updateProject({ id, ...data })
+    await repository.updateProject({ id, ...data })
     await fetchProjects()
     if (currentProject.value?.id === id) {
       await selectProject(id)
@@ -41,7 +41,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** プロジェクトをアーカイブする */
   async function archiveProject(id: number): Promise<void> {
-    await api.archiveProject({ id })
+    await repository.archiveProject({ id })
     if (currentProject.value?.id === id) {
       currentProject.value = null
     }
@@ -50,7 +50,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** プロジェクトのアーカイブを解除する */
   async function unarchiveProject(id: number): Promise<void> {
-    await api.unarchiveProject({ id })
+    await repository.unarchiveProject({ id })
   }
 
   return {

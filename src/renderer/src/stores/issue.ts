@@ -1,7 +1,7 @@
 import type { Issue } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import * as api from '../api/issue'
+import * as repository from '../repositories/issue'
 
 interface IssueFilter {
   status: string | null
@@ -29,7 +29,7 @@ export const useIssueStore = defineStore('issue', () => {
   async function fetchIssues(projectId: number): Promise<void> {
     loading.value = true
     try {
-      issues.value = await api.listIssues({ projectId })
+      issues.value = await repository.listIssues({ projectId })
     } finally {
       loading.value = false
     }
@@ -45,7 +45,7 @@ export const useIssueStore = defineStore('issue', () => {
     status?: Issue['status']
     dueDate?: string
   }): Promise<Issue> {
-    const created = await api.createIssue(data)
+    const created = await repository.createIssue(data)
     issues.value.unshift(created)
     return created
   }
@@ -61,14 +61,14 @@ export const useIssueStore = defineStore('issue', () => {
     dueDate?: string
     resolution?: string
   }): Promise<void> {
-    const updated = await api.updateIssue(data)
+    const updated = await repository.updateIssue(data)
     const idx = issues.value.findIndex((i) => i.id === data.id)
     if (idx !== -1) issues.value[idx] = updated
   }
 
   /** 課題を削除する */
   async function removeIssue(id: number): Promise<void> {
-    await api.deleteIssue({ id })
+    await repository.deleteIssue({ id })
     issues.value = issues.value.filter((i) => i.id !== id)
   }
 

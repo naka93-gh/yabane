@@ -1,7 +1,7 @@
 import type { Milestone } from '@shared/types/models'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import * as api from '../api/milestone'
+import * as repository from '../repositories/milestone'
 
 export const useMilestoneStore = defineStore('milestone', () => {
   const milestones = ref<Milestone[]>([])
@@ -11,7 +11,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
   async function fetchMilestones(projectId: number): Promise<void> {
     loading.value = true
     try {
-      milestones.value = await api.listMilestones({ projectId })
+      milestones.value = await repository.listMilestones({ projectId })
     } finally {
       loading.value = false
     }
@@ -25,7 +25,7 @@ export const useMilestoneStore = defineStore('milestone', () => {
     dueDate?: string
     color?: string
   }): Promise<Milestone> {
-    const created = await api.createMilestone(data)
+    const created = await repository.createMilestone(data)
     milestones.value.push(created)
     return created
   }
@@ -38,20 +38,20 @@ export const useMilestoneStore = defineStore('milestone', () => {
     dueDate?: string
     color?: string
   }): Promise<void> {
-    const updated = await api.updateMilestone(data)
+    const updated = await repository.updateMilestone(data)
     const idx = milestones.value.findIndex((m) => m.id === data.id)
     if (idx !== -1) milestones.value[idx] = updated
   }
 
   /** マイルストーンを削除する */
   async function removeMilestone(id: number): Promise<void> {
-    await api.deleteMilestone({ id })
+    await repository.deleteMilestone({ id })
     milestones.value = milestones.value.filter((m) => m.id !== id)
   }
 
   /** 並び順を更新しローカル状態に反映する */
   async function reorder(ids: number[]): Promise<void> {
-    await api.reorderMilestones({ ids })
+    await repository.reorderMilestones({ ids })
     const map = new Map(milestones.value.map((m) => [m.id, m]))
     milestones.value = ids.map((id, i) => {
       const m = map.get(id)!
